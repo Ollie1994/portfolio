@@ -482,3 +482,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Personal working notes - local only, never committed.
+toDo.md
+todo.md
+TODO.md
