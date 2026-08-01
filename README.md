@@ -5,8 +5,13 @@ hosted on Azure Static Web Apps and deployed by GitHub Actions.
 
 **Live:** https://ambitious-coast-0312a8e0f.7.azurestaticapps.net
 
-> Status: infrastructure complete, content in progress. The pipeline, hosting, API and test
-> setup are working end to end; the site itself is still the starting scaffold.
+> Status: infrastructure complete, content in progress. The pipeline, hosting, API and tests
+> work end to end. The About and Projects sections are still placeholders.
+>
+> **Known gap:** the contact form validates and accepts submissions, but no delivery
+> mechanism is wired up yet — messages are written to the log and go no further. Picking a
+> provider (Azure Communication Services or SendGrid) and enabling Application Insights are
+> the two steps that make it real.
 
 ## Architecture
 

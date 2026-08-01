@@ -30,6 +30,11 @@ jobs:
       - name: Test
         run: dotnet test Portfolio.sln --configuration Release --no-build --verbosity normal
 
+      - name: Check formatting
+        # EnforceCodeStyleInBuild is off so style never fails a local build.
+        # CI is where .editorconfig is actually enforced.
+        run: dotnet format Portfolio.sln --verify-no-changes --verbosity minimal
+
       - name: Check for vulnerable packages
         # Advisory only - a new CVE should not break an unrelated PR, but it
         # should be visible in the log.

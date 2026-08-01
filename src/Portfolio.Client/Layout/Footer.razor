@@ -16,7 +16,7 @@
             <ul class="tech-list">
                 @foreach (var tech in Stack)
                 {
-                    <li class="tech-pill" style="--accent: @tech.Accent">@tech.Name</li>
+                    <li class="tech-pill @tech.AccentClass">@tech.Name</li>
                 }
             </ul>
         </div>
@@ -36,13 +36,15 @@
 </footer>
 
 @code {
+    // Accent is a class name rather than an inline style: the CSP sets
+    // style-src 'self', so style attributes are blocked by design.
     private static readonly TechItem[] Stack =
     [
-        new("C# / .NET 8", "var(--ms-blue)"),
-        new("Blazor WebAssembly", "var(--ms-red)"),
-        new("Azure Functions", "var(--ms-yellow)"),
-        new("Azure Static Web Apps", "var(--ms-green)")
+        new("C# / .NET 8", "accent-blue"),
+        new("Blazor WebAssembly", "accent-red"),
+        new("Azure Functions", "accent-yellow"),
+        new("Azure Static Web Apps", "accent-green")
     ];
 
-    private sealed record TechItem(string Name, string Accent);
+    private sealed record TechItem(string Name, string AccentClass);
 }

@@ -209,6 +209,27 @@ code {
     flex: none;
 }
 
+/* Accent classes rather than inline style attributes — the CSP sets
+   style-src 'self', which blocks style="" by design. */
+.accent-red { --accent: var(--ms-red); }
+.accent-green { --accent: var(--ms-green); }
+.accent-blue { --accent: var(--ms-blue); }
+.accent-yellow { --accent: var(--ms-yellow); }
+
+.not-found {
+    padding-block: clamp(3rem, 9vw, 6rem);
+    max-width: 40rem;
+}
+
+.not-found-code {
+    margin: 0;
+    font-size: clamp(3.5rem, 12vw, 6rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.04em;
+    color: var(--grey-60);
+}
+
 /* ==========================================================================
    Blazor framework UI
    ========================================================================== */

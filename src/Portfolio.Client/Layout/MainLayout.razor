@@ -17,7 +17,24 @@
 </header>
 
 <main id="main-content" class="site-main">
-    @Body
+    @* Contains a component failure to the content region instead of taking the
+       whole app down. Without this, one unhandled exception anywhere leaves the
+       user on a blank page with only the yellow error bar. *@
+    <ErrorBoundary>
+        <ChildContent>
+            @Body
+        </ChildContent>
+        <ErrorContent>
+            <section class="container error-panel">
+                <h1>Something went wrong</h1>
+                <p>
+                    That part of the page failed to load. Reloading usually fixes it —
+                    if it doesn't, the problem is at my end.
+                </p>
+                <a class="btn btn-primary" href="/">Back to the start</a>
+            </section>
+        </ErrorContent>
+    </ErrorBoundary>
 </main>
 
 <Footer />

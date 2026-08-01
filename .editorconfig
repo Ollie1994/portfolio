@@ -43,12 +43,35 @@ dotnet_sort_system_directives_first = true
 
 #### Naming ####
 
+# Rules are evaluated in order and the first match wins, so the static and const
+# cases must come before the general private-field rule. .NET convention is
+# PascalCase for private const and static readonly fields, _camelCase only for
+# private instance fields.
+
+dotnet_naming_rule.private_const_fields_pascal.severity = warning
+dotnet_naming_rule.private_const_fields_pascal.symbols = private_const_fields
+dotnet_naming_rule.private_const_fields_pascal.style = pascal_case
+
+dotnet_naming_symbols.private_const_fields.applicable_kinds = field
+dotnet_naming_symbols.private_const_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_const_fields.required_modifiers = const
+
+dotnet_naming_rule.private_static_fields_pascal.severity = warning
+dotnet_naming_rule.private_static_fields_pascal.symbols = private_static_fields
+dotnet_naming_rule.private_static_fields_pascal.style = pascal_case
+
+dotnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+
 dotnet_naming_rule.private_fields_underscore.severity = warning
 dotnet_naming_rule.private_fields_underscore.symbols = private_fields
 dotnet_naming_rule.private_fields_underscore.style = underscore_camel
 
 dotnet_naming_symbols.private_fields.applicable_kinds = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
 
 dotnet_naming_style.underscore_camel.required_prefix = _
 dotnet_naming_style.underscore_camel.capitalization = camel_case

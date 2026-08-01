@@ -1,0 +1,165 @@
+@using Portfolio.Client.Services
+@using Portfolio.Shared
+@using Portfolio.Shared.Contact
+@inject ContactApiClient Contacts
+
+@if (_sent)
+{
+    <div class="form-success" role="status">
+        <h3>Message sent</h3>
+        <p>Thanks for getting in touch — I'll reply to @_sentTo as soon as I can.</p>
+        <button type="button" class="btn btn-secondary" @onclick="Reset">Send another</button>
+    </div>
+}
+else
+{
+    <form class="contact-form" @onsubmit="SubmitAsync" @onsubmit:preventDefault>
+
+        @if (_failed)
+        {
+            <p class="form-error" role="alert">
+                Something went wrong sending that. Please try again in a moment.
+            </p>
+        }
+
+        <div class="field">
+            <label for="contact-name">Name</label>
+            <input id="contact-name"
+                   type="text"
+                   maxlength="@ContactLimits.NameMaxLength"
+                   autocomplete="name"
+                   aria-describedby="@(ErrorFor(nameof(ContactRequest.Name)) is null ? null : "contact-name-error")"
+                   aria-invalid="@(ErrorFor(nameof(ContactRequest.Name)) is not null)"
+                   @bind="_name"
+                   @bind:event="oninput" />
+            @if (ErrorFor(nameof(ContactRequest.Name)) is { } nameError)
+            {
+                <p id="contact-name-error" class="field-error">@nameError</p>
+            }
+        </div>
+
+        <div class="field">
+            <label for="contact-email">Email</label>
+            <input id="contact-email"
+                   type="email"
+                   maxlength="@ContactLimits.EmailMaxLength"
+                   autocomplete="email"
+                   aria-describedby="@(ErrorFor(nameof(ContactRequest.Email)) is null ? null : "contact-email-error")"
+                   aria-invalid="@(ErrorFor(nameof(ContactRequest.Email)) is not null)"
+                   @bind="_email"
+                   @bind:event="oninput" />
+            @if (ErrorFor(nameof(ContactRequest.Email)) is { } emailError)
+            {
+                <p id="contact-email-error" class="field-error">@emailError</p>
+            }
+        </div>
+
+        <div class="field">
+            <label for="contact-message">Message</label>
+            <textarea id="contact-message"
+                      rows="6"
+                      maxlength="@ContactLimits.MessageMaxLength"
+                      aria-describedby="contact-message-count @(ErrorFor(nameof(ContactRequest.Message)) is null ? "" : "contact-message-error")"
+                      aria-invalid="@(ErrorFor(nameof(ContactRequest.Message)) is not null)"
+                      @bind="_message"
+                      @bind:event="oninput"></textarea>
+            <p id="contact-message-count" class="field-hint">
+                @_message.Length / @ContactLimits.MessageMaxLength
+            </p>
+            @if (ErrorFor(nameof(ContactRequest.Message)) is { } messageError)
+            {
+                <p id="contact-message-error" class="field-error">@messageError</p>
+            }
+        </div>
+
+        @* Honeypot. Hidden from people, tempting to naive bots. aria-hidden and
+           tabindex keep it out of the way of screen readers and keyboard users. *@
+        <div class="honeypot" aria-hidden="true">
+            <label for="contact-website">Website</label>
+            <input id="contact-website" type="text" tabindex="-1" autocomplete="off" @bind="_website" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" disabled="@_sending">
+            @(_sending ? "Sending…" : "Send message")
+        </button>
+    </form>
+}
+
+@code {
+    private string _name = string.Empty;
+    private string _email = string.Empty;
+    private string _message = string.Empty;
+    private string _website = string.Empty;
+
+    private bool _sending;
+    private bool _sent;
+    private bool _failed;
+    private string _sentTo = string.Empty;
+    private IReadOnlyList<ValidationError> _errors = [];
+
+    private string? ErrorFor(string field) =>
+        _errors.FirstOrDefault(e => e.Field == field)?.Message;
+
+    private async Task SubmitAsync()
+    {
+        if (_sending)
+        {
+            return;
+        }
+
+        _failed = false;
+
+        var request = new ContactRequest
+        {
+            Name = _name,
+            Email = _email,
+            Message = _message,
+            Website = _website
+        };
+
+        // Client-side validation is for immediate feedback only. The API runs the
+        // same rules and its answer is the authoritative one.
+        var validation = ContactValidator.Validate(request);
+        if (!validation.IsValid)
+        {
+            _errors = validation.Errors;
+            return;
+        }
+
+        _errors = [];
+        _sending = true;
+
+        try
+        {
+            var result = await Contacts.SendAsync(request);
+
+            switch (result.Status)
+            {
+                case ContactSendStatus.Sent:
+                    _sentTo = request.Email;
+                    _sent = true;
+                    break;
+
+                case ContactSendStatus.Invalid:
+                    _errors = result.Errors;
+                    break;
+
+                default:
+                    _failed = true;
+                    break;
+            }
+        }
+        finally
+        {
+            _sending = false;
+        }
+    }
+
+    private void Reset()
+    {
+        _name = _email = _message = _website = string.Empty;
+        _errors = [];
+        _sent = false;
+        _failed = false;
+    }
+}

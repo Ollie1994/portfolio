@@ -215,6 +215,51 @@ it does not evaluate MSBuild, so it cannot see the property inherited from
 - Prefer clear over clever. This is a portfolio: the code is read by people deciding whether
   to interview you.
 
+## Definition of done
+
+A change isn't finished until all of these hold. Check them before saying it's done.
+
+- `dotnet build Portfolio.sln` — clean, **zero warnings** (warnings are errors anyway)
+- `dotnet test Portfolio.sln` — passing, and new non-trivial logic came with tests
+- `dotnet format Portfolio.sln --verify-no-changes` — clean, because CI runs it
+- No new analyzer suppression without a written justification in `.editorconfig`
+- No secret, key or personal data added to `Portfolio.Client`, to logs, or to git
+- If a rule or constraint changed, this file was updated in the same commit
+- Commit message says *why*, not just what
+
+## Established patterns
+
+Use these rather than inventing a parallel approach. Consistency is worth more here
+than any individual improvement.
+
+**Validation → `ValidationResult`.** `Portfolio.Shared.ValidationResult` is the one shape for
+expected failures. Rules live in a static validator in `Shared` (e.g. `ContactValidator`) as a
+pure function with no I/O, so the client and API run identical rules. The client's run is for
+immediate feedback; **the API's run is authoritative**, because the client can be bypassed.
+
+**Service → outcome enum + result record.** A service returns an outcome (`Accepted`,
+`Invalid`, `Discarded`) plus any validation detail — see `ContactSubmissionResult`. The
+function maps outcomes to status codes and does nothing else.
+
+**Functions are adapters.** Read and bound the input, delegate, map the result. If a function
+class needs a test, the logic is in the wrong place.
+
+**Typed API clients.** Components inject a client from `Client/Services/` (e.g.
+`ContactApiClient`), never `HttpClient`. The client owns deserialisation and turns every
+failure mode into a result the component can render — components should never catch
+`HttpRequestException`.
+
+**Bound every input.** Cap request bodies before deserialising, and cap every string field.
+`ContactLimits` holds the numbers so the form's `maxlength` and the server's validation cannot
+drift apart.
+
+**Guard public entry points.** `ArgumentNullException.ThrowIfNull` on public service methods.
+A null there is a programming error, not user input — that distinction is why it throws while
+invalid input returns a result.
+
+**Constructor injection only.** No static mutable state — Functions reuses instances across
+invocations, so static state is a correctness bug, not just a style preference.
+
 ## Design system
 
 The visual language is Microsoft's, chosen to signal the tech stack. All tokens are defined
