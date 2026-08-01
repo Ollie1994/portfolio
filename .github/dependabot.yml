@@ -12,9 +12,17 @@ updates:
         patterns: ["*"]
         update-types: ["minor", "patch"]
     ignore:
-      # Major .NET bumps are a deliberate migration gated on Azure Static Web
-      # Apps supporting the runtime - never an automatic PR. See CLAUDE.md.
+      # Framework-tied packages: their major version tracks the .NET version,
+      # so a major bump silently drags the project off net8.0. Moving to .NET 10
+      # is a deliberate migration gated on Azure Static Web Apps supporting
+      # dotnet-isolated:10.0 - never an automatic PR. See CLAUDE.md.
+      - dependency-name: "Microsoft.AspNetCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types: ["version-update:semver-major"]
       - dependency-name: "Microsoft.NET.Sdk*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.*"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
