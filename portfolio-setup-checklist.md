@@ -40,8 +40,8 @@
 - [x] **Shared class library project** — data models shared between Blazor client and Functions API — `src/Portfolio.Shared`
 - [x] **`staticwebapp.config.json`** — routing/navigation fallback + `"apiRuntime": "dotnet-isolated:8.0"`; must live in the Blazor client's `wwwroot/` folder (see reminders below), **not** at the repo root — verified present in `dotnet publish` output
 - [x] **`global.json`** at the repo root — pins the SDK to 8.x so a newer SDK installed later can't silently drift the build off .NET 8 — `8.0.0` + `rollForward: latestMinor` (floor, **not** an exact pin: Azure's Oryx build server ships 8.0.420, so pinning an exact local patch version fails CI)
-- [ ] **Azure Static Web Apps resource** — hosting resource in the Azure Portal (Free SKU), connected to the GitHub repo
-- [ ] **GitHub Actions workflow file** — auto-generated on SWA creation; lives in `.github/workflows/`
+- [x] **Azure Static Web Apps resource** — hosting resource in the Azure Portal (Free SKU), connected to the GitHub repo — East US 2, live at [ambitious-coast-0312a8e0f.7.azurestaticapps.net](https://ambitious-coast-0312a8e0f.7.azurestaticapps.net)
+- [x] **GitHub Actions workflow file** — auto-generated on SWA creation; lives in `.github/workflows/` — `azure-static-web-apps-ambitious-coast-0312a8e0f.yml`, deploy verified green
 
 ## 5. For building well with Claude Code
 
@@ -64,6 +64,23 @@
 - `global.json`: `{ "sdk": { "version": "8.0.0", "rollForward": "latestMinor" } }` — keeps `dotnet new` / `dotnet build` on .NET 8 regardless of what else is installed on the machine.
 - **`staticwebapp.config.json` location:** it must end up in the *published output* root, so for Blazor WebAssembly it belongs in the client project's `wwwroot/` folder (e.g. `src/Portfolio.Client/wwwroot/`), where the build copies it out. Placed at the repo root it is silently ignored — the app works locally and only breaks on deep-link refresh in production, with the SPA navigation fallback gone.
 - Managed Functions on the free tier support **HTTP triggers only** (fine for a contact form or data endpoint; cron/stateful workflows would need the paid Standard plan + "bring your own Functions").
+
+### Deployment gotchas actually hit (first deploy took 3 attempts)
+
+1. **Don't pin `global.json` to an exact patch version.** `dotnet new globaljson --sdk-version`
+   writes whatever is installed locally (`8.0.423`). Azure's Oryx build server ships `8.0.420`,
+   and `rollForward` only rolls *up*, so the build fails with "A compatible .NET SDK was not
+   found". Use a floor (`8.0.0`) instead.
+2. **The VS Code extension wrote a Windows backslash** into the generated workflow —
+   `api_location: "src\Portfolio.Api"`. The runner is `ubuntu-latest`, so that path never
+   resolves. Check the generated workflow for backslashes; `app_location` was fine, only the
+   API line was wrong.
+3. **`func init` generates Application Insights telemetry that SWA cannot satisfy.** The
+   template adds `UseAzureMonitorExporter()` to `Program.cs`, `"telemetryMode":
+   "OpenTelemetry"` to `host.json`, and three OpenTelemetry packages. The exporter needs
+   `APPLICATIONINSIGHTS_CONNECTION_STRING`, which managed functions never provide — the worker
+   throws on startup and Azure reports only a generic "Failed to deploy the Azure Functions".
+   Strip all of it for a managed-functions API.
 
 ### Free-tier limits to stay under ($0)
 
