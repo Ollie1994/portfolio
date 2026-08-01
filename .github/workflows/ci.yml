@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          # Deliberately not pinned to a patch version: global.json holds a
+          # floor (8.0.0, rollForward latestMinor), so any 8.0.x SDK satisfies it.
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore Portfolio.sln
+
+      - name: Build
+        # No implicit restore, so a restore failure is reported as its own step.
+        run: dotnet build Portfolio.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Portfolio.sln --configuration Release --no-build --verbosity normal
+
+      - name: Check for vulnerable packages
+        # Advisory only - a new CVE should not break an unrelated PR, but it
+        # should be visible in the log.
+        continue-on-error: true
+        run: dotnet list Portfolio.sln package --vulnerable --include-transitive

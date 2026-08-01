@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # One PR for routine bumps rather than five. Security updates are still
+      # raised separately and immediately, regardless of this schedule.
+      all-nuget:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    ignore:
+      # Major .NET bumps are a deliberate migration gated on Azure Static Web
+      # Apps supporting the runtime - never an automatic PR. See CLAUDE.md.
+      - dependency-name: "Microsoft.NET.Sdk*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3

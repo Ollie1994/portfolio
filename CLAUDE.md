@@ -44,6 +44,63 @@ Dependency direction: `Client → Shared`, `Api → Shared`, `Tests → Shared, 
 `Shared` must never reference `Client` or `Api`. Any type crossing the HTTP boundary belongs
 in `Shared` so both sides compile against one definition.
 
+### Layering — the rule that makes the tests useful
+
+**Functions are adapters, not logic.** A function class does exactly three things: read input,
+delegate to a service, map the result to a status code. Nothing else.
+
+Business logic lives in plain classes that can be constructed with `new` in a test — no
+`HttpRequest`, no Functions host, no Azure. This is not stylistic: logic written inside a
+function class is effectively untestable, and `tests/Portfolio.Tests` becomes a project that
+can't reach anything worth asserting on.
+
+```
+src/Portfolio.Api/
+  Functions/      HTTP adapters. One class per endpoint. Thin.
+  Services/       Business logic. Plain classes, no framework types.
+  Validation/     Input rules.
+
+src/Portfolio.Client/
+  Pages/          Routable components.
+  Layout/
+  Components/     Reusable, non-routable.
+  Services/       Typed API clients — the only place HttpClient is touched.
+
+src/Portfolio.Shared/
+  DTOs, and validation rules both sides must agree on. No I/O, no framework
+  dependencies, nothing only one side needs.
+```
+
+**Razor components never call `HttpClient` directly.** Requests go through a typed service in
+`Client/Services/`, so error handling, loading state, and deserialisation exist once rather
+than being reinvented in every component.
+
+### Design principles
+
+- **No abstraction until there is a second concrete use for it.** The realistic failure mode
+  for a project this size is over-engineering, not under-engineering. An interface with one
+  implementation, a repository wrapping a single HTTP call, or a mediator for three endpoints
+  all read as cargo-culting rather than judgement — especially in a repo written to be
+  assessed. Add the seam when the second caller actually arrives.
+- **Constructor injection only.** No static mutable state, no service locator, no passing
+  `IServiceProvider` around. Static mutable state is also a correctness bug waiting to happen
+  in a Functions host, where instances are reused across invocations.
+- **Interfaces where they earn their place** — a boundary you genuinely test against or swap.
+  Not by default, and not one per class.
+- **Name things for what they do**, and keep a class to one reason to change. If a name needs
+  "Helper", "Manager", or "Util", the responsibility probably isn't clear yet.
+
+### Error handling
+
+- **Expected failures are return values, not exceptions.** Invalid input and missing resources
+  are normal control flow — return a result the caller maps to `400` or `404`. Exceptions for
+  routine validation make the happy path harder to read and cost more than they're worth.
+- **Exceptions are for genuinely unexpected conditions.** Let them bubble to the host and map
+  to a generic `500`. Don't wrap every call in try/catch.
+- **Never catch and swallow.** If you catch, either handle it meaningfully or log and rethrow.
+  An empty catch block hides the failure you'll later need.
+- What the caller sees on failure is covered under Security — never exception detail.
+
 ## Commands
 
 ```powershell
@@ -115,6 +172,13 @@ Dependencies:
 
 ## Code quality
 
+**These rules are enforced by the build, not by memory.** `Directory.Build.props` sets
+`TreatWarningsAsErrors` and enables the .NET analyzers at `latest-recommended` for every
+project — a warning fails the build. `.editorconfig` carries style preferences and the two
+deliberate analyzer suppressions (`CA1716`, `CA1848`), each with its reasoning inline. If a
+new analyzer rule fires, fix the code; only suppress it in `.editorconfig` with a written
+justification, never with a bare `#pragma`.
+
 - **Nullable reference types are on. Keep them on**, and fix nullability properly rather than
   silencing it with the `!` null-forgiving operator. A `!` is a claim you know better than the
   compiler; it should be rare and worth a comment.
@@ -140,6 +204,10 @@ Dependencies:
   they're cheap to test.
 - Don't write tests that just assert framework behaviour or restate the implementation.
 - `dotnet test Portfolio.sln` must pass before any commit.
+
+CI runs `.github/workflows/ci.yml` (build + test in Release, plus an advisory vulnerable-package
+scan) on every push and pull request. Note that the deploy workflow does **not** run tests —
+it builds and ships. CI is the only thing standing between a broken test and production.
 
 ## Deployment
 

@@ -1,0 +1,34 @@
+<Project>
+
+  <!--
+    Solution-wide build settings. Applies to every project under the repo root,
+    so individual csproj files stay minimal.
+
+    The Azure Functions worker generates an internal "WorkerExtensions" project
+    beneath src/Portfolio.Api/obj/ during build. It inherits this file, and its
+    generated code is not ours to fix - so it is excluded from the strictness
+    below. Without this condition the build fails on code you cannot edit.
+  -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' != 'WorkerExtensions'">
+
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+
+    <!-- Warnings are errors. Keeps the build honest instead of relying on
+         anyone noticing yellow text scroll past. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- The .NET analyzers catch real correctness and security problems
+         (CA rules), not just style. -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+
+    <!-- Deliberately left off. Style rules from .editorconfig show as hints in
+         the editor, but formatting should not fail a build the way a real
+         correctness warning does. Flip to true if you want it enforced. -->
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+
+  </PropertyGroup>
+
+</Project>
