@@ -8,7 +8,7 @@
 
 ## 1. Accounts
 
-- [ ] **Microsoft / Azure account** — with an active Azure subscription (free one works; payment card required on file, but the Static Web App itself won't bill) — *not verifiable from this machine; Azure CLI isn't installed. Confirm manually.*
+- [x] **Microsoft / Azure account** — with an active Azure subscription (free one works; payment card required on file, but the Static Web App itself won't bill) — created and signed in via the VS Code Azure extension
 - [x] **GitHub account** — hosts the repo and runs CI/CD — signed in as `Ollie1994` via `gh`
 - [x] **Anthropic account** — for signing into Claude Code (Claude Pro/Max plan or API credits)
 
