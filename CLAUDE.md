@@ -64,17 +64,82 @@ swa start
 Then browse **http://localhost:4280**. Calling the API directly on :7071 bypasses the SWA
 routing layer and will not reflect production behaviour.
 
-## Conventions
+## Security
 
-- Nullable reference types and implicit usings are enabled. Keep them on.
+**The single most important fact about this stack: Blazor WebAssembly runs in the browser.
+Everything in `Portfolio.Client` is public.** The whole app — every DLL, every config file
+under `wwwroot`, every string constant — is downloaded by the visitor and can be read with
+browser devtools. There is no such thing as a hidden value in the client.
+
+Consequences that are not negotiable:
+
+- **No secrets in `Portfolio.Client`.** No API keys, connection strings, tokens, private
+  endpoints, or email addresses you don't want scraped. Not in code, not in `wwwroot/appsettings.json`
+  (which is served as a plain static file), not in a "temporarily" committed constant.
+- **Authorization lives in the API, never in the UI.** Hiding a button or a component is a
+  UX affordance, not a security control. Every rule enforced in the client must be enforced
+  again server-side, because the client can be bypassed entirely.
+- **`/api/*` is anonymous and publicly reachable.** `staticwebapp.config.json` sets
+  `allowedRoles: ["anonymous"]` deliberately, so anyone can `curl` your endpoints directly
+  without ever loading the site. Treat every request as hostile input from an unknown caller.
+
+Input handling in the API:
+
+- Validate everything server-side: required fields, maximum lengths, expected format. Reject
+  with `400` early rather than working with half-valid data.
+- **Cap input size.** Unbounded request bodies are both a denial-of-service risk and a cost
+  risk — every invocation counts against the 1,000,000/month free-tier budget, and an abusive
+  caller can burn it. Set explicit maximum lengths on every string field.
+- Never interpolate user input into HTML. Blazor escapes by default, but **`MarkupString`
+  bypasses that escaping entirely** — never pass user-supplied content to it. That is the one
+  realistic XSS vector in a Blazor app.
+- **Never return exception details, stack traces, or internal paths to the caller.** Log the
+  detail server-side; return a generic message. Leaked stack traces disclose your structure
+  and package versions.
+- Don't log full request bodies or headers — they may carry personal data or credentials.
+
+Secrets handling:
+
+- Locally: `src/Portfolio.Api/local.settings.json`, which is gitignored. Verify that before
+  adding anything sensitive.
+- In Azure: the Static Web App's application settings. These reach the API only, never the client.
+- Never commit a secret "just to test". Rotate immediately if one is ever pushed — git history
+  is public on this repo.
+
+Dependencies:
+
+- Keep the dependency list minimal and prefer first-party Microsoft packages. Every added
+  NuGet package is code you ship and trust.
+- Do not add Application Insights or OpenTelemetry — see the deployment section for why it
+  breaks this specific host.
+
+## Code quality
+
+- **Nullable reference types are on. Keep them on**, and fix nullability properly rather than
+  silencing it with the `!` null-forgiving operator. A `!` is a claim you know better than the
+  compiler; it should be rare and worth a comment.
+- **`async` all the way down.** Return `async Task`, never block with `.Result` or `.Wait()` —
+  those deadlock and starve the thread pool.
+- **Propagate `CancellationToken`** through async call chains so abandoned requests stop doing work.
+- **Never `new HttpClient()` per call.** Register it once in DI (`Program.cs`) and inject it;
+  creating them per request exhausts sockets.
+- Shared DTOs in `Portfolio.Shared` are immutable `record` types. Both sides compile against
+  one definition, so a change that breaks the contract breaks the build rather than production.
 - File-scoped namespaces (`namespace Portfolio.Api;`).
-- API routes are served under `/api/*`. The client calls relative URLs (`/api/contact`) —
-  never a hardcoded host, since the origin differs between local, staging and production.
 - One function class per endpoint.
-- Secrets go in `src/Portfolio.Api/local.settings.json` (gitignored) locally, and in the Static
-  Web App's application settings in Azure. Never commit them.
-- Add a test in `tests/Portfolio.Tests` for any non-trivial logic — parsing, validation,
-  formatting. Don't write tests that just assert framework behaviour.
+- The client calls **relative** URLs (`/api/contact`) — never a hardcoded host. The origin
+  differs between local, PR preview environments, and production.
+- Prefer clear over clever. This is a portfolio: the code is read by people deciding whether
+  to interview you.
+
+## Testing
+
+- Add a test in `tests/Portfolio.Tests` for any non-trivial logic — validation, parsing,
+  formatting, anything with a branch worth being sure about.
+- Validation rules especially: they're the security boundary, they're pure functions, and
+  they're cheap to test.
+- Don't write tests that just assert framework behaviour or restate the implementation.
+- `dotnet test Portfolio.sln` must pass before any commit.
 
 ## Deployment
 
