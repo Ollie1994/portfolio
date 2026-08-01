@@ -34,7 +34,7 @@
 
 ## 4. Things to create
 
-- [ ] **GitHub repository** — for the portfolio source — *`git init` done locally (branch `main`), but no remote and no commits yet*
+- [x] **GitHub repository** — for the portfolio source — [github.com/Ollie1994/portfolio](https://github.com/Ollie1994/portfolio) (public), `main` tracking `origin/main`
 - [x] **Blazor WebAssembly project** — the frontend (portfolio UI) — `src/Portfolio.Client`
 - [x] **Azure Functions project (C#, isolated worker)** — the `/api` backend — `src/Portfolio.Api` (net8.0, one HTTP-triggered `ContactFunction`)
 - [x] **Shared class library project** — data models shared between Blazor client and Functions API — `src/Portfolio.Shared`
@@ -46,7 +46,7 @@
 ## 5. For building well with Claude Code
 
 - [x] **`CLAUDE.md`** at the repo root — encodes the stack, the .NET 8 / `dotnet-isolated:8.0` hard constraint, solution structure, HTTP-only functions rule, coding conventions, and the exact build/run/test commands
-- [ ] **Green baseline** — solution skeleton building successfully and committed once before heavy AI work — *builds clean (0 warnings, 0 errors) and 1/1 test passes, but **nothing is committed yet***
+- [x] **Green baseline** — solution skeleton building successfully and committed once before heavy AI work — commit `cbf6684`, build clean (0 warnings, 0 errors), 1/1 test passing
 - [x] **Test project (xUnit)** — gives Claude a way to verify logic (also a good CV signal) — `tests/Portfolio.Tests`
 - [ ] **Small, frequent git commits** — easy review/rollback of AI changes — *no commits yet*
 
