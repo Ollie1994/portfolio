@@ -39,7 +39,7 @@
 - [x] **Azure Functions project (C#, isolated worker)** — the `/api` backend — `src/Portfolio.Api` (net8.0, one HTTP-triggered `ContactFunction`)
 - [x] **Shared class library project** — data models shared between Blazor client and Functions API — `src/Portfolio.Shared`
 - [x] **`staticwebapp.config.json`** — routing/navigation fallback + `"apiRuntime": "dotnet-isolated:8.0"`; must live in the Blazor client's `wwwroot/` folder (see reminders below), **not** at the repo root — verified present in `dotnet publish` output
-- [x] **`global.json`** at the repo root — pins the SDK to 8.x so a newer SDK installed later can't silently drift the build off .NET 8 — `8.0.423`, `rollForward: latestMinor`
+- [x] **`global.json`** at the repo root — pins the SDK to 8.x so a newer SDK installed later can't silently drift the build off .NET 8 — `8.0.0` + `rollForward: latestMinor` (floor, **not** an exact pin: Azure's Oryx build server ships 8.0.420, so pinning an exact local patch version fails CI)
 - [ ] **Azure Static Web Apps resource** — hosting resource in the Azure Portal (Free SKU), connected to the GitHub repo
 - [ ] **GitHub Actions workflow file** — auto-generated on SWA creation; lives in `.github/workflows/`
 
