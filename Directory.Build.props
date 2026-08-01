@@ -11,6 +11,15 @@
   -->
   <PropertyGroup Condition="'$(MSBuildProjectName)' != 'WorkerExtensions'">
 
+    <!--
+      Single source of truth for the target framework. SWA managed functions do
+      not support dotnet-isolated:10.0 yet, so this stays net8.0 and must move in
+      lockstep with apiRuntime in staticwebapp.config.json. Centralised so the
+      eventual .NET 10 migration is one edit here, not four csproj files that can
+      drift apart.
+    -->
+    <TargetFramework>net8.0</TargetFramework>
+
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>

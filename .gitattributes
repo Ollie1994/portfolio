@@ -1,0 +1,22 @@
+# Normalise line endings. The repository already stores LF; this makes the
+# working copy LF too, so Windows checkouts stop rewriting to CRLF and the
+# "LF will be replaced by CRLF" warnings go away. The CI runner is Linux, so
+# LF everywhere keeps local and CI identical.
+* text=auto eol=lf
+
+# Binary assets - never touch these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+*.zip binary
+
+# Collapse generated/vendored files in pull request diffs.
+*.min.css linguist-generated=true
+*.min.js  linguist-generated=true
+*.map     linguist-generated=true

@@ -1,0 +1,33 @@
+<Project>
+
+  <!--
+    Central Package Management. Every NuGet version lives here; the csproj files
+    reference packages without a Version attribute. Two projects can no longer
+    drift onto different versions of the same package, and Dependabot has one
+    file to edit.
+  -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup Label="Blazor client">
+    <!-- Framework-tied: these track the .NET version. Do not move to 10.x while
+         the API is pinned to net8.0 - see CLAUDE.md. -->
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.29" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.29" />
+  </ItemGroup>
+
+  <ItemGroup Label="Functions API">
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker" Version="2.52.0" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.1" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Testing">
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+</Project>

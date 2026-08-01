@@ -10,7 +10,30 @@ on:
       - main
 
 jobs:
+  # Gate. The deploy job builds via Oryx inside the SWA action and would happily
+  # ship a solution whose tests fail, so the tests have to run and pass here
+  # first. ci.yml covers the same ground for pull requests, but a green CI run
+  # does not block this workflow - only "needs" does.
+  test:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Test
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build and test
+        run: |
+          dotnet restore Portfolio.sln
+          dotnet build Portfolio.sln --configuration Release --no-restore
+          dotnet test Portfolio.sln --configuration Release --no-build
+
   build_and_deploy_job:
+    needs: test
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job

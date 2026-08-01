@@ -1,9 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+  <!-- TargetFramework, Nullable, ImplicitUsings and analyzer settings come from
+       Directory.Build.props. Do not restate them here - a local value silently
+       overrides the central one. -->
 
 </Project>

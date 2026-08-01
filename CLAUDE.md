@@ -13,8 +13,10 @@ Azure Static Web Apps (Free tier), deployed by GitHub Actions.
   - **The planned move is .NET 8 → .NET 10** (LTS, supported to Nov 2028), as soon as SWA
     managed Functions support `dotnet-isolated:10.0`. Check the supported-values table at
     https://learn.microsoft.com/azure/static-web-apps/languages-runtimes — when `10.0` appears,
-    the migration is: bump `<TargetFramework>` in all four csproj files, change `apiRuntime` to
-    `dotnet-isolated:10.0`, bump `global.json`, rebuild, test, deploy.
+    the migration is: bump `<TargetFramework>` in **`Directory.Build.props`** (one place — the
+    csproj files no longer declare it), bump the framework-tied `Microsoft.AspNetCore.*`
+    versions in `Directory.Packages.props`, change `apiRuntime` to `dotnet-isolated:10.0`,
+    bump `global.json`, rebuild, test, deploy.
   - If Nov 2026 arrives with still no .NET 10 support, the app keeps running but stops getting
     security patches. The fallback is bring-your-own-functions, which lifts the runtime
     constraint but requires the Standard plan and loses API in PR preview environments.
@@ -167,8 +169,8 @@ Dependencies:
 
 - Keep the dependency list minimal and prefer first-party Microsoft packages. Every added
   NuGet package is code you ship and trust.
-- Do not add Application Insights or OpenTelemetry — see the deployment section for why it
-  breaks this specific host.
+- Do not add Application Insights or OpenTelemetry packages until Application Insights is
+  enabled on the Azure resource — see the deployment section for the ordering that matters.
 
 ## Code quality
 
@@ -178,6 +180,18 @@ project — a warning fails the build. `.editorconfig` carries style preferences
 deliberate analyzer suppressions (`CA1716`, `CA1848`), each with its reasoning inline. If a
 new analyzer rule fires, fix the code; only suppress it in `.editorconfig` with a written
 justification, never with a bare `#pragma`.
+
+**Build configuration lives in three root files. Don't restate their settings in a `.csproj`** —
+a local value silently overrides the central one, which is the drift these files exist to stop.
+
+| File | Owns |
+|---|---|
+| `Directory.Build.props` | `TargetFramework`, nullable, implicit usings, analyzers, warnings-as-errors |
+| `Directory.Packages.props` | Every NuGet version (`ManagePackageVersionsCentrally`). `PackageReference` carries no `Version` attribute |
+| `.editorconfig` | Style, naming, analyzer severity overrides |
+
+The generated Functions `WorkerExtensions` project is excluded from the strict settings by
+name — it is machine-generated and not ours to fix.
 
 - **Nullable reference types are on. Keep them on**, and fix nullability properly rather than
   silencing it with the `!` null-forgiving operator. A `!` is a claim you know better than the
@@ -269,11 +283,18 @@ output_location: "wwwroot"
 
 Deployment constraints learned the hard way — do not undo these:
 
-- **Never add Application Insights / OpenTelemetry to the API.** `func` templates generate
-  `UseAzureMonitorExporter()` plus `"telemetryMode": "OpenTelemetry"`, which require
-  `APPLICATIONINSIGHTS_CONNECTION_STRING`. SWA managed functions never provide it, so the
-  worker throws on startup and the deploy fails with only a generic "Failed to deploy the
-  Azure Functions". If you regenerate the Functions project, strip that wiring again.
+- **Telemetry wiring must not be added before Application Insights is enabled in Azure.**
+  `func` templates generate `UseAzureMonitorExporter()` plus `"telemetryMode":
+  "OpenTelemetry"`, which require `APPLICATIONINSIGHTS_CONNECTION_STRING`. If that setting
+  is absent the worker throws on startup and the deploy fails with only a generic "Failed to
+  deploy the Azure Functions" — this is what broke the first deployment, and why the wiring
+  was stripped. It is **not** that Static Web Apps cannot do it: enabling Application Insights
+  on the Static Web App (portal → the SWA resource → Application Insights → Enable) creates
+  the linked application setting, after which the telemetry wiring works. Enable it first,
+  then add the wiring — never the other way round. Note that Application Insights bills
+  separately from Static Web Apps, though this site's volume sits inside the free ingestion
+  grant. If you regenerate the Functions project while it is still disabled, strip the wiring
+  again.
 - **`global.json` must hold a version *floor*, not an exact pin.** Oryx ships its own SDK patch
   (8.0.420 at time of writing) and `rollForward` only rolls up. An exact pin fails CI while
   building fine locally.
