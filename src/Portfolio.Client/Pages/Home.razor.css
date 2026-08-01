@@ -1,0 +1,58 @@
+.hero {
+    padding-block: clamp(3rem, 10vw, 6rem) clamp(2.5rem, 7vw, 4.5rem);
+    background:
+        radial-gradient(60rem 30rem at 15% -10%, var(--primary-subtle), transparent 60%),
+        var(--bg);
+}
+
+.eyebrow {
+    margin: 0 0 .5rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--primary);
+}
+
+.lead {
+    max-width: 42rem;
+    font-size: clamp(1.0625rem, 2vw, 1.1875rem);
+    color: var(--text-muted);
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1.75rem;
+}
+
+.section {
+    padding-block: clamp(2.5rem, 6vw, 4rem);
+}
+
+.section-alt {
+    background: var(--bg-subtle);
+}
+
+.section h2 {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+/* Each section carries one of the four Microsoft colours, so the palette
+   reads as a system rather than decoration. */
+.section-marker {
+    display: block;
+    width: .75rem;
+    height: .75rem;
+    border-radius: 2px;
+    background: var(--accent, var(--primary));
+    flex: none;
+}
+
+.section-body {
+    max-width: 42rem;
+    color: var(--text-muted);
+}

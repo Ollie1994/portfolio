@@ -1,29 +1,36 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Oliwer Karlsson</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+<button class="nav-toggle"
+        type="button"
+        aria-label="Toggle navigation"
+        aria-expanded="@(_expanded ? "true" : "false")"
+        aria-controls="primary-nav"
+        @onclick="ToggleNav">
+    <span class="nav-toggle-bar"></span>
+    <span class="nav-toggle-bar"></span>
+    <span class="nav-toggle-bar"></span>
+</button>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-    </nav>
-</div>
+<nav id="primary-nav" class="nav @(_expanded ? "is-open" : "")" aria-label="Primary">
+    @foreach (var item in Items)
+    {
+        <a class="nav-link" href="@item.Href" @onclick="CloseNav">@item.Label</a>
+    }
+</nav>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool _expanded;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private static readonly NavItem[] Items =
+    [
+        new("#about", "About"),
+        new("#projects", "Projects"),
+        new("#contact", "Contact")
+    ];
 
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+    private void ToggleNav() => _expanded = !_expanded;
+
+    // Anchor navigation does not unmount the layout, so the mobile menu has to
+    // be closed explicitly or it stays open over the target section.
+    private void CloseNav() => _expanded = false;
+
+    private sealed record NavItem(string Href, string Label);
 }

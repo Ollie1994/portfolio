@@ -1,0 +1,48 @@
+<footer class="site-footer">
+    <hr class="ms-rule" />
+
+    <div class="container footer-inner">
+        <div class="footer-col">
+            <span class="ms-squares" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+            </span>
+            <p class="footer-tagline">
+                Built on the Microsoft stack and running serverless on Azure.
+            </p>
+        </div>
+
+        <div class="footer-col">
+            <h2 class="footer-heading">Stack</h2>
+            <ul class="tech-list">
+                @foreach (var tech in Stack)
+                {
+                    <li class="tech-pill" style="--accent: @tech.Accent">@tech.Name</li>
+                }
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h2 class="footer-heading">Elsewhere</h2>
+            <ul class="link-list">
+                <li><a href="https://github.com/Ollie1994" rel="noopener">GitHub</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container footer-bottom">
+        <small>&copy; @DateTime.UtcNow.Year Oliwer Karlsson</small>
+    </div>
+</footer>
+
+@code {
+    private static readonly TechItem[] Stack =
+    [
+        new("C# / .NET 8", "var(--ms-blue)"),
+        new("Blazor WebAssembly", "var(--ms-red)"),
+        new("Azure Functions", "var(--ms-yellow)"),
+        new("Azure Static Web Apps", "var(--ms-green)")
+    ];
+
+    private sealed record TechItem(string Name, string Accent);
+}

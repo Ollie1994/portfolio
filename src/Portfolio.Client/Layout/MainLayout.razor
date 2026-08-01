@@ -1,16 +1,23 @@
-﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
+@inherits LayoutComponentBase
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="site-header">
+    <div class="container header-inner">
+        <a class="brand" href="/">
+            <span class="ms-squares" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+            </span>
+            <span class="brand-name">Oliwer Karlsson</span>
+        </a>
+
         <NavMenu />
     </div>
+    <hr class="ms-rule" />
+</header>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+<main id="main-content" class="site-main">
+    @Body
+</main>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+<Footer />

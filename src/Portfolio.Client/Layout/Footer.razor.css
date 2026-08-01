@@ -1,0 +1,57 @@
+.site-footer {
+    margin-top: 4rem;
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+}
+
+.footer-inner {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 2rem;
+    padding-block: 2.5rem 1.5rem;
+}
+
+.footer-heading {
+    margin: 0 0 .75rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text);
+}
+
+.footer-tagline {
+    margin: .75rem 0 0;
+    max-width: 22rem;
+    font-size: .9375rem;
+}
+
+.tech-list,
+.link-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.link-list li + li {
+    margin-top: .375rem;
+}
+
+.footer-bottom {
+    padding-block: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: .875rem;
+}
+
+@media (max-width: 48rem) {
+    .footer-inner {
+        grid-template-columns: 1fr;
+        gap: 1.75rem;
+    }
+}
