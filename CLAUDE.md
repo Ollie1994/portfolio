@@ -196,6 +196,51 @@ justification, never with a bare `#pragma`.
 - Prefer clear over clever. This is a portfolio: the code is read by people deciding whether
   to interview you.
 
+## Design system
+
+The visual language is Microsoft's, chosen to signal the tech stack. All tokens are defined
+once in `src/Portfolio.Client/wwwroot/css/app.css` under `:root`.
+
+**Never hardcode a colour.** Use the variables — a literal hex outside the `:root` block is a
+bug, because it won't follow dark mode and won't stay consistent.
+
+| Token | Use |
+|---|---|
+| `--primary` (`#0078D4`, Fluent communication blue) | Anything interactive: links, buttons, focus, active nav |
+| `--ms-red` `--ms-green` `--ms-blue` `--ms-yellow` | Accents only — section markers, stack pills, the four-colour rule |
+| `--grey-*` ramp / `--text`, `--text-muted`, `--border`, `--bg`, `--bg-subtle`, `--surface` | Everything else |
+
+**The four logo colours are structural, not decorative.** They mark distinct things — one per
+section, one per stack pill, the four-part rule between regions. Don't use them for emphasis
+inside body text, and don't introduce a fifth accent colour: the set is the point.
+
+Layout and CSS rules:
+
+- **No CSS framework.** Bootstrap was removed deliberately — it supplied a generic look that
+  reads as "template", and cost ~230 KB on every first load against a bandwidth-metered free
+  tier. Don't reintroduce it or add Tailwind; write the CSS.
+- **No webfonts.** The CSP sets `font-src 'self'`, so Google Fonts and similar are blocked by
+  design. The stack leads with Segoe UI, which is correct for this theme anyway.
+- **Component styles go in scoped `.razor.css` files**, next to the component. Only genuinely
+  shared building blocks (`.container`, `.btn`, `.tech-pill`, `.ms-squares`, `.ms-rule`,
+  tokens, resets) belong in `app.css`.
+- Layout components live in `Layout/` (`MainLayout`, `NavMenu`, `Footer`). Page-specific
+  styling lives beside the page, e.g. `Pages/Home.razor.css`.
+- **Breakpoints in `rem`, not `px`**, so they respond to the user's font size. Existing ones:
+  `40rem` (nav collapses), `48rem` (footer stacks).
+- Prefer `clamp()` for type and section spacing over fixed sizes at each breakpoint.
+
+Accessibility baseline — these are already in place, don't regress them:
+
+- Visible `:focus-visible` outline on every interactive element. Never remove an outline
+  without providing an equivalent.
+- The skip-to-content link in `MainLayout` must stay first in the DOM.
+- Dark mode via `prefers-color-scheme`. Any new colour must work in both themes, which is
+  automatic if you use the tokens.
+- `prefers-reduced-motion` disables smooth scrolling and transitions.
+- Decorative elements (the square marks) carry `aria-hidden="true"`; interactive controls carry
+  a label and, where they toggle, `aria-expanded` / `aria-controls`.
+
 ## Testing
 
 - Add a test in `tests/Portfolio.Tests` for any non-trivial logic — validation, parsing,
