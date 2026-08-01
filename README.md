@@ -1,17 +1,14 @@
 # Portfolio
 
+[![CI](https://github.com/Ollie1994/portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/Ollie1994/portfolio/actions/workflows/ci.yml)
+
 A serverless personal portfolio site built with **Blazor WebAssembly** and **Azure Functions**,
 hosted on Azure Static Web Apps and deployed by GitHub Actions.
 
 **Live:** https://ambitious-coast-0312a8e0f.7.azurestaticapps.net
 
-> Status: infrastructure complete, content in progress. The pipeline, hosting, API and tests
-> work end to end. The About and Projects sections are still placeholders.
->
-> **Known gap:** the contact form validates and accepts submissions, but no delivery
-> mechanism is wired up yet — messages are written to the log and go no further. Picking a
-> provider (Azure Communication Services or SendGrid) and enabling Application Insights are
-> the two steps that make it real.
+> Status: infrastructure and the contact feature are complete. The About and Projects
+> sections are still placeholder copy.
 
 ## Architecture
 
@@ -40,6 +37,12 @@ Business logic lives in plain, testable classes; function classes are thin HTTP 
 Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0),
 [Azure Functions Core Tools v4](https://learn.microsoft.com/azure/azure-functions/functions-run-local),
 and the [SWA CLI](https://azure.github.io/static-web-apps-cli/).
+
+The Functions host needs a storage emulator locally — `local.settings.json` sets
+`AzureWebJobsStorage` to `UseDevelopmentStorage=true`. Install and start
+[Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite)
+(`npm install -g azurite`, then `azurite`) before running the API, or `func start`
+will fail to connect.
 
 ```bash
 dotnet build Portfolio.sln
@@ -88,6 +91,14 @@ in `.editorconfig` are documented with reasons.
 
 **Security headers at the edge.** `staticwebapp.config.json` sets a Content Security Policy,
 `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` and HSTS globally.
+
+**Contact submissions are delivered to Application Insights, not by email.** Azure
+Communication Services bills per message with no free allowance, which would turn an
+anonymous public endpoint into a billable amplifier; SendGrid withdrew its free tier in 2025.
+Application Insights has a genuine 5 GB/month free grant and supports a hard daily ingestion
+cap, so it degrades rather than invoices — the same failure mode as everything else in the
+stack. The email address is published on the site as well, so the form is a convenience
+rather than the only channel.
 
 See [CLAUDE.md](CLAUDE.md) for the full constraint set, conventions, and the deployment
 gotchas discovered while setting this up.

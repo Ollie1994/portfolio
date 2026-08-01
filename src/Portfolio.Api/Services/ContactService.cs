@@ -46,17 +46,27 @@ public sealed class ContactService
     }
 
     /// <summary>
-    /// TODO: no delivery mechanism is wired up yet — the message is written to
-    /// the log and nothing else. Until a provider is chosen (Azure Communication
-    /// Services, SendGrid, or similar) and Application Insights is enabled on the
-    /// Static Web App, submissions are effectively discarded after validation.
-    /// The form tells the sender it succeeded, which is only honest once this is
-    /// real. See README.
+    /// Delivery. The structured log entry <em>is</em> the delivery mechanism:
+    /// Application Insights is enabled on the Static Web App, so this reaches a
+    /// queryable store that survives the invocation, and an alert rule can turn
+    /// a match into an email notification.
+    ///
+    /// Chosen over a mail provider deliberately. Azure Communication Services
+    /// bills per message with no free allowance, which makes an anonymous public
+    /// endpoint a billable amplifier; SendGrid withdrew its free tier in 2025.
+    /// Logging has a genuine 5 GB/month free grant and a daily cap, so it
+    /// degrades instead of invoicing. See CLAUDE.md.
+    ///
+    /// Note this deliberately records personal data — name, address and message
+    /// body — for the retention period configured on the resource. That is the
+    /// point of the feature, and the form says so.
     /// </summary>
     private void Deliver(ContactRequest request)
     {
+        // Structured, so each field is queryable in customDimensions rather than
+        // buried in a formatted string.
         _logger.LogInformation(
-            "Contact submission accepted from {Name} <{Email}>: {Message}",
+            "Contact submission received. Name={Name} Email={Email} Message={Message}",
             request.Name,
             request.Email,
             request.Message);

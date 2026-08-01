@@ -156,6 +156,39 @@ Input handling in the API:
   and package versions.
 - Don't log full request bodies or headers — they may carry personal data or credentials.
 
+Contact submissions and personal data:
+
+- **Submissions are delivered by structured logging to Application Insights**, not by email.
+  `ContactService.Deliver` is the whole mechanism. This is deliberate: Azure Communication
+  Services bills per message with no free allowance, so an anonymous public endpoint that
+  sends one email per request is a billable amplifier with no rate limit in front of it.
+  SendGrid withdrew its free tier in 2025. Logging has a real 5 GB/month grant and a hard
+  daily cap, so abuse degrades service instead of generating an invoice.
+- **Sampling is disabled in `host.json`.** Adaptive sampling drops traces, and traces *are*
+  the delivery mechanism — a sampled-out trace is a lost message. Volume is controlled by
+  `logLevels` and the portal daily cap instead. Don't re-enable it.
+- **This intentionally stores personal data** — name, address, message body — for the
+  resource's retention period. The privacy note on the form states this. If the retention
+  period changes, change the note in the same commit.
+- **If email delivery is ever added:** the recipient comes from configuration and *never*
+  from the request, or the endpoint becomes an open relay for spamming arbitrary people from
+  your domain. Send plain text only, never HTML, so hostile content cannot render in a mail
+  client. `Reply-To` may carry the submitted address only because the validator rejects line
+  breaks in it.
+
+Known accepted risks:
+
+- **There is no rate limiting.** Static Web Apps Free has none, and a serverless in-memory
+  counter is useless across scaled-out instances. The honeypot plus cheap early validation is
+  proportionate for a personal site, and the free-tier caps mean abuse costs availability
+  rather than money. If it is ever actually abused, the escalation is Cloudflare Turnstile —
+  which needs `script-src` and `connect-src` added to the CSP.
+- **Client-rendered Blazor is weaker for SEO.** Content is rendered in the browser, so
+  crawlers index it less reliably than server-rendered HTML. Accepted because demonstrating
+  the stack is the point of this project. The fix, if discoverability ever matters more, is a
+  Blazor Web App with server-side rendering — which needs a different hosting model than SWA
+  managed functions.
+
 Secrets handling:
 
 - Locally: `src/Portfolio.Api/local.settings.json`, which is gitignored. Verify that before
@@ -333,18 +366,19 @@ output_location: "wwwroot"
 
 Deployment constraints learned the hard way — do not undo these:
 
-- **Telemetry wiring must not be added before Application Insights is enabled in Azure.**
-  `func` templates generate `UseAzureMonitorExporter()` plus `"telemetryMode":
-  "OpenTelemetry"`, which require `APPLICATIONINSIGHTS_CONNECTION_STRING`. If that setting
-  is absent the worker throws on startup and the deploy fails with only a generic "Failed to
-  deploy the Azure Functions" — this is what broke the first deployment, and why the wiring
-  was stripped. It is **not** that Static Web Apps cannot do it: enabling Application Insights
-  on the Static Web App (portal → the SWA resource → Application Insights → Enable) creates
-  the linked application setting, after which the telemetry wiring works. Enable it first,
-  then add the wiring — never the other way round. Note that Application Insights bills
-  separately from Static Web Apps, though this site's volume sits inside the free ingestion
-  grant. If you regenerate the Functions project while it is still disabled, strip the wiring
-  again.
+- **Application Insights is enabled** on the Static Web App, so
+  `APPLICATIONINSIGHTS_CONNECTION_STRING` is present as a linked application setting and the
+  Functions host ships request telemetry and forwards `ILogger` output automatically.
+  Monitoring is configured through `logging.applicationInsights` in `src/Portfolio.Api/host.json`.
+  - **Do not add the worker-level OpenTelemetry packages back.** `func` templates generate
+    `UseAzureMonitorExporter()` plus `"telemetryMode": "OpenTelemetry"`. Host-level
+    integration already covers what this project needs, and that wiring is what broke the
+    first deployment — when the connection string was absent the worker threw on startup and
+    the deploy failed with only a generic "Failed to deploy the Azure Functions". If you
+    regenerate the Functions project, strip it again.
+  - Application Insights bills separately from Static Web Apps and has a 5 GB/month free
+    ingestion grant. A **daily ingestion cap** is set on the resource so it stops ingesting
+    rather than billing. Keep that cap in place.
 - **`global.json` must hold a version *floor*, not an exact pin.** Oryx ships its own SDK patch
   (8.0.420 at time of writing) and `rollForward` only rolls up. An exact pin fails CI while
   building fine locally.

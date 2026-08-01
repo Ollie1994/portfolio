@@ -31,6 +31,15 @@ public sealed class ContactFunction
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "contact")] HttpRequest req,
         CancellationToken cancellationToken)
     {
+        // A browser can submit a plain HTML form cross-site without any consent
+        // from us, but only as form-encoded or plain text - it cannot set
+        // application/json without a preflight, which same-origin policy governs.
+        // Requiring JSON therefore removes trivial cross-site submission.
+        if (!IsJsonRequest(req))
+        {
+            return new StatusCodeResult(StatusCodes.Status415UnsupportedMediaType);
+        }
+
         // Reject an oversized body on the declared length before reading a byte
         // of it. The read below is bounded too, since Content-Length is supplied
         // by the caller and cannot be trusted on its own.
@@ -71,6 +80,14 @@ public sealed class ContactFunction
             _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
         };
     }
+
+    /// <summary>
+    /// True when the request declares a JSON body. Tolerates parameters such as
+    /// "application/json; charset=utf-8", which browsers add.
+    /// </summary>
+    private static bool IsJsonRequest(HttpRequest req) =>
+        req.ContentType is { } contentType &&
+        contentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase);
 
     private static async Task<ContactRequest?> ReadRequestAsync(Stream body, CancellationToken cancellationToken)
     {
