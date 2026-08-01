@@ -1,7 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- TargetFramework, Nullable, ImplicitUsings and analyzer settings come from
+  <!-- Nullable, ImplicitUsings and analyzer settings come from
        Directory.Build.props. Do not restate them here - a local value silently
-       overrides the central one. -->
+       overrides the central one. TargetFramework is the documented exception;
+       see the comment in Directory.Build.props. -->
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
 
 </Project>

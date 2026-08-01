@@ -1,9 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- TargetFramework, Nullable, ImplicitUsings and analyzer settings come from
-       Directory.Build.props. Package versions come from Directory.Packages.props. -->
+  <!-- Nullable, ImplicitUsings and analyzer settings come from
+       Directory.Build.props. Package versions come from Directory.Packages.props.
+       TargetFramework must stay here - Azure's Oryx builder text-scans csproj
+       files for it and cannot see inherited MSBuild properties. It must also
+       match apiRuntime in staticwebapp.config.json. -->
 
   <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <OutputType>Exe</OutputType>
   </PropertyGroup>

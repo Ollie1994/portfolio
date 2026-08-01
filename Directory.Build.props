@@ -12,13 +12,18 @@
   <PropertyGroup Condition="'$(MSBuildProjectName)' != 'WorkerExtensions'">
 
     <!--
-      Single source of truth for the target framework. SWA managed functions do
-      not support dotnet-isolated:10.0 yet, so this stays net8.0 and must move in
-      lockstep with apiRuntime in staticwebapp.config.json. Centralised so the
-      eventual .NET 10 migration is one edit here, not four csproj files that can
-      drift apart.
+      TargetFramework is deliberately NOT set here, tempting as it is.
+
+      Azure's Oryx builder detects the platform by text-scanning *.csproj for a
+      <TargetFramework> element - it does not evaluate MSBuild, so it never sees
+      properties inherited from this file. Centralising it produced
+      "Could not detect any platform in the source directory" and a failed
+      deployment, while building perfectly on a developer machine.
+
+      Each csproj therefore declares <TargetFramework>net8.0</TargetFramework>
+      itself. Keep them identical and in step with apiRuntime in
+      staticwebapp.config.json.
     -->
-    <TargetFramework>net8.0</TargetFramework>
 
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

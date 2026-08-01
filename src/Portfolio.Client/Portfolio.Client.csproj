@@ -1,7 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <!-- TargetFramework, Nullable, ImplicitUsings and analyzer settings come from
-       Directory.Build.props. Package versions come from Directory.Packages.props. -->
+  <!-- Nullable, ImplicitUsings and analyzer settings come from
+       Directory.Build.props. Package versions come from Directory.Packages.props.
+       TargetFramework must stay here - Azure's Oryx builder text-scans csproj
+       files for it and cannot see inherited MSBuild properties. -->
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />

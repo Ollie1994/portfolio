@@ -13,10 +13,9 @@ Azure Static Web Apps (Free tier), deployed by GitHub Actions.
   - **The planned move is .NET 8 → .NET 10** (LTS, supported to Nov 2028), as soon as SWA
     managed Functions support `dotnet-isolated:10.0`. Check the supported-values table at
     https://learn.microsoft.com/azure/static-web-apps/languages-runtimes — when `10.0` appears,
-    the migration is: bump `<TargetFramework>` in **`Directory.Build.props`** (one place — the
-    csproj files no longer declare it), bump the framework-tied `Microsoft.AspNetCore.*`
-    versions in `Directory.Packages.props`, change `apiRuntime` to `dotnet-isolated:10.0`,
-    bump `global.json`, rebuild, test, deploy.
+    the migration is: bump `<TargetFramework>` in **all four csproj files**, bump the
+    framework-tied `Microsoft.AspNetCore.*` versions in `Directory.Packages.props`, change
+    `apiRuntime` to `dotnet-isolated:10.0`, bump `global.json`, rebuild, test, deploy.
   - If Nov 2026 arrives with still no .NET 10 support, the app keeps running but stops getting
     security patches. The fallback is bring-your-own-functions, which lifts the runtime
     constraint but requires the Standard plan and loses API in PR preview environments.
@@ -186,12 +185,18 @@ a local value silently overrides the central one, which is the drift these files
 
 | File | Owns |
 |---|---|
-| `Directory.Build.props` | `TargetFramework`, nullable, implicit usings, analyzers, warnings-as-errors |
+| `Directory.Build.props` | Nullable, implicit usings, analyzers, warnings-as-errors |
 | `Directory.Packages.props` | Every NuGet version (`ManagePackageVersionsCentrally`). `PackageReference` carries no `Version` attribute |
 | `.editorconfig` | Style, naming, analyzer severity overrides |
 
 The generated Functions `WorkerExtensions` project is excluded from the strict settings by
 name — it is machine-generated and not ours to fix.
+
+**`<TargetFramework>` is the one property that must stay duplicated in every `.csproj`.**
+Azure's Oryx builder detects the platform by text-scanning `.csproj` files for that element;
+it does not evaluate MSBuild, so it cannot see the property inherited from
+`Directory.Build.props`. Centralising it builds fine locally and then fails deployment with
+`Could not detect any platform in the source directory`. Don't "tidy" it away.
 
 - **Nullable reference types are on. Keep them on**, and fix nullability properly rather than
   silencing it with the `!` null-forgiving operator. A `!` is a claim you know better than the

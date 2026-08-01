@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- TargetFramework, Nullable, ImplicitUsings and analyzer settings come from
+  <!-- Nullable, ImplicitUsings and analyzer settings come from
        Directory.Build.props. Package versions come from Directory.Packages.props. -->
 
   <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
