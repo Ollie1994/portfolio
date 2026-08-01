@@ -7,7 +7,6 @@
     "exclude": [
       "/_framework/*",
       "/css/*",
-      "/sample-data/*",
       "*.{css,js,png,jpg,jpeg,gif,svg,ico,webp,woff,woff2,json,wasm,dll,pdb,dat,blat}"
     ]
   },
