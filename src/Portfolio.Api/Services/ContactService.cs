@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Portfolio.Shared.Contact;
 
@@ -63,12 +64,24 @@ public sealed class ContactService
     /// </summary>
     private void Deliver(ContactRequest request)
     {
-        // Structured, so each field is queryable in customDimensions rather than
-        // buried in a formatted string.
-        _logger.LogInformation(
-            "Contact submission received. Name={Name} Email={Email} Message={Message}",
+        // Logged as a JSON payload rather than as separate template properties.
+        //
+        // Structured log properties do NOT survive forwarding from the isolated
+        // worker to the Functions host: customDimensions in Application Insights
+        // carries only host metadata (Category, InvocationId, LogLevel...), and
+        // the template values are flattened into the message text. Verified by
+        // inspecting a real trace - see CLAUDE.md.
+        //
+        // Serialising to JSON keeps the fields machine-readable, and JSON
+        // escaping means submitted content cannot corrupt the structure the way
+        // a delimiter-based format could.
+        var payload = JsonSerializer.Serialize(new
+        {
             request.Name,
             request.Email,
-            request.Message);
+            request.Message
+        });
+
+        _logger.LogInformation("Contact submission received: {Payload}", payload);
     }
 }

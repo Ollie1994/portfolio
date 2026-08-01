@@ -167,6 +167,13 @@ Contact submissions and personal data:
 - **Sampling is disabled in `host.json`.** Adaptive sampling drops traces, and traces *are*
   the delivery mechanism — a sampled-out trace is a lost message. Volume is controlled by
   `logLevels` and the portal daily cap instead. Don't re-enable it.
+- **Structured log properties do not survive the isolated worker → host hop.** Writing
+  `LogInformation("... {Name} ...", name)` puts the value into the message *text* only;
+  `customDimensions` in Application Insights carries host metadata (`Category`,
+  `InvocationId`, `LogLevel`, `ProcessId`) and nothing of yours. Verified by inspecting a real
+  trace. Anything that needs to be queryable as a field must therefore be **serialised to
+  JSON and logged as a single value**, then unpacked with `parse_json` in KQL. Don't "improve"
+  this back into template properties — the columns will silently come back empty.
 - **This intentionally stores personal data** — name, address, message body — for the
   resource's retention period. The privacy note on the form states this. If the retention
   period changes, change the note in the same commit.
