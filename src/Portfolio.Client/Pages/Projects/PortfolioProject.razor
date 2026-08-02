@@ -3,172 +3,99 @@
 <ProjectPage Title="This portfolio site"
              Kicker="Live · 2026"
              AccentClass="accent-blue"
-             Summary="A serverless portfolio built on the Microsoft stack — Blazor WebAssembly in the browser, Azure Functions behind it, deployed automatically and running at no cost."
+             Summary="A serverless portfolio on the Microsoft stack — Blazor WebAssembly in the browser, Azure Functions behind it, deployed automatically and running at zero cost."
              Tech="@(new[] { "C#", ".NET 8", "Blazor WebAssembly", "Azure Functions", "Azure Static Web Apps", "GitHub Actions", "xUnit", "Application Insights" })"
              Links="@(new[] { new ProjectPage.ProjectLink("Source on GitHub", "https://github.com/Ollie1994/portfolio") })">
 
-    <h2>Why build it this way</h2>
+    <h2>What it is</h2>
 
     <p>
-        A portfolio could be a single HTML file. I built this one as a full serverless
-        application because the point was to demonstrate the stack, not to publish three
-        paragraphs — and because a site with a real API gives you something concrete to
-        talk about.
+        The site you're reading. A <strong>Blazor WebAssembly</strong> frontend — C#
+        compiled to WebAssembly, running entirely in the browser — with an
+        <strong>Azure Functions</strong> API behind it on the isolated worker model.
     </p>
 
     <p>
-        The frontend is <strong>Blazor WebAssembly</strong>: C# compiled to WebAssembly,
-        running entirely in the browser. The backend is <strong>Azure Functions</strong> on
-        the isolated worker model. Both are served from one Azure Static Web Apps resource,
-        which means the API sits at <code>/api</code> on the same origin — no CORS to
-        configure, no host to hardcode across environments.
+        Both are served from a single Azure Static Web Apps resource, so the API sits at
+        <code>/api</code> on the same origin: no CORS to configure and no host to hardcode
+        across local, preview and production environments. Shared DTOs and validation rules
+        live in a third project that both sides compile against, so a change that breaks
+        the contract breaks the build rather than production.
     </p>
 
-    <h2>The constraint that shaped everything: $0</h2>
+    <h2>Running at zero cost</h2>
 
     <p>
-        The whole thing runs on free tiers, and that isn't a footnote — it drove real
-        architectural decisions.
+        Everything runs on free tiers, and the components were chosen to share one
+        property: <strong>they degrade rather than bill.</strong> Static Web Apps has no
+        overage billing — exceed the bandwidth allowance and serving pauses instead of
+        generating an invoice. Application Insights has a hard daily ingestion cap set, so
+        it stops collecting rather than charging.
     </p>
 
     <p>
-        Static Web Apps' free tier allows <strong>100 GB of bandwidth</strong> and
-        <strong>1,000,000 function executions</strong> a month, and critically it has
-        <em>no overage billing</em>: exceed the limit and serving pauses rather than
-        generating an invoice. Every component was chosen to share that property — degrade
-        rather than charge.
+        That constraint decided how the contact form works. Sending email looked obvious
+        until the cost model: Azure Communication Services bills per message with no free
+        allowance, and SendGrid withdrew its free tier in 2025. An anonymous public
+        endpoint that sends one paid email per request is an amplifier. Submissions go to
+        Application Insights as structured logs instead, where abuse costs availability
+        rather than money.
     </p>
 
-    <div class="callout">
-        <p>
-            The clearest example is the contact form. Sending email seemed obvious until
-            I worked through the cost model: Azure Communication Services bills per message
-            with no free allowance, and SendGrid withdrew its free tier in 2025. An
-            anonymous public endpoint that sends one paid email per request is an
-            amplifier — anyone with a loop can run up a bill.
-        </p>
-        <p>
-            Submissions go to <strong>Application Insights</strong> as structured logs
-            instead. It has a real 5 GB/month free grant and a hard daily ingestion cap,
-            so abuse costs availability rather than money. My email address is published on
-            the site anyway, so the form is a convenience rather than the only channel.
-        </p>
-    </div>
-
-    <h2>Treating the API as hostile input</h2>
+    <h2>The API treats every request as hostile</h2>
 
     <p>
-        Blazor WebAssembly runs in the browser, which means everything in the client is
-        public — every DLL, every config file, every string constant. And
-        <code>/api/*</code> is anonymous and directly reachable, so anyone can call it
-        without ever loading the site. That shapes how the endpoint is written:
+        Blazor WebAssembly runs in the browser, so everything in the client is public, and
+        <code>/api/*</code> is anonymous and directly reachable without ever loading the
+        site. The endpoint is written accordingly:
     </p>
 
     <ul>
         <li>
-            <strong>Validation rules live in a shared project</strong> and run on both
-            sides. The client's run is for immediate feedback; the API's run is
-            authoritative, because the client can be bypassed entirely.
+            Validation rules live in the shared project and run on both sides. The client's
+            run is for immediate feedback; <strong>the API's is authoritative</strong>,
+            because the client can be bypassed entirely.
         </li>
         <li>
-            <strong>Request bodies are bounded twice</strong> — once on the declared
-            <code>Content-Length</code>, then again through a limited stream during
-            deserialisation, because the declared length comes from the caller and can't
-            be trusted on its own.
+            Request bodies are bounded twice — on the declared <code>Content-Length</code>,
+            then again through a limited stream during deserialisation, since the declared
+            length comes from the caller.
         </li>
         <li>
-            <strong>Line breaks are rejected in single-line fields.</strong> If those
-            values are ever composed into an email, a newline in the name or address lets
-            an attacker inject headers. Blocking it at the boundary removes the whole class
-            of bug regardless of what delivery turns out to be.
+            Line breaks are rejected in single-line fields, which removes email header
+            injection as a class of bug regardless of how delivery is implemented later.
         </li>
         <li>
-            <strong>A honeypot field</strong> catches naive bots, and their submissions are
-            reported as successful — telling a bot it was detected only helps it adapt.
+            A honeypot field catches naive bots, and their submissions are reported as
+            successful — telling a bot it was detected only helps it adapt.
         </li>
         <li>
-            <strong>Security headers are set at the edge</strong> — a Content Security
-            Policy with no <code>unsafe-inline</code>, plus <code>nosniff</code>,
+            Security headers are set at the edge: a Content Security Policy with no
+            <code>unsafe-inline</code>, plus <code>nosniff</code>,
             <code>Referrer-Policy</code>, <code>Permissions-Policy</code> and HSTS.
         </li>
     </ul>
 
-    <h2>Keeping the tests useful</h2>
+    <h2>Structured so the tests reach something</h2>
 
     <p>
-        The rule that makes the test project worth having is that
-        <strong>function classes are adapters, not logic</strong>. A function reads input,
-        delegates to a plain service, and maps the result to a status code. Nothing else.
+        <strong>Function classes are adapters, not logic.</strong> A function reads input,
+        delegates to a plain service, and maps the result to a status code. Business logic
+        lives in ordinary classes that can be constructed with <code>new</code> in a test —
+        no HTTP types, no Functions host, no Azure. Logic written inside a function class
+        is effectively untestable, and the test project quietly becomes something that
+        can't reach anything worth asserting on.
     </p>
 
-    <p>
-        Business logic lives in ordinary classes that can be constructed with
-        <code>new</code> in a test — no HTTP types, no Functions host, no Azure. Logic
-        written inside a function class is effectively untestable, and the test project
-        quietly becomes something that can't reach anything worth asserting on.
-    </p>
-
-    <div class="callout">
-        <p>
-            A lesson from this project that cost me an hour: <code>dotnet test</code> exits
-            <strong>0 when it finds no tests at all</strong>. A required status check sat
-            green on three pull requests while executing nothing, because those branches
-            predated the test suite. Green ticks are not evidence — the run log is.
-        </p>
-    </div>
-
-    <h2>Deployment, and three ways it broke</h2>
+    <h2>How it's built</h2>
 
     <p>
-        Every push to <code>main</code> runs tests, then builds and deploys. Pull requests
-        get their own preview environment. Getting there took three failures, each with a
-        misleading error:
-    </p>
-
-    <ul>
-        <li>
-            <strong>An exactly-pinned SDK version.</strong> <code>global.json</code> named
-            the patch installed on my machine; Azure's build server ships a different one,
-            and version roll-forward only goes up. Built perfectly locally, failed every
-            time in CI. A version <em>floor</em> fixed it.
-        </li>
-        <li>
-            <strong>A Windows backslash</strong> in the generated workflow's API path. The
-            build runner is Linux, so it silently failed to resolve.
-        </li>
-        <li>
-            <strong>Telemetry the host couldn't satisfy.</strong> The Functions template
-            generates Azure Monitor wiring that requires a connection string which didn't
-            exist yet. The worker threw on startup and Azure reported only
-            <em>"Failed to deploy the Azure Functions"</em>, with no indication of why.
-        </li>
-    </ul>
-
-    <p>
-        A fourth was self-inflicted and more interesting: centralising
-        <code>&lt;TargetFramework&gt;</code> into a shared MSBuild file is correct MSBuild
-        and broke deployment outright. Azure's builder detects the platform by
-        <em>text-scanning</em> project files for that element — it doesn't evaluate
-        MSBuild, so an inherited property is invisible to it and the repository looks like
-        it contains no .NET at all. That duplication is now deliberate, and commented so
-        nobody tidies it away.
-    </p>
-
-    <h2>Enforced by the build, not by memory</h2>
-
-    <p>
-        Conventions that rely on remembering them decay. These don't:
-        warnings are errors and the .NET analyzers run at
-        <code>latest-recommended</code>, so a warning fails the build. Every NuGet version
-        lives in one file. CI runs the tests and a formatting check, and
-        <code>main</code> requires a passing pull request. The two analyzer rules that are
-        suppressed each carry a written justification.
-    </p>
-
-    <p>
-        The whole constraint set — including why .NET 9 was considered and rejected, and
-        what happens when .NET 8 reaches end of support in November 2026 — is written down
-        in the repository rather than living in my head.
+        Warnings are errors and the .NET analyzers run at
+        <code>latest-recommended</code>, so the conventions are enforced by the compiler
+        rather than by memory. Every NuGet version lives in one file. CI runs the test
+        suite and a formatting check on every push, <code>main</code> requires a passing
+        pull request, and each pull request gets its own preview environment. Merging to
+        <code>main</code> tests, builds and deploys automatically.
     </p>
 
 </ProjectPage>
