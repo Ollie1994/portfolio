@@ -9,6 +9,18 @@ on:
     branches:
       - main
 
+# Serialise all runs for a given pull request. Without this the close run - fired
+# on merge - can start while that PR's preview deploy is still in flight, report
+# "No matching Static Web App environment was found", exit 0, and then the deploy
+# finishes and creates an environment nothing will ever clean up. Three orphans
+# accumulated that way and exhausted the free tier's three-environment limit.
+#
+# cancel-in-progress is deliberately false: cancelling the deploy would leave the
+# environment half-created rather than not created.
+concurrency:
+  group: swa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
 jobs:
   # Gate. The deploy job builds via Oryx inside the SWA action and would happily
   # ship a solution whose tests fail, so the tests have to run and pass here
