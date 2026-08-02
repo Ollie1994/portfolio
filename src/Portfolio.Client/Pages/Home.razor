@@ -37,12 +37,33 @@
         </p>
 
         <div class="project-grid">
+            <ProjectCard Title="WhereIsFood"
+                         Kicker="In progress · 2026"
+                         AccentClass="accent-red"
+                         Href="/projects/whereisfood"
+                         Summary="A live map of Gothenburg's food trucks, weighing how much to trust each location update and saying so in plain language."
+                         Tech="@(new[] { "TypeScript", "Next.js", "Postgres", "MapLibre" })" />
+
+            <ProjectCard Title="Database seeding system"
+                         Kicker="Professional work · 2025–26"
+                         AccentClass="accent-green"
+                         Href="/projects/seeding"
+                         Summary="Reproducible test data for a live education platform, built at Klarr and the subject of my thesis."
+                         Tech="@(new[] { "JavaScript", "Express", "MongoDB", "AJV" })" />
+
             <ProjectCard Title="This portfolio site"
                          Kicker="Live · 2026"
                          AccentClass="accent-blue"
                          Href="/projects/portfolio"
                          Summary="Serverless portfolio on the Microsoft stack, built to run at zero cost and treat its own public API as hostile input."
                          Tech="@(new[] { "C#", ".NET 8", "Blazor", "Azure" })" />
+
+            <ProjectCard Title="Real-time quiz app"
+                         Kicker="Learning project · 2025"
+                         AccentClass="accent-yellow"
+                         Href="/projects/quiz"
+                         Summary="Kahoot-style multiplayer quiz with room-based WebSocket sync, deployed and run on EC2."
+                         Tech="@(new[] { "JavaScript", "Socket.IO", "Next.js", "AWS" })" />
         </div>
     </div>
 </section>

@@ -1,0 +1,116 @@
+@page "/projects/whereisfood"
+
+<ProjectPage Title="WhereIsFood"
+             Kicker="In progress · 2026"
+             AccentClass="accent-red"
+             Summary="A live map of Gothenburg's food trucks. Trucks broadcast their location three different ways; the map works out how much to trust each one and says so in plain language."
+             Tech="@(new[] { "TypeScript", "Next.js 16", "React 19", "Supabase Postgres", "MapLibre GL JS", "Protomaps", "Tailwind CSS v4", "Vitest" })"
+             Links="@(new[] { new ProjectPage.ProjectLink("Source on GitHub", "https://github.com/Ollie1994/whereisfood") })">
+
+    <h2>What it is</h2>
+
+    <p>
+        Gothenburg has had no central live food-truck map since Streetkäk shut down in
+        2017. WhereIsFood fills that gap: open it with no login and see which trucks are
+        out right now, where they are, and what they're serving. Consumers are always
+        anonymous — no account, no tracking — and the interface is in Swedish.
+    </p>
+
+    <p>
+        <strong>Phases 1 and 2 of 8 are complete.</strong> The map renders and both
+        ingestion lanes are built and verified end-to-end against a local Supabase stack.
+        The map isn't wired to live data yet — that's phase 4.
+    </p>
+
+    <h2>Three ways in, weighted by trust</h2>
+
+    <p>
+        Food truck owners don't want another dashboard to log into, so the system meets
+        them where they already post. Location updates arrive three ways, and each carries
+        a different <strong>source confidence</strong>:
+    </p>
+
+    <ul>
+        <li>
+            <strong>Dashboard</strong> — an authenticated owner entering structured data.
+            Trusted completely; no parsing involved.
+        </li>
+        <li>
+            <strong>Webhook</strong> — a Make.com automation forwards a social post
+            caption, which goes through the parser.
+        </li>
+        <li>
+            <strong>Inbound email</strong> — the truck emails an address; the parser runs
+            on the body. Least trusted, because anyone can send email.
+        </li>
+    </ul>
+
+    <p>
+        A manual post always overrides a parsed one covering the same time window.
+    </p>
+
+    <h2>Confidence users can actually read</h2>
+
+    <p>
+        Trust is scored on two axes — <code>parser confidence × source confidence</code> —
+        but that number never reaches the user. Showing someone "0.68" tells them nothing.
+        It surfaces as marker colour and a sentence instead: <em>"Posted by truck today"</em>
+        against <em>"Based on this morning's post"</em>.
+    </p>
+
+    <div class="callout">
+        <p>
+            The decision I'd defend hardest is showing <strong>absence honestly</strong>. A
+            truck with no update today appears grey at its last known spot, explicitly
+            labelled as stale, rather than being hidden or silently shown as if it were
+            current. Hiding it makes the map look better and makes it useless — you'd
+            arrive at an empty street.
+        </p>
+    </div>
+
+    <h2>A Swedish-language parser built as pure functions</h2>
+
+    <p>
+        Captions and emails run through a dictionary-based pipeline: normalise, detect
+        negation (<code>inställt</code>, <code>stängt</code>), extract location, resolve
+        the date (<code>idag</code>, <code>imorgon</code>, weekday names — always to the
+        nearest <em>future</em> day), extract a time range, then score confidence.
+    </p>
+
+    <p>
+        There is <strong>no <code>new Date()</code> anywhere inside the parser</strong> —
+        the current time is passed in. That one rule is what makes the whole thing
+        testable: "what does <em>imorgon</em> mean" is a question with a fixed answer only
+        if you control what "now" is. Raw posts are also retained as a training corpus for
+        a future machine-learning parser intended to replace the dictionary approach.
+    </p>
+
+    <h2>Cost and security decisions</h2>
+
+    <p>
+        Map tiles are the usual hidden cost in a mapping product — hosted tile APIs bill
+        per request and lock you in. The map serves <strong>self-hosted Protomaps vector
+        tiles</strong> through MapLibre GL JS instead, so traffic growth doesn't create a
+        bill and the provider can be changed at will.
+    </p>
+
+    <p>
+        Both ingestion endpoints are publicly reachable, so they verify their source with
+        <strong>HMAC-SHA256 and constant-time comparison</strong> — a naive string compare
+        leaks information about the secret through timing. Input goes through pure
+        validators before anything is persisted, and the database uses row-level security
+        with least-privilege grants. Endpoints return <code>200</code> immediately and
+        defer the write, so a slow database can't make the caller time out and retry.
+    </p>
+
+    <h2>How it's built</h2>
+
+    <p>
+        The architecture is strictly layered — HTTP routes, then services, then the
+        database, with parsers and validators as pure functions at the edge. Covered by a
+        Vitest unit suite and verified end-to-end against a local Supabase stack running in
+        Docker. I run the project through a structured, phased, issue- and PR-driven
+        process with custom workflow rules I wrote myself.
+    </p>
+
+</ProjectPage>
