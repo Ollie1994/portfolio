@@ -1,0 +1,61 @@
+@*
+    Badge images are served from our own origin, not from Credly — the CSP sets
+    img-src 'self', and a third party going down shouldn't break the page. Each
+    badge still links to its Credly record, which is what actually verifies it.
+*@
+
+<div class="cert-featured">
+    @foreach (var cert in Featured)
+    {
+        <a class="cert-card @cert.AccentClass" href="@cert.VerifyUrl" rel="noopener">
+            <img src="@cert.Image" alt="@cert.Name badge" width="200" height="200" loading="lazy" />
+            <span class="cert-name">@cert.Name</span>
+            <span class="cert-meta">@cert.Issuer · @cert.Year</span>
+            <span class="cert-verify" aria-hidden="true">Verify →</span>
+        </a>
+    }
+</div>
+
+<ul class="cert-more">
+    @foreach (var cert in Additional)
+    {
+        <li>
+            <span class="cert-more-name">@cert.Name</span>
+            <span class="cert-more-year">@cert.Year</span>
+        </li>
+    }
+</ul>
+
+@code {
+    private static readonly FeaturedCert[] Featured =
+    [
+        new("AWS Certified Cloud Practitioner",
+            "Amazon Web Services", "2025",
+            "img/certs/aws-cloud-practitioner.png",
+            "https://www.credly.com/badges/55d05d28-9b88-461b-9bc2-7ad94ea1dd66",
+            "accent-yellow"),
+
+        new("Google Cybersecurity Professional Certificate",
+            "Coursera", "2026",
+            "img/certs/google-cybersecurity.png",
+            "https://www.credly.com/badges/320104b2-05a2-40f8-b89b-f87a54fe2255",
+            "accent-blue"),
+
+        new("Unity Essentials",
+            "Unity Technologies", "2026",
+            "img/certs/unity-essentials.png",
+            "https://www.credly.com/badges/d7816787-74fa-4f05-abe4-f518f9e82ec2",
+            "accent-green")
+    ];
+
+    private static readonly AdditionalCert[] Additional =
+    [
+        new("Claude Code: Software Engineering with Generative AI Agents", "2026"),
+        new("Learning GitHub Actions for DevOps CI/CD", "2026")
+    ];
+
+    private sealed record FeaturedCert(
+        string Name, string Issuer, string Year, string Image, string VerifyUrl, string AccentClass);
+
+    private sealed record AdditionalCert(string Name, string Year);
+}
