@@ -16,15 +16,19 @@
     }
 </div>
 
-<ul class="cert-more">
-    @foreach (var cert in Additional)
-    {
-        <li>
-            <span class="cert-more-name">@cert.Name</span>
-            <span class="cert-more-year">@cert.Year</span>
-        </li>
-    }
-</ul>
+<div class="cert-secondary">
+    <h3 class="cert-secondary-heading">Also completed</h3>
+
+    <div class="cert-secondary-grid">
+        @foreach (var cert in Additional)
+        {
+            <div class="cert-mini">
+                <span class="cert-mini-name">@cert.Name</span>
+                <span class="cert-mini-meta">Course · @cert.Year</span>
+            </div>
+        }
+    </div>
+</div>
 
 @code {
     private static readonly FeaturedCert[] Featured =
