@@ -27,11 +27,19 @@
     transform: translateY(-2px);
 }
 
+/* Every badge sits on the same light tile. They can't share a background
+   otherwise: Unity and AWS are dark artwork on transparency and vanish against a
+   dark card, while the Google badge is light artwork on opaque white and shows
+   its edges against a light one. Issuers design these for light backgrounds, so
+   giving them one is both consistent and what they expect. */
 .cert-card img {
     width: 7rem;
     height: 7rem;
     object-fit: contain;
     margin-bottom: 1rem;
+    padding: .5rem;
+    background: var(--white);
+    border-radius: var(--radius);
 }
 
 .cert-name {
