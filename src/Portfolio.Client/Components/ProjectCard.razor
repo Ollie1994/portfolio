@@ -1,0 +1,26 @@
+<a class="card @AccentClass" href="@Href">
+    <span class="card-kicker">@Kicker</span>
+    <h3 class="card-title">@Title</h3>
+    <p class="card-summary">@Summary</p>
+
+    <span class="card-tech">
+        @foreach (var tech in Tech)
+        {
+            <span class="tech-pill">@tech</span>
+        }
+    </span>
+
+    <span class="card-more" aria-hidden="true">Read more →</span>
+</a>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Kicker { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Summary { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Href { get; set; } = string.Empty;
+
+    /// <summary>accent-red / accent-green / accent-blue / accent-yellow.</summary>
+    [Parameter, EditorRequired] public string AccentClass { get; set; } = "accent-blue";
+
+    [Parameter] public IReadOnlyList<string> Tech { get; set; } = [];
+}

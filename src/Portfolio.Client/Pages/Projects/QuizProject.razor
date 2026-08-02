@@ -1,0 +1,57 @@
+@page "/projects/quiz"
+
+<ProjectPage Title="Real-time quiz app"
+             Kicker="Learning project · 2025"
+             AccentClass="accent-yellow"
+             Summary="A Kahoot-style multiplayer quiz. A host runs the game on a big screen while players join from their phones with a room code, synced live over WebSockets."
+             Tech="@(new[] { "JavaScript", "Next.js", "React", "Socket.IO", "MongoDB Atlas", "Prisma", "AWS EC2", "PM2" })"
+             Links="@(new[] { new ProjectPage.ProjectLink("Source on GitHub", "https://github.com/Ollie1994/kahoot_clone_v5") })">
+
+    <h2>What it is</h2>
+
+    <p>
+        A rebuild of Kahoot's classroom mode: a host starts a session on a shared screen,
+        players join from their own devices using a room code, questions appear for
+        everyone at once, and answers come back in real time.
+    </p>
+
+    <p>
+        It's <strong>deliberately incomplete</strong>, and worth saying so. I built it to
+        learn three specific things — Next.js ahead of an internship, how WebSockets handle
+        multiple independent groups of users, and deploying something myself while studying
+        for the AWS Cloud Practitioner certificate. Once those were covered, polishing it
+        further wasn't the point.
+    </p>
+
+    <h2>Rooms are the interesting part</h2>
+
+    <p>
+        A quiz app is a natural fit for WebSockets, and specifically for <em>rooms</em>.
+        Several games have to run at once without leaking into each other: every player
+        sees their own game's question at the same moment as everyone else in it, and
+        nobody sees anything from another session. The room code is what binds a player's
+        socket to the right game.
+    </p>
+
+    <p>
+        That constraint is what made it a good learning project — request/response wouldn't
+        have taught me anything new, whereas keeping many clients in sync with shared
+        server state is a genuinely different shape of problem.
+    </p>
+
+    <h2>Running it myself</h2>
+
+    <p>
+        It's deployed to an <strong>AWS EC2</strong> instance with <strong>PM2</strong>
+        keeping the process alive. Provisioning a machine, configuring it and keeping
+        something running on it taught me considerably more about what cloud services
+        abstract away than the certificate material did on its own.
+    </p>
+
+    <p>
+        Compared with what I build now, it's the earliest of these projects and the
+        simplest — no test suite, no CI, validation left as a "future improvement" in the
+        README. I've left it that way rather than quietly going back to fix it.
+    </p>
+
+</ProjectPage>

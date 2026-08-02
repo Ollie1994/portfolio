@@ -8,9 +8,10 @@
         <p class="eyebrow">Software Developer</p>
         <h1>Oliwer Karlsson</h1>
         <p class="lead">
-            I build things on the Microsoft stack — C#, .NET and Azure.
-            This site is one of them: Blazor WebAssembly on the front, Azure Functions
-            behind it, deployed serverless and running at no cost.
+            Fullstack developer in Gothenburg. I work across the stack in C#, JavaScript
+            and Java — building things, breaking them, and working out why. This site is
+            one of them: Blazor WebAssembly on the front, Azure Functions behind it,
+            running serverless at no cost.
         </p>
         <div class="hero-actions">
             <a class="btn btn-primary" href="#projects">See projects</a>
@@ -22,9 +23,37 @@
 <section id="about" class="section">
     <div class="container">
         <h2><span class="section-marker accent-red"></span>About</h2>
+
         <p class="section-body">
-            Placeholder. A short paragraph on who you are, what you work with, and what
-            you are looking for — three or four sentences is plenty.
+            I'm a fullstack developer from Gothenburg, and I got here by being curious
+            about how things work and stubborn about finding out.
+        </p>
+
+        <p class="section-body">
+            I graduated from Teknikhögskolan in 2026 with top grades in every course, and
+            have worked on an education platform building features across the frontend and
+            backend, where I also served as Scrum Master. I'm currently driving freight
+            trains while I move into development full time.
+        </p>
+
+        <p class="section-body">
+            Most of what I know I learned by building something that didn't exist yet.
+            Right now that's WhereIsFood, a live map of Gothenburg's food trucks. Before
+            that it was a real-time quiz app, mostly to find out how WebSockets behave when
+            a room full of people are answering at once.
+        </p>
+
+        <p class="section-body">
+            Outside work I train Muay Thai, poke at cybersecurity on TryHackMe, and I've
+            been learning game development in Unity — no finished game yet, just working
+            out how a different kind of engine thinks. The security side isn't what I'm
+            looking to do professionally, but it changes how you build: you start assuming
+            someone will send you something you didn't expect.
+        </p>
+
+        <p class="section-body">
+            I'm looking for a developer role where I'll be pushed to learn things I don't
+            know yet.
         </p>
     </div>
 </section>
@@ -33,13 +62,52 @@
     <div class="container">
         <h2><span class="section-marker accent-green"></span>Projects</h2>
         <p class="section-body">
-            Placeholder. Each project becomes a card here, linking to its own page for
-            the ones worth a longer write-up.
+            Things I've built, and the reasoning behind them.
         </p>
+
+        <div class="project-grid">
+            <ProjectCard Title="WhereIsFood"
+                         Kicker="In progress · 2026"
+                         AccentClass="accent-red"
+                         Href="/projects/whereisfood"
+                         Summary="A live map of Gothenburg's food trucks, weighing how much to trust each location update and saying so in plain language."
+                         Tech="@(new[] { "TypeScript", "Next.js", "Postgres", "MapLibre" })" />
+
+            <ProjectCard Title="Database seeding system"
+                         Kicker="Professional work · 2025–26"
+                         AccentClass="accent-green"
+                         Href="/projects/seeding"
+                         Summary="Reproducible test data for a live education platform, built at Klarr and the subject of my thesis."
+                         Tech="@(new[] { "JavaScript", "Express", "MongoDB", "AJV" })" />
+
+            <ProjectCard Title="This portfolio site"
+                         Kicker="Live · 2026"
+                         AccentClass="accent-blue"
+                         Href="/projects/portfolio"
+                         Summary="Serverless portfolio on the Microsoft stack, built to run at zero cost and treat its own public API as hostile input."
+                         Tech="@(new[] { "C#", ".NET 8", "Blazor", "Azure" })" />
+
+            <ProjectCard Title="Real-time quiz app"
+                         Kicker="Learning project · 2025"
+                         AccentClass="accent-yellow"
+                         Href="/projects/quiz"
+                         Summary="Kahoot-style multiplayer quiz with room-based WebSocket sync, deployed and run on EC2."
+                         Tech="@(new[] { "JavaScript", "Socket.IO", "Next.js", "AWS" })" />
+        </div>
     </div>
 </section>
 
-<section id="contact" class="section">
+<section id="certificates" class="section">
+    <div class="container">
+        <h2><span class="section-marker accent-yellow"></span>Certificates</h2>
+        <p class="section-body">
+            Verified through Credly — click any badge to check it.
+        </p>
+        <Certificates />
+    </div>
+</section>
+
+<section id="contact" class="section section-alt">
     <div class="container">
         <h2><span class="section-marker accent-blue"></span>Contact</h2>
         <p class="section-body">

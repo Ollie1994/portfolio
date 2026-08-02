@@ -1,0 +1,72 @@
+@page "/projects/seeding"
+
+<ProjectPage Title="Database seeding system"
+             Kicker="Professional work · 2025–26"
+             AccentClass="accent-green"
+             Summary="A modular seeding system for an education platform, giving every developer reproducible test data across environments and feeding the automated integration tests."
+             Tech="@(new[] { "JavaScript", "Express.js", "MongoDB", "Mongoose", "Faker", "AJV", "Lodash" })">
+
+    <h2>What it is</h2>
+
+    <p>
+        Built at <strong>Klarr Utvecklingsbyrå</strong> for a live education platform, and
+        the subject of my thesis. Developers needed realistic data to work against and the
+        integration tests needed a known starting state — and both were being solved
+        ad hoc, differently, by each person.
+    </p>
+
+    <p>
+        The system generates that data on demand: configurable volumes, the relationships
+        between entities, and the awkward edge cases that only show up in real use. It
+        supports both <strong>full and partial seeding</strong>, so you can rebuild
+        everything or top up one collection without wiping your working state.
+    </p>
+
+    <h2>Designed for people who aren't me</h2>
+
+    <p>
+        A seeding script is easy. A seeding <em>system</em> that other developers will
+        actually use, extend, and not resent is the harder problem, and that's what
+        shaped the design.
+    </p>
+
+    <p>
+        It's modular, so adding a new entity means writing one generator rather than
+        touching a monolith. Volumes and relationships are configurable rather than
+        hardcoded, because the data you want for a UI demo isn't the data you want for a
+        performance check. Generated documents are validated against schemas with
+        <strong>AJV</strong>, so the system can't quietly produce records the application
+        would reject.
+    </p>
+
+    <h2>Finding out what was actually needed</h2>
+
+    <p>
+        Before building it I gathered requirements from the people who'd depend on it —
+        developers with different workflows, the automated test suite with its own
+        constraints, and the platform's future direction. Those wants conflicted:
+        <strong>fast, small datasets</strong> for day-to-day work against
+        <strong>large, realistic ones</strong> for meaningful testing.
+    </p>
+
+    <p>
+        Configurability was the resolution rather than a compromise on either side. That
+        work — balancing competing priorities across teams into one design — was the part
+        I found most valuable, and it's what the thesis examined.
+    </p>
+
+    <h2>Integrated, documented, handed over</h2>
+
+    <p>
+        The system plugs into the automated test suite so integration tests run against a
+        known, reproducible state instead of whatever happened to be in the database.
+    </p>
+
+    <p>
+        I wrote onboarding documentation and presented the architecture to the development
+        team. That mattered as much as the code: a tool nobody understands gets worked
+        around, and a system only one person can extend becomes that person's permanent
+        obligation.
+    </p>
+
+</ProjectPage>

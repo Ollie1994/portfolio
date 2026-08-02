@@ -1,0 +1,101 @@
+@page "/projects/portfolio"
+
+<ProjectPage Title="This portfolio site"
+             Kicker="Live · 2026"
+             AccentClass="accent-blue"
+             Summary="A serverless portfolio on the Microsoft stack — Blazor WebAssembly in the browser, Azure Functions behind it, deployed automatically and running at zero cost."
+             Tech="@(new[] { "C#", ".NET 8", "Blazor WebAssembly", "Azure Functions", "Azure Static Web Apps", "GitHub Actions", "xUnit", "Application Insights" })"
+             Links="@(new[] { new ProjectPage.ProjectLink("Source on GitHub", "https://github.com/Ollie1994/portfolio") })">
+
+    <h2>What it is</h2>
+
+    <p>
+        The site you're reading. A <strong>Blazor WebAssembly</strong> frontend — C#
+        compiled to WebAssembly, running entirely in the browser — with an
+        <strong>Azure Functions</strong> API behind it on the isolated worker model.
+    </p>
+
+    <p>
+        Both are served from a single Azure Static Web Apps resource, so the API sits at
+        <code>/api</code> on the same origin: no CORS to configure and no host to hardcode
+        across local, preview and production environments. Shared DTOs and validation rules
+        live in a third project that both sides compile against, so a change that breaks
+        the contract breaks the build rather than production.
+    </p>
+
+    <h2>Running at zero cost</h2>
+
+    <p>
+        Everything runs on free tiers, and the components were chosen to share one
+        property: <strong>they degrade rather than bill.</strong> Static Web Apps has no
+        overage billing — exceed the bandwidth allowance and serving pauses instead of
+        generating an invoice. Application Insights has a hard daily ingestion cap set, so
+        it stops collecting rather than charging.
+    </p>
+
+    <p>
+        That constraint decided how the contact form works. Sending email looked obvious
+        until the cost model: Azure Communication Services bills per message with no free
+        allowance, and SendGrid withdrew its free tier in 2025. An anonymous public
+        endpoint that sends one paid email per request is an amplifier. Submissions go to
+        Application Insights as structured logs instead, where abuse costs availability
+        rather than money.
+    </p>
+
+    <h2>The API treats every request as hostile</h2>
+
+    <p>
+        Blazor WebAssembly runs in the browser, so everything in the client is public, and
+        <code>/api/*</code> is anonymous and directly reachable without ever loading the
+        site. The endpoint is written accordingly:
+    </p>
+
+    <ul>
+        <li>
+            Validation rules live in the shared project and run on both sides. The client's
+            run is for immediate feedback; <strong>the API's is authoritative</strong>,
+            because the client can be bypassed entirely.
+        </li>
+        <li>
+            Request bodies are bounded twice — on the declared <code>Content-Length</code>,
+            then again through a limited stream during deserialisation, since the declared
+            length comes from the caller.
+        </li>
+        <li>
+            Line breaks are rejected in single-line fields, which removes email header
+            injection as a class of bug regardless of how delivery is implemented later.
+        </li>
+        <li>
+            A honeypot field catches naive bots, and their submissions are reported as
+            successful — telling a bot it was detected only helps it adapt.
+        </li>
+        <li>
+            Security headers are set at the edge: a Content Security Policy with no
+            <code>unsafe-inline</code>, plus <code>nosniff</code>,
+            <code>Referrer-Policy</code>, <code>Permissions-Policy</code> and HSTS.
+        </li>
+    </ul>
+
+    <h2>Structured so the tests reach something</h2>
+
+    <p>
+        <strong>Function classes are adapters, not logic.</strong> A function reads input,
+        delegates to a plain service, and maps the result to a status code. Business logic
+        lives in ordinary classes that can be constructed with <code>new</code> in a test —
+        no HTTP types, no Functions host, no Azure. Logic written inside a function class
+        is effectively untestable, and the test project quietly becomes something that
+        can't reach anything worth asserting on.
+    </p>
+
+    <h2>How it's built</h2>
+
+    <p>
+        Warnings are errors and the .NET analyzers run at
+        <code>latest-recommended</code>, so the conventions are enforced by the compiler
+        rather than by memory. Every NuGet version lives in one file. CI runs the test
+        suite and a formatting check on every push, <code>main</code> requires a passing
+        pull request, and each pull request gets its own preview environment. Merging to
+        <code>main</code> tests, builds and deploys automatically.
+    </p>
+
+</ProjectPage>

@@ -1,0 +1,67 @@
+@*
+    Shared shell for every project detail page. Takes the accent as a CSS class
+    rather than a colour value so pages cannot introduce a fifth accent - the
+    four Microsoft logo colours are the whole set. See CLAUDE.md.
+*@
+
+<PageTitle>@Title — Oliwer Karlsson</PageTitle>
+
+<article class="project @AccentClass">
+    <header class="project-header">
+        <div class="container">
+            <a class="back-link" href="/#projects">← All projects</a>
+
+            <p class="project-eyebrow">@Kicker</p>
+            <h1>@Title</h1>
+            <p class="project-summary">@Summary</p>
+
+            <ul class="tech-list" aria-label="Technologies used">
+                @foreach (var tech in Tech)
+                {
+                    <li class="tech-pill">@tech</li>
+                }
+            </ul>
+
+            @if (Links.Count > 0)
+            {
+                <div class="project-links">
+                    @foreach (var link in Links)
+                    {
+                        <a class="btn btn-secondary" href="@link.Href" rel="noopener">@link.Label</a>
+                    }
+                </div>
+            }
+        </div>
+    </header>
+
+    <hr class="ms-rule" />
+
+    <div class="container project-body">
+        @ChildContent
+    </div>
+
+    <div class="container project-footer">
+        <a class="btn btn-primary" href="/#contact">Get in touch</a>
+        <a class="btn btn-secondary" href="/#projects">All projects</a>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Short label above the title — status or category.</summary>
+    [Parameter, EditorRequired] public string Kicker { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string Summary { get; set; } = string.Empty;
+
+    /// <summary>One of the accent classes from app.css: accent-red/green/blue/yellow.</summary>
+    [Parameter, EditorRequired] public string AccentClass { get; set; } = "accent-blue";
+
+    [Parameter] public IReadOnlyList<string> Tech { get; set; } = [];
+
+    [Parameter] public IReadOnlyList<ProjectLink> Links { get; set; } = [];
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    public sealed record ProjectLink(string Label, string Href);
+}

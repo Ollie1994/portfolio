@@ -1,0 +1,125 @@
+.project-header {
+    padding-block: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem);
+    background:
+        radial-gradient(50rem 24rem at 12% -20%, var(--accent-wash), transparent 65%),
+        var(--bg);
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.back-link:hover {
+    color: var(--primary);
+}
+
+.project-eyebrow {
+    margin: 0 0 .5rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    /* The project's own accent, set by the accent-* class on .project. */
+    color: var(--accent);
+}
+
+.project-header h1 {
+    max-width: 20ch;
+}
+
+.project-summary {
+    max-width: 44rem;
+    font-size: clamp(1.0625rem, 2vw, 1.1875rem);
+    color: var(--text-muted);
+}
+
+.tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+}
+
+.project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1.5rem;
+}
+
+.project-body {
+    padding-block: clamp(2rem, 5vw, 3rem);
+    max-width: 46rem;
+}
+
+/* Section headings inside the body carry the accent as a leading marker, the
+   same device the home page uses for its sections. */
+.project-body ::deep h2 {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-top: 2.5rem;
+    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+}
+
+.project-body ::deep h2::before {
+    content: "";
+    width: .75rem;
+    height: .75rem;
+    border-radius: 2px;
+    background: var(--accent);
+    flex: none;
+}
+
+.project-body ::deep h2:first-child {
+    margin-top: 0;
+}
+
+.project-body ::deep h3 {
+    margin-top: 1.75rem;
+    font-size: 1.0625rem;
+}
+
+.project-body ::deep p,
+.project-body ::deep li {
+    color: var(--text-muted);
+}
+
+.project-body ::deep ul {
+    padding-left: 1.25rem;
+}
+
+.project-body ::deep li {
+    margin-bottom: .5rem;
+}
+
+.project-body ::deep strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Pull-quote for the one thing worth remembering from each project. */
+.project-body ::deep .callout {
+    margin: 1.75rem 0;
+    padding: 1rem 1.25rem;
+    border-left: 3px solid var(--accent);
+    background: var(--bg-subtle);
+    border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.project-body ::deep .callout p:last-child {
+    margin-bottom: 0;
+}
+
+.project-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    padding-block: 0 clamp(2rem, 5vw, 3rem);
+}
