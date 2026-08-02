@@ -67,6 +67,15 @@
         --primary-hover: #4FADF7;
         --primary-subtle: #10334F;
     }
+
+    /* A card should look equally raised wherever it sits. A single --surface
+       value can't do that when sections alternate background: the same colour
+       reads as a 19-step lift on --bg and only a 9-step lift on --bg-subtle.
+       Tinted sections therefore raise --surface to match, and every child
+       component inherits it through the custom property. */
+    .section-alt {
+        --surface: #383736;
+    }
 }
 
 /* ==========================================================================
