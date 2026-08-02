@@ -61,28 +61,51 @@
     color: var(--primary);
 }
 
-.cert-more {
+/* Second tier: course completions rather than certifications. Deliberately
+   subordinate to the badged cards above, but built from the same parts - same
+   border, radius and spacing - so they read as a smaller sibling rather than
+   as something appended. */
+.cert-secondary {
+    margin-top: 2.5rem;
+}
+
+.cert-secondary-heading {
+    margin: 0 0 1rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+}
+
+.cert-secondary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: 1rem;
+}
+
+.cert-mini {
     display: flex;
-    flex-wrap: wrap;
-    gap: .5rem 1.5rem;
-    list-style: none;
-    margin: 1.75rem 0 0;
-    padding: 1.25rem 0 0;
-    border-top: 1px solid var(--border);
+    flex-direction: column;
+    gap: .25rem;
+    padding: .875rem 1.125rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    /* Muted marker on the left, where the featured cards carry an accent on top.
+       Related, clearly subordinate, and it avoids spending a fifth colour -
+       there are only four accents and three are already taken above. */
+    border-left: 3px solid var(--grey-60);
+    border-radius: var(--radius);
 }
 
-.cert-more li {
-    display: flex;
-    align-items: baseline;
-    gap: .5rem;
-    font-size: .875rem;
+.cert-mini-name {
+    font-weight: 600;
+    font-size: .9375rem;
+    line-height: 1.35;
 }
 
-.cert-more-name {
-    color: var(--text);
-}
-
-.cert-more-year {
+.cert-mini-meta {
+    font-size: .8125rem;
     color: var(--text-muted);
 }
 
