@@ -100,9 +100,6 @@ cap, so it degrades rather than invoices — the same failure mode as everything
 stack. The email address is published on the site as well, so the form is a convenience
 rather than the only channel.
 
-See [CLAUDE.md](CLAUDE.md) for the full constraint set, conventions, and the deployment
-gotchas discovered while setting this up.
-
 ## Cost
 
 Runs at **$0** on the Static Web Apps free tier: 100 GB bandwidth/month, 250 MB storage per
