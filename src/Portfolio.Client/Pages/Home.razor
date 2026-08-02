@@ -33,9 +33,17 @@
     <div class="container">
         <h2><span class="section-marker accent-green"></span>Projects</h2>
         <p class="section-body">
-            Placeholder. Each project becomes a card here, linking to its own page for
-            the ones worth a longer write-up.
+            Things I've built, and the reasoning behind them.
         </p>
+
+        <div class="project-grid">
+            <ProjectCard Title="This portfolio site"
+                         Kicker="Live · 2026"
+                         AccentClass="accent-blue"
+                         Href="/projects/portfolio"
+                         Summary="Serverless portfolio on the Microsoft stack, built to run at zero cost and treat its own public API as hostile input."
+                         Tech="@(new[] { "C#", ".NET 8", "Blazor", "Azure" })" />
+        </div>
     </div>
 </section>
 

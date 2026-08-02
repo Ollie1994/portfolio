@@ -1,0 +1,65 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+/* The project's accent, from the accent-* class. */
+.card {
+    border-top: 3px solid var(--accent);
+}
+
+.card:hover {
+    text-decoration: none;
+    color: var(--text);
+    border-color: var(--grey-60);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.card-kicker {
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--accent);
+}
+
+.card-title {
+    margin: .375rem 0 .5rem;
+    font-size: 1.1875rem;
+}
+
+.card-summary {
+    margin: 0 0 1.25rem;
+    font-size: .9375rem;
+    color: var(--text-muted);
+}
+
+.card-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .375rem;
+    /* Pushes the tech pills and "read more" to the bottom so cards of
+       different summary lengths still line up. */
+    margin-top: auto;
+}
+
+.card-more {
+    margin-top: 1rem;
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card:hover {
+        transform: none;
+    }
+}

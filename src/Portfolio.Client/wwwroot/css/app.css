@@ -11,6 +11,13 @@
     --ms-blue: #00A4EF;
     --ms-yellow: #FFB900;
 
+    /* Translucent versions for background washes. Defined here so no colour
+       literal exists outside :root. */
+    --ms-red-wash: rgba(242, 80, 34, .13);
+    --ms-green-wash: rgba(127, 186, 0, .15);
+    --ms-blue-wash: rgba(0, 164, 239, .13);
+    --ms-yellow-wash: rgba(255, 185, 0, .16);
+
     /* Fluent communication blue — primary interactive colour */
     --primary: #0078D4;
     --primary-hover: #106EBE;
@@ -210,11 +217,12 @@ code {
 }
 
 /* Accent classes rather than inline style attributes — the CSP sets
-   style-src 'self', which blocks style="" by design. */
-.accent-red { --accent: var(--ms-red); }
-.accent-green { --accent: var(--ms-green); }
-.accent-blue { --accent: var(--ms-blue); }
-.accent-yellow { --accent: var(--ms-yellow); }
+   style-src 'self', which blocks style="" by design.
+   One per project page; the four logo colours are the whole set. */
+.accent-red { --accent: var(--ms-red); --accent-wash: var(--ms-red-wash); }
+.accent-green { --accent: var(--ms-green); --accent-wash: var(--ms-green-wash); }
+.accent-blue { --accent: var(--ms-blue); --accent-wash: var(--ms-blue-wash); }
+.accent-yellow { --accent: var(--ms-yellow); --accent-wash: var(--ms-yellow-wash); }
 
 .not-found {
     padding-block: clamp(3rem, 9vw, 6rem);
