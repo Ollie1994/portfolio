@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The project pages exist only as client-side routes: index.html contains a loading
+  spinner and a script tag, so a crawler that does not execute JavaScript finds no
+  links to follow. Listing the URLs here is the only reliable way they are discovered.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://ambitious-coast-0312a8e0f.7.azurestaticapps.net/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://ambitious-coast-0312a8e0f.7.azurestaticapps.net/projects/whereisfood</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ambitious-coast-0312a8e0f.7.azurestaticapps.net/projects/seeding</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ambitious-coast-0312a8e0f.7.azurestaticapps.net/projects/portfolio</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ambitious-coast-0312a8e0f.7.azurestaticapps.net/projects/quiz</loc>
+    <priority>0.8</priority>
+  </url>
+</urlset>

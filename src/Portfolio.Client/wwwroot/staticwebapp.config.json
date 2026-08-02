@@ -7,7 +7,8 @@
     "exclude": [
       "/_framework/*",
       "/css/*",
-      "*.{css,js,png,jpg,jpeg,gif,svg,ico,webp,woff,woff2,json,wasm,dll,pdb,dat,blat}"
+      "/img/*",
+      "*.{css,js,png,jpg,jpeg,gif,svg,ico,webp,woff,woff2,json,xml,txt,wasm,dll,pdb,dat,blat}"
     ]
   },
   "routes": [
