@@ -54,7 +54,12 @@
     :root {
         --bg: #1B1A19;
         --bg-subtle: #252423;
-        --surface: #252423;
+        /* Must stay distinct from --bg-subtle. Cards sit on tinted sections, so
+           when these matched, only a 1px border separated a card from its
+           background and nothing read as a surface. Lighter rather than darker:
+           in a dark theme, elevation reads as lighter, and the cards already
+           carry a hover shadow. */
+        --surface: #2E2D2C;
         --text: #F3F2F1;
         --text-muted: #C8C6C4;
         --border: #3B3A39;
