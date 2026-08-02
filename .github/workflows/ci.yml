@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
 
+# CI has no side effects, so superseding an in-flight run on a new push is safe
+# and avoids paying for work nobody will read.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     name: Build and Test
@@ -28,7 +34,20 @@ jobs:
         run: dotnet build Portfolio.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test Portfolio.sln --configuration Release --no-build --verbosity normal
+        # dotnet test exits 0 when it discovers no tests at all, so a green tick
+        # here does not by itself mean anything was verified. This check is
+        # required before merging to main, so it asserts a non-zero passed count
+        # rather than trusting the exit code.
+        run: |
+          set -o pipefail
+          dotnet test Portfolio.sln --configuration Release --no-build --verbosity normal | tee test-output.txt
+          # Matches the summary at either verbosity: "     Passed: 31" at normal,
+          # "Passed!  - Failed: 0, Passed: 31" at minimal. A zero-test run prints
+          # neither, and "Passed: 0" fails the [1-9] anchor.
+          if ! grep -Eq 'Passed: +[1-9][0-9]*' test-output.txt; then
+            echo "::error::No tests were discovered - the suite reported success without running anything."
+            exit 1
+          fi
 
       - name: Check formatting
         # EnforceCodeStyleInBuild is off so style never fails a local build.
