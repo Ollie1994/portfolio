@@ -3,7 +3,7 @@
     flex-direction: column;
     height: 100%;
     padding: 1.5rem;
-    background: var(--surface);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     color: var(--text);

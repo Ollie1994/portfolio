@@ -20,7 +20,7 @@
     padding: .625rem .75rem;
     font: inherit;
     color: var(--text);
-    background: var(--surface);
+    background: var(--card);
     border: 1px solid var(--grey-90);
     border-radius: var(--radius);
     transition: border-color .15s ease;
