@@ -13,8 +13,8 @@
   <ItemGroup Label="Blazor client">
     <!-- Framework-tied: these track the .NET version. Do not move to 10.x while
          the API is pinned to net8.0 - see CLAUDE.md. -->
-    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.29" />
-    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.29" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.32" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.32" />
   </ItemGroup>
 
   <ItemGroup Label="Functions API">
@@ -24,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup Label="Testing">
-    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
   </ItemGroup>
