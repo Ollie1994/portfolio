@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // The whole site on one origin, as in production: client, API and the
+            // Static Web Apps routing in front. F5 starts whatever is not running.
+            // The servers keep running when the browser closes; stop them with
+            // "Tasks: Terminate Task".
+            "name": "Site (localhost:4280)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:4280",
+            "preLaunchTask": "site"
+        }
+    ]
+}

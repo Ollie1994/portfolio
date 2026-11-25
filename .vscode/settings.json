@@ -1,0 +1,5 @@
+{
+    // Building the tests copies host.json into tests/, so the Azure Functions
+    // extension finds more than one project and asks which to use every time.
+    "azureFunctions.projectSubpath": "src/Portfolio.Api"
+}

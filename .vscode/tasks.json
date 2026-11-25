@@ -1,0 +1,59 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "client",
+            "type": "shell",
+            "command": "dotnet watch --project src/Portfolio.Client run",
+            "options": {
+                // The launch configuration opens the browser, on :4280.
+                "env": { "DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER": "1" }
+            },
+            "isBackground": true,
+            "presentation": { "group": "site" },
+            "problemMatcher": {
+                "pattern": { "regexp": "^$", "file": 1, "location": 2, "message": 3 },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "dotnet watch .* Building",
+                    "endsPattern": "Now listening on"
+                }
+            }
+        },
+        {
+            "label": "api",
+            "type": "shell",
+            "command": "func start --port 7071",
+            "options": { "cwd": "${workspaceFolder}/src/Portfolio.Api" },
+            "isBackground": true,
+            "presentation": { "group": "site" },
+            "problemMatcher": {
+                "pattern": { "regexp": "^$", "file": 1, "location": 2, "message": 3 },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Determining projects to restore",
+                    "endsPattern": "For detailed output, run func with"
+                }
+            }
+        },
+        {
+            // Points at the running API rather than letting the SWA CLI start it:
+            // the CLI refuses to on Node versions Core Tools does not list.
+            "label": "site",
+            "type": "shell",
+            "command": "swa start --api-devserver-url http://localhost:7071",
+            "dependsOn": ["client", "api"],
+            "dependsOrder": "parallel",
+            "isBackground": true,
+            "presentation": { "group": "site" },
+            "problemMatcher": {
+                "pattern": { "regexp": "^$", "file": 1, "location": 2, "message": 3 },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Welcome to Azure Static Web Apps CLI",
+                    "endsPattern": "emulator started at"
+                }
+            }
+        }
+    ]
+}

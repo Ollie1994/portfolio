@@ -58,6 +58,12 @@ swa start
 Then open <http://localhost:4280>. Calling the Functions host directly on `:7071` bypasses the
 Static Web Apps routing layer and won't reflect production.
 
+In VS Code, **F5** starts the client, the API and the Static Web Apps emulator and opens the site.
+
+`swa start` launches the API itself only on Node versions Azure Functions Core Tools supports. On a
+newer Node, start the API separately (`func start` in `src/Portfolio.Api`) and run
+`swa start --api-devserver-url http://localhost:7071`, which is what F5 does.
+
 The Functions host needs a storage emulator: `local.settings.json` sets `AzureWebJobsStorage`
 to `UseDevelopmentStorage=true`, so install and start
 [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite)
