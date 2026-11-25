@@ -1,0 +1,34 @@
+name: Build and test
+description: Restores, builds and tests the solution, failing if no tests ran.
+
+# Shared by ci.yml and the deploy workflow so the zero-test check exists once.
+# Expects the repository to be checked out and the .NET SDK to be installed.
+
+runs:
+  using: composite
+  steps:
+    - name: Restore
+      shell: bash
+      run: dotnet restore Portfolio.sln
+
+    - name: Build
+      # No implicit restore, so a restore failure is reported as its own step.
+      shell: bash
+      run: dotnet build Portfolio.sln --configuration Release --no-restore
+
+    - name: Test
+      # dotnet test exits 0 when it discovers no tests at all, so a green tick
+      # here does not by itself mean anything was verified. This step gates both
+      # merges to main and deploys, so it asserts a non-zero passed count rather
+      # than trusting the exit code.
+      shell: bash
+      run: |
+        set -o pipefail
+        dotnet test Portfolio.sln --configuration Release --no-build --verbosity normal | tee test-output.txt
+        # Matches the summary at either verbosity: "     Passed: 31" at normal,
+        # "Passed!  - Failed: 0, Passed: 31" at minimal. A zero-test run prints
+        # neither, and "Passed: 0" fails the [1-9] anchor.
+        if ! grep -Eq 'Passed: +[1-9][0-9]*' test-output.txt; then
+          echo "::error::No tests were discovered - the suite reported success without running anything."
+          exit 1
+        fi
