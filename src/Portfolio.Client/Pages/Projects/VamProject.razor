@@ -1,7 +1,7 @@
 @page "/projects/vam"
 
 <ProjectPage Title="Väm"
-             Kicker="Live · 2026"
+             Kicker="Soft launch · 2026"
              AccentClass="accent-red"
              Summary="A phone-first map of where Gothenburg's food trucks are today: who is out, where, and until when. Every location is entered by hand, because a wrong pin costs more than a missing one."
              Tech="@(new[] { "TypeScript", "Next.js 16", "React 19", "Supabase Postgres", "MapLibre GL JS", "Protomaps", "Tailwind CSS v4", "Vitest", "Vercel" })"
@@ -10,7 +10,7 @@
     <h2>What it is</h2>
 
     <p>
-        Väm is short for <em>Var är maten</em>, "where's the food". Gothenburg's trucks
+        Väm is short for <em lang="sv">Var är maten</em>, "where's the food". Gothenburg's trucks
         announce where they'll be on Instagram and Facebook, one post or Story at a time,
         and there has been no central map since Streetkäk shut down in 2017. Väm is that
         map, with no login and no tracking. The interface is in Swedish.
@@ -20,15 +20,15 @@
         <strong>It's in production as a soft launch.</strong> Visitors see a page about the
         project, and the map itself is shown only to the admin while locations are entered
         and tested. It opens to everyone when the trucks are back for the season: a map
-        with two trucks on it helps nobody. Ten of eleven phases are done.
+        with two trucks on it helps nobody. Phase 10 of 11 is done.
     </p>
 
     <h2>The version I threw away</h2>
 
     <p>
-        The first design was automatic. Webhooks and inbound email fed a Swedish caption
-        parser, and each location carried a confidence score. I built the ingestion lanes
-        and most of the parser, then stopped.
+        The first design was automatic: webhooks and inbound email were to feed a Swedish
+        caption parser, with a confidence score on each location. I built the ingestion
+        lanes and most of the parser, and dropped the design before joining them.
     </p>
 
     <p>
@@ -85,9 +85,10 @@
     </p>
 
     <p>
-        Those guards are themselves tested. Over sixty small SQL files each change the
-        schema, most by removing or weakening one guard, and the tests meant to notice must
-        fail. A test suite that stays green when the protection is gone isn't testing it.
+        The tests for those guards are themselves checked. Over sixty small SQL files each
+        remove or weaken something in the schema, and for most of them a test has to fail.
+        A few check instead that another guard already covers the change, or that the
+        tests' own setup refuses to run.
     </p>
 
     <h2>A locked-down admin</h2>

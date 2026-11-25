@@ -1,0 +1,9 @@
+@page "/projects/whereisfood"
+@inject NavigationManager Navigation
+
+@* Väm's former address. staticwebapp.config.json redirects it with a 301, but SWA
+   routes are case-sensitive; Blazor's are not, so this covers every other casing. *@
+
+@code {
+    protected override void OnInitialized() => Navigation.NavigateTo("/projects/vam", replace: true);
+}
