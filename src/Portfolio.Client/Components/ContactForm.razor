@@ -29,7 +29,7 @@ else
                    maxlength="@ContactLimits.NameMaxLength"
                    autocomplete="name"
                    aria-describedby="@(ErrorFor(nameof(ContactRequest.Name)) is null ? null : "contact-name-error")"
-                   aria-invalid="@(ErrorFor(nameof(ContactRequest.Name)) is not null)"
+                   aria-invalid="@AriaInvalid(nameof(ContactRequest.Name))"
                    @bind="_name"
                    @bind:event="oninput" />
             @if (ErrorFor(nameof(ContactRequest.Name)) is { } nameError)
@@ -45,7 +45,7 @@ else
                    maxlength="@ContactLimits.EmailMaxLength"
                    autocomplete="email"
                    aria-describedby="@(ErrorFor(nameof(ContactRequest.Email)) is null ? null : "contact-email-error")"
-                   aria-invalid="@(ErrorFor(nameof(ContactRequest.Email)) is not null)"
+                   aria-invalid="@AriaInvalid(nameof(ContactRequest.Email))"
                    @bind="_email"
                    @bind:event="oninput" />
             @if (ErrorFor(nameof(ContactRequest.Email)) is { } emailError)
@@ -60,7 +60,7 @@ else
                       rows="6"
                       maxlength="@ContactLimits.MessageMaxLength"
                       aria-describedby="contact-message-count @(ErrorFor(nameof(ContactRequest.Message)) is null ? "" : "contact-message-error")"
-                      aria-invalid="@(ErrorFor(nameof(ContactRequest.Message)) is not null)"
+                      aria-invalid="@AriaInvalid(nameof(ContactRequest.Message))"
                       @bind="_message"
                       @bind:event="oninput"></textarea>
             <p id="contact-message-count" class="field-hint">
@@ -105,6 +105,11 @@ else
 
     private string? ErrorFor(string field) =>
         _errors.FirstOrDefault(e => e.Field == field)?.Message;
+
+    // A string, not a bool: Blazor renders true as an empty attribute, and
+    // aria-invalid="" means the field is valid.
+    private string AriaInvalid(string field) =>
+        ErrorFor(field) is null ? "false" : "true";
 
     private async Task SubmitAsync()
     {
