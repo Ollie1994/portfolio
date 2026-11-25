@@ -24,6 +24,13 @@
     --primary-active: #005A9E;
     --primary-subtle: #DEECF9;
 
+    /* Text needs more contrast than fills do. --primary is 4.05:1 on the tinted
+       sections, so link text is a step darker; text on a --primary fill has its
+       own token because the two themes need opposite colours. */
+    --link: var(--primary-hover);
+    --link-hover: var(--primary-active);
+    --on-primary: var(--white);
+
     /* Fluent neutrals */
     --grey-190: #201F1E;
     --grey-160: #323130;
@@ -72,7 +79,11 @@
         --border: #3B3A39;
         --primary: #2899F5;
         --primary-hover: #4FADF7;
+        --primary-active: #6CB8F6;
         --primary-subtle: #10334F;
+        --link: var(--primary);
+        --link-hover: var(--primary-hover);
+        --on-primary: var(--grey-190);
     }
 
 }
@@ -131,11 +142,11 @@ h3 { font-size: 1.25rem; }
 p { margin: 0 0 1rem; }
 
 a {
-    color: var(--primary);
+    color: var(--link);
     text-decoration: none;
 }
 
-a:hover { color: var(--primary-hover); text-decoration: underline; }
+a:hover { color: var(--link-hover); text-decoration: underline; }
 
 /* Visible keyboard focus everywhere — never remove without a replacement. */
 :focus-visible {
@@ -207,10 +218,10 @@ code {
 
 .btn-primary {
     background: var(--primary);
-    color: var(--white);
+    color: var(--on-primary);
 }
 
-.btn-primary:hover { background: var(--primary-hover); color: var(--white); text-decoration: none; }
+.btn-primary:hover { background: var(--primary-hover); color: var(--on-primary); text-decoration: none; }
 .btn-primary:active { background: var(--primary-active); }
 
 .btn-secondary {
