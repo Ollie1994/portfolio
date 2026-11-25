@@ -3,7 +3,8 @@ name: Close preview environment
 # pull_request_target rather than pull_request: the latter does not run while a
 # pull request has a merge conflict, so closing a conflicted one left its preview
 # behind with nothing to show it. No branch filter either, since a pull request can
-# be moved off main after its preview was created. Both were reproduced in #43.
+# be moved off main after its preview was created. Both were reproduced in #43, and
+# this was seen to remove both.
 #
 # This event runs with access to secrets. NEVER check out or run anything from the
 # pull request here: the job only tells Azure which number to remove.
