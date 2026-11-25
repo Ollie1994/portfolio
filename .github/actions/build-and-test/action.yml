@@ -28,7 +28,8 @@ runs:
         dotnet test Portfolio.sln --configuration Release --no-build --verbosity normal | tee test-output.txt
         # Matches the summary at either verbosity: "     Passed: 31" at normal,
         # "Passed!  - Failed: 0, Passed: 31" at minimal. A zero-test run prints
-        # neither, and "Passed: 0" fails the [1-9] anchor.
+        # neither, and "Passed: 0" fails the [1-9] anchor. One count is enough while
+        # there is one test project; a second would need its own.
         if ! grep -Eq 'Passed: +[1-9][0-9]*' test-output.txt; then
           echo "::error::No tests passed - either none were discovered or all were skipped, so nothing was verified."
           exit 1

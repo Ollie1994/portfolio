@@ -13,11 +13,12 @@ on:
 permissions:
   contents: read
 
-# Serialise all runs for a given pull request. Without this the close run - fired
-# on merge - can start while that PR's preview deploy is still in flight, report
-# "No matching Static Web App environment was found", exit 0, and then the deploy
-# finishes and creates an environment nothing will ever clean up. Three orphans
-# accumulated that way and exhausted the free tier's three-environment limit.
+# Serialise all runs for a given pull request, including close-preview.yml, which
+# uses the same group. Without this the close run - fired on merge - can start while
+# that PR's preview deploy is still in flight, report "No matching Static Web App
+# environment was found", exit 0, and then the deploy finishes and creates an
+# environment nothing will ever clean up. Three orphans accumulated that way and
+# exhausted the free tier's three-environment limit.
 #
 # cancel-in-progress is deliberately false: cancelling the deploy would leave the
 # environment half-created rather than not created.
@@ -54,7 +55,7 @@ jobs:
     #
     # Pull requests opened by Dependabot never get a preview, even when a person
     # triggers the run. Dependabot closes its own pull requests, and that run has
-    # no token to remove a preview with - see the close job.
+    # no token to remove a preview with - see close-preview.yml.
     if: >-
       github.actor != 'dependabot[bot]' &&
       (github.event_name == 'push' ||
@@ -68,12 +69,28 @@ jobs:
       contents: read
       pull-requests: write # the action comments the preview URL on the pull request
     steps:
+      # A run that starts after its pull request closed - re-run later, or started
+      # late - would create a preview that no event is left to remove. Closing while
+      # this job is running is fine: the close waits in the concurrency group.
+      - name: Check the pull request is still open
+        id: pr
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          state=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq .state)
+          echo "state=$state" >> "$GITHUB_OUTPUT"
+          if [ "$state" != "open" ]; then
+            echo "::notice::Pull request $PR is $state, so no preview is deployed."
+          fi
       - uses: actions/checkout@v7
         with:
           submodules: true
           lfs: false
       - name: Build And Deploy
         id: builddeploy
+        if: github.event_name == 'push' || steps.pr.outputs.state == 'open'
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMBITIOUS_COAST_0312A8E0F }}
@@ -86,6 +103,8 @@ jobs:
           output_location: "wwwroot" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
 
+  # Kept until close-preview.yml has been seen to work, then to be removed (#43).
+  # This one misses pull requests that conflict or were moved off main.
   close_pull_request_job:
     # Must run for every pull request the deploy job could have created a preview
     # for, or the preview is orphaned without anything failing. So this checks only

@@ -71,7 +71,7 @@
    writes whatever is installed locally (`8.0.423`). Azure's Oryx build server ships `8.0.420`,
    and `rollForward` only rolls *up*, so the build fails with "A compatible .NET SDK was not
    found". Use a floor (`8.0.100`) instead. It must be a real SDK version: they start at `.100`,
-   and `8.0.0` builds locally but fails GitHub's `setup-dotnet`.
+   and `8.0.0` builds locally but fails `setup-dotnet` when it reads `global.json`.
 2. **The VS Code extension wrote a Windows backslash** into the generated workflow —
    `api_location: "src\Portfolio.Api"`. The runner is `ubuntu-latest`, so that path never
    resolves. Check the generated workflow for backslashes; `app_location` was fine, only the
