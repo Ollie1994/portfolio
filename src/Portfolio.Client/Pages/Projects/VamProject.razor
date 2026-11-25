@@ -3,7 +3,7 @@
 <ProjectPage Title="Väm"
              Kicker="Soft launch · 2026"
              AccentClass="accent-red"
-             Summary="Built a phone-first map of where Gothenburg's food trucks are today, with every location confirmed by hand and a design that needs about one database query a minute per region, by entering locations from a phone and serving every visitor from one cached endpoint."
+             Summary="Built a phone-first map of where Gothenburg's food trucks are today, where every location has to be confirmed by hand, by replacing a planned automatic design with manual entry from a phone. Designed so all visitors share one cached endpoint, refreshed about once a minute per region in normal use."
              Tech="@(new[] { "TypeScript", "Next.js 16", "React 19", "Supabase Postgres", "MapLibre GL JS", "Protomaps", "Tailwind CSS v4", "Vitest", "Vercel" })"
              Links="@(new[] { new ProjectPage.ProjectLink("Visit the site", "https://vararmaten.vercel.app"), new ProjectPage.ProjectLink("Source on GitHub", "https://github.com/Ollie1994/whereisfood") })">
 
@@ -66,8 +66,9 @@
     <p>
         The browser never talks to the database. The map polls a single endpoint every 60
         seconds while the tab is visible, and the CDN caches that response for 60 seconds.
-        In normal use that means about one database query a minute per region, however
-        many people have the map open.
+        In normal use that means
+        about one refresh from the database a minute per region, however many people have
+        the map open.
     </p>
 
     <p>
