@@ -51,12 +51,17 @@ jobs:
     # repository secrets, so the deployment token is empty and the deploy fails.
     # Skipping the job outright is the only thing that works - the action has no
     # "skip on missing secrets" input, despite the name suggesting otherwise.
+    #
+    # Pull requests opened by Dependabot never get a preview, even when a person
+    # triggers the run. Dependabot closes its own pull requests, and that run has
+    # no token to remove a preview with - see the close job.
     if: >-
       github.actor != 'dependabot[bot]' &&
       (github.event_name == 'push' ||
        (github.event_name == 'pull_request' &&
         github.event.action != 'closed' &&
-        github.event.pull_request.head.repo.full_name == github.repository))
+        github.event.pull_request.user.login != 'dependabot[bot]' &&
+        !github.event.pull_request.head.repo.fork))
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     permissions:
@@ -82,14 +87,17 @@ jobs:
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
-    # Same restriction as the deploy job: no token, so nothing to close with. The
-    # check is on who triggered this run, not who opened the pull request - when a
-    # person merges a Dependabot pull request the token is available.
+    # Must run for every pull request the deploy job could have created a preview
+    # for, or the preview is orphaned without anything failing. So this checks only
+    # things that cannot change during a pull request's life - who opened it, and
+    # whether it is from a fork - and never github.actor, since one person can
+    # trigger the deploy and another the close. Written as exclusions so that a
+    # missing value means the cleanup runs rather than being skipped.
     if: >-
-      github.actor != 'dependabot[bot]' &&
       github.event_name == 'pull_request' &&
       github.event.action == 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      !github.event.pull_request.head.repo.fork
     runs-on: ubuntu-latest
     name: Close Pull Request Job
     permissions: {} # authenticates with the deployment token only

@@ -12,7 +12,8 @@ runs:
       run: dotnet restore Portfolio.sln
 
     - name: Build
-      # No implicit restore, so a restore failure is reported as its own step.
+      # No implicit restore, so a restore failure cannot surface here as a build
+      # failure. A composite action shows as one step, so the log says which failed.
       shell: bash
       run: dotnet build Portfolio.sln --configuration Release --no-restore
 
@@ -29,6 +30,6 @@ runs:
         # "Passed!  - Failed: 0, Passed: 31" at minimal. A zero-test run prints
         # neither, and "Passed: 0" fails the [1-9] anchor.
         if ! grep -Eq 'Passed: +[1-9][0-9]*' test-output.txt; then
-          echo "::error::No tests were discovered - the suite reported success without running anything."
+          echo "::error::No tests passed - either none were discovered or all were skipped, so nothing was verified."
           exit 1
         fi
