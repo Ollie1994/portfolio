@@ -26,6 +26,10 @@ jobs:
     # deploy job does, and never github.actor, since one person can trigger the
     # deploy and another the close. Written as exclusions so that a missing value
     # means the cleanup runs; with nothing to remove, it does nothing.
+    #
+    # Dependabot is excluded because GitHub withholds secrets from runs it triggers
+    # on its own pull requests, so the close would have no token. That is safe only
+    # because the deploy job never creates a preview for them.
     if: >-
       github.event.pull_request.user.login != 'dependabot[bot]' &&
       !github.event.pull_request.head.repo.fork
@@ -37,3 +41,20 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMBITIOUS_COAST_0312A8E0F }}
           action: "close"
+
+      # The action exits 0 when it finds nothing to close, so a green tick alone
+      # says nothing. Removed and never-created previews both answer 404.
+      - name: Confirm the preview is gone
+        env:
+          URL: https://ambitious-coast-0312a8e0f-${{ github.event.pull_request.number }}.eastus2.7.azurestaticapps.net/
+        run: |
+          for attempt in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "$URL" || true)
+            if [ "$code" = "404" ]; then
+              echo "$URL answers 404."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::$URL did not answer 404 (last: $code). If its environment is still there, it holds one of the three on the free tier."
+          exit 1
