@@ -11,7 +11,7 @@ namespace Portfolio.Api.Services;
 /// constructed directly in a test. The function class is only an adapter over
 /// this.
 /// </summary>
-public sealed class ContactService
+public sealed partial class ContactService
 {
     private readonly ILogger<ContactService> _logger;
 
@@ -34,9 +34,12 @@ public sealed class ContactService
         {
             // Field names only. The values are the sender's personal data and do
             // not belong in logs.
-            _logger.LogInformation(
-                "Contact submission rejected. Invalid fields: {Fields}",
-                string.Join(", ", validation.Errors.Select(e => e.Field)));
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "Contact submission rejected. Invalid fields: {Fields}",
+                    string.Join(", ", validation.Errors.Select(e => e.Field)));
+            }
 
             return ContactSubmissionResult.Invalid(validation);
         }
@@ -82,6 +85,12 @@ public sealed class ContactService
             request.Message
         });
 
-        _logger.LogInformation("Contact submission received: {Payload}", payload);
+        LogSubmission(payload);
     }
+
+    // Source-generated rather than LogInformation because CA1873 wants an
+    // IsEnabled guard around the latter, and delivery must not sit behind a
+    // condition. The saved query in Application Insights matches on this text.
+    [LoggerMessage(Level = LogLevel.Information, Message = "Contact submission received: {Payload}")]
+    private partial void LogSubmission(string payload);
 }

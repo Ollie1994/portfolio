@@ -13,9 +13,9 @@ updates:
         update-types: ["minor", "patch"]
     ignore:
       # Framework-tied packages: their major version tracks the .NET version,
-      # so a major bump silently drags the project off net8.0. Moving to .NET 10
-      # is a deliberate migration gated on Azure Static Web Apps supporting
-      # dotnet-isolated:10.0 - never an automatic PR. See CLAUDE.md.
+      # so a major bump silently drags the project off net10.0. Moving to another
+      # .NET version is a deliberate migration gated on Azure Static Web Apps
+      # managed functions supporting it - never an automatic PR.
       - dependency-name: "Microsoft.AspNetCore.*"
         update-types: ["version-update:semver-major"]
       - dependency-name: "Microsoft.Extensions.*"

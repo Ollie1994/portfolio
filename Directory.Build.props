@@ -20,7 +20,7 @@
       "Could not detect any platform in the source directory" and a failed
       deployment, while building perfectly on a developer machine.
 
-      Each csproj therefore declares <TargetFramework>net8.0</TargetFramework>
+      Each csproj therefore declares <TargetFramework>net10.0</TargetFramework>
       itself. Keep them identical and in step with apiRuntime in
       staticwebapp.config.json.
     -->

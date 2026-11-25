@@ -2,7 +2,7 @@
 
 **Stack:** Blazor WebAssembly (C#) · Azure Static Web Apps (Free tier) · Azure Functions (C#, isolated) · GitHub Actions CI/CD · VS Code
 
-**Target framework:** .NET 8 (LTS) — required for Static Web Apps managed-Functions compatibility (do NOT use .NET 10 for the API; SWA does not support it yet).
+**Target framework:** .NET 10 (LTS) — the newest version Static Web Apps managed Functions support (`dotnet-isolated:10.0`). Migrated from .NET 8 after it reached end of support on 10 November 2026.
 
 ---
 
@@ -15,7 +15,7 @@
 ## 2. Software to download & install
 
 - [x] **VS Code** — the editor
-- [x] **.NET 8 SDK (LTS)** — the framework/build tooling; target .NET 8 to stay SWA-compatible — `8.0.423`
+- [x] **.NET 10 SDK (LTS)** — the framework/build tooling; target .NET 10 to stay SWA-compatible — `10.0.404`
 - [x] **Node.js (LTS)** — prerequisite for the Claude Code CLI and SWA CLI (no JS coding needed) — `v22.14.0`
 - [x] **Git** — version control + GitHub connection
 - [x] **Azure Functions Core Tools** — local runtime to run/debug C# Functions — `4.12.1`
@@ -36,16 +36,16 @@
 
 - [x] **GitHub repository** — for the portfolio source — [github.com/Ollie1994/portfolio](https://github.com/Ollie1994/portfolio) (public), `main` tracking `origin/main`
 - [x] **Blazor WebAssembly project** — the frontend (portfolio UI) — `src/Portfolio.Client`
-- [x] **Azure Functions project (C#, isolated worker)** — the `/api` backend — `src/Portfolio.Api` (net8.0, one HTTP-triggered `ContactFunction`)
+- [x] **Azure Functions project (C#, isolated worker)** — the `/api` backend — `src/Portfolio.Api` (net10.0, one HTTP-triggered `ContactFunction`)
 - [x] **Shared class library project** — data models shared between Blazor client and Functions API — `src/Portfolio.Shared`
-- [x] **`staticwebapp.config.json`** — routing/navigation fallback + `"apiRuntime": "dotnet-isolated:8.0"`; must live in the Blazor client's `wwwroot/` folder (see reminders below), **not** at the repo root — verified present in `dotnet publish` output
-- [x] **`global.json`** at the repo root — pins the SDK to 8.x so a newer SDK installed later can't silently drift the build off .NET 8 — `8.0.0` + `rollForward: latestMinor` (floor, **not** an exact pin: Azure's Oryx build server ships 8.0.420, so pinning an exact local patch version fails CI)
+- [x] **`staticwebapp.config.json`** — routing/navigation fallback + `"apiRuntime": "dotnet-isolated:10.0"`; must live in the Blazor client's `wwwroot/` folder (see reminders below), **not** at the repo root — verified present in `dotnet publish` output
+- [x] **`global.json`** at the repo root — pins the SDK to 10.x so a newer SDK installed later can't silently drift the build off .NET 10 — `10.0.100` + `rollForward: latestMinor` (floor, **not** an exact pin: Azure's Oryx build server ships its own patch version, so pinning an exact local one can fail the deploy)
 - [x] **Azure Static Web Apps resource** — hosting resource in the Azure Portal (Free SKU), connected to the GitHub repo — East US 2, live at [ambitious-coast-0312a8e0f.7.azurestaticapps.net](https://ambitious-coast-0312a8e0f.7.azurestaticapps.net)
 - [x] **GitHub Actions workflow file** — auto-generated on SWA creation; lives in `.github/workflows/` — `azure-static-web-apps-ambitious-coast-0312a8e0f.yml`, deploy verified green
 
 ## 5. For building well with Claude Code
 
-- [x] **`CLAUDE.md`** at the repo root — encodes the stack, the .NET 8 / `dotnet-isolated:8.0` hard constraint, solution structure, HTTP-only functions rule, coding conventions, and the exact build/run/test commands
+- [x] **`CLAUDE.md`** at the repo root — encodes the stack, the .NET 10 / `dotnet-isolated:10.0` hard constraint, solution structure, HTTP-only functions rule, coding conventions, and the exact build/run/test commands
 - [x] **Green baseline** — solution skeleton building successfully and committed once before heavy AI work — commit `cbf6684`, build clean (0 warnings, 0 errors), 1/1 test passing
 - [x] **Test project (xUnit)** — gives Claude a way to verify logic (also a good CV signal) — `tests/Portfolio.Tests`
 - [ ] **Small, frequent git commits** — easy review/rollback of AI changes — *no commits yet*
@@ -58,19 +58,20 @@
 
 ### Key config reminders
 
-- `.csproj` (API): `<TargetFramework>net8.0</TargetFramework>`
-- `staticwebapp.config.json`: `"platform": { "apiRuntime": "dotnet-isolated:8.0" }`
+- `.csproj` (API): `<TargetFramework>net10.0</TargetFramework>`
+- `staticwebapp.config.json`: `"platform": { "apiRuntime": "dotnet-isolated:10.0" }`
 - These two version values **must match**.
-- `global.json`: `{ "sdk": { "version": "8.0.0", "rollForward": "latestMinor" } }` — keeps `dotnet new` / `dotnet build` on .NET 8 regardless of what else is installed on the machine.
+- `global.json`: `{ "sdk": { "version": "10.0.100", "rollForward": "latestMinor" } }` — keeps `dotnet new` / `dotnet build` on .NET 10 regardless of what else is installed on the machine.
 - **`staticwebapp.config.json` location:** it must end up in the *published output* root, so for Blazor WebAssembly it belongs in the client project's `wwwroot/` folder (e.g. `src/Portfolio.Client/wwwroot/`), where the build copies it out. Placed at the repo root it is silently ignored — the app works locally and only breaks on deep-link refresh in production, with the SPA navigation fallback gone.
 - Managed Functions on the free tier support **HTTP triggers only** (fine for a contact form or data endpoint; cron/stateful workflows would need the paid Standard plan + "bring your own Functions").
 
 ### Deployment gotchas actually hit (first deploy took 3 attempts)
 
 1. **Don't pin `global.json` to an exact patch version.** `dotnet new globaljson --sdk-version`
-   writes whatever is installed locally (`8.0.423`). Azure's Oryx build server ships `8.0.420`,
-   and `rollForward` only rolls *up*, so the build fails with "A compatible .NET SDK was not
-   found". Use a floor (`8.0.0`) instead.
+   writes whatever is installed locally (`8.0.423` at the time). Azure's Oryx build server
+   shipped `8.0.420`, and `rollForward` only rolls *up*, so the build failed with "A compatible
+   .NET SDK was not found". Use a floor instead, and make it a real SDK version: they start at
+   `.100`, so `8.0.0` builds locally but `actions/setup-dotnet` rejects it.
 2. **The VS Code extension wrote a Windows backslash** into the generated workflow —
    `api_location: "src\Portfolio.Api"`. The runner is `ubuntu-latest`, so that path never
    resolves. Check the generated workflow for backslashes; `app_location` was fine, only the
