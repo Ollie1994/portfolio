@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           # Deliberately not pinned to a patch version: global.json holds a
-          # floor (8.0.0, rollForward latestMinor), so any 8.0.x SDK satisfies it.
+          # floor (8.0.100, rollForward latestMinor), so any 8.0.x SDK satisfies it.
           dotnet-version: "8.0.x"
 
       - name: Build and test
