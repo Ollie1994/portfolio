@@ -9,6 +9,10 @@ on:
     branches:
       - main
 
+# Least privilege by default. Jobs that need something else declare it themselves.
+permissions:
+  contents: read
+
 # Serialise all runs for a given pull request. Without this the close run - fired
 # on merge - can start while that PR's preview deploy is still in flight, report
 # "No matching Static Web App environment was found", exit 0, and then the deploy
@@ -39,23 +43,30 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Build and test
-        run: |
-          dotnet restore Portfolio.sln
-          dotnet build Portfolio.sln --configuration Release --no-restore
-          dotnet test Portfolio.sln --configuration Release --no-build
+        uses: ./.github/actions/build-and-test
 
   build_and_deploy_job:
     needs: test
-    # Dependabot pull requests run with a restricted token that cannot read
+    # Runs triggered by Dependabot, or by a pull request from a fork, cannot read
     # repository secrets, so the deployment token is empty and the deploy fails.
     # Skipping the job outright is the only thing that works - the action has no
     # "skip on missing secrets" input, despite the name suggesting otherwise.
+    #
+    # Pull requests opened by Dependabot never get a preview, even when a person
+    # triggers the run. Dependabot closes its own pull requests, and that run has
+    # no token to remove a preview with - see the close job.
     if: >-
       github.actor != 'dependabot[bot]' &&
       (github.event_name == 'push' ||
-       (github.event_name == 'pull_request' && github.event.action != 'closed'))
+       (github.event_name == 'pull_request' &&
+        github.event.action != 'closed' &&
+        github.event.pull_request.user.login != 'dependabot[bot]' &&
+        !github.event.pull_request.head.repo.fork))
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    permissions:
+      contents: read
+      pull-requests: write # the action comments the preview URL on the pull request
     steps:
       - uses: actions/checkout@v7
         with:
@@ -76,9 +87,20 @@ jobs:
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    # Must run for every pull request the deploy job could have created a preview
+    # for, or the preview is orphaned without anything failing. So this checks only
+    # things that cannot change during a pull request's life - who opened it, and
+    # whether it is from a fork - and never github.actor, since one person can
+    # trigger the deploy and another the close. Written as exclusions so that a
+    # missing value means the cleanup runs rather than being skipped.
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      !github.event.pull_request.head.repo.fork
     runs-on: ubuntu-latest
     name: Close Pull Request Job
+    permissions: {} # authenticates with the deployment token only
     steps:
       - name: Close Pull Request
         id: closepullrequest
