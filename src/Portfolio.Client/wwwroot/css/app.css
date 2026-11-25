@@ -95,13 +95,7 @@
    in dark mode without a card ever matching its own background — which is what
    happened when a single value had to serve both. */
 .section-alt {
-    --card: var(--white);
-}
-
-@media (prefers-color-scheme: dark) {
-    .section-alt {
-        --card: #1B1A19;
-    }
+    --card: var(--bg);
 }
 
 /* ==========================================================================
@@ -147,6 +141,10 @@ a {
 }
 
 a:hover { color: var(--link-hover); text-decoration: underline; }
+
+/* Inside a sentence colour alone does not mark a link: it is too close in
+   lightness to the muted text around it. */
+p a:not(.btn) { text-decoration: underline; }
 
 /* Visible keyboard focus everywhere — never remove without a replacement. */
 :focus-visible {
@@ -230,7 +228,7 @@ code {
     border-color: var(--grey-90);
 }
 
-.btn-secondary:hover { background: var(--bg-subtle); text-decoration: none; }
+.btn-secondary:hover { background: var(--bg-subtle); color: var(--text); text-decoration: none; }
 
 /* Tech stack pill. Accent colour is set per-item so the stack reads as the
    Microsoft palette rather than a single flat colour. */
@@ -271,7 +269,11 @@ code {
 
 .not-found {
     padding-block: clamp(3rem, 9vw, 6rem);
-    max-width: 40rem;
+}
+
+/* On the content, not the centred container - see .project-body. */
+.not-found > * {
+    max-width: min(40rem, 100%);
 }
 
 .not-found-code {
@@ -299,6 +301,10 @@ code {
     width: 100%;
     z-index: 1000;
 }
+
+/* The bar is yellow in both themes, so the theme's link colour does not suit it. */
+#blazor-error-ui a { color: inherit; }
+#blazor-error-ui .reload { text-decoration: underline; }
 
 #blazor-error-ui .dismiss {
     cursor: pointer;

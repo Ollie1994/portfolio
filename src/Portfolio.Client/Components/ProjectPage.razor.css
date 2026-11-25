@@ -60,7 +60,7 @@
 /* Limits line length on the content rather than the container, which is centred:
    narrowing that would indent the text from the header above it. */
 .project-body ::deep > * {
-    max-width: 43rem;
+    max-width: min(43rem, 100%);
 }
 
 /* Section headings inside the body carry the accent as a leading marker, the
