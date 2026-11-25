@@ -59,7 +59,7 @@
     margin-top: .75rem;
     font-size: .8125rem;
     font-weight: 600;
-    color: var(--primary);
+    color: var(--link);
 }
 
 /* Second tier: course completions rather than certifications. Deliberately

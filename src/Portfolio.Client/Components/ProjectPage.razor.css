@@ -14,7 +14,7 @@
 }
 
 .back-link:hover {
-    color: var(--primary);
+    color: var(--link);
 }
 
 .project-eyebrow {
@@ -55,7 +55,12 @@
 
 .project-body {
     padding-block: clamp(2rem, 5vw, 3rem);
-    max-width: 46rem;
+}
+
+/* Limits line length on the content rather than the container, which is centred:
+   narrowing that would indent the text from the header above it. */
+.project-body ::deep > * {
+    max-width: min(43rem, 100%);
 }
 
 /* Section headings inside the body carry the accent as a leading marker, the
