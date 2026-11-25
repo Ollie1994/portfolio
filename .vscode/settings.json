@@ -1,0 +1,7 @@
+{
+  // Build output contains copies of host.json, so the Azure Functions extension
+  // finds more than one project and asks which to use every time.
+  "azureFunctions.projectSubpath": "src/Portfolio.Api",
+  // Otherwise it then offers to set the project up for VS Code instead.
+  "azureFunctions.showProjectWarning": false
+}
