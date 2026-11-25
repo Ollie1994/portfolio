@@ -3,9 +3,12 @@
     "configurations": [
         {
             // The whole site on one origin, as in production: client, API and the
-            // Static Web Apps routing in front. F5 starts whatever is not running.
-            // The servers keep running when the browser closes; stop them with
-            // "Tasks: Terminate Task".
+            // Static Web Apps routing in front. The servers keep running when the
+            // browser closes, and F5 starts whichever are not running.
+            //
+            // The client picks up edits by itself. The API does not: after changing
+            // Portfolio.Api or Portfolio.Shared, run "Tasks: Restart Running Task"
+            // and choose "api".
             "name": "Site (localhost:4280)",
             "type": "chrome",
             "request": "launch",
