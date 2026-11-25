@@ -12,7 +12,7 @@ Azure Static Web Apps and deployed by GitHub Actions. Runs at **$0**.
 ```
 Browser ──► Azure Static Web Apps (global CDN)
               ├── /*      Blazor WebAssembly client — C# compiled to WebAssembly
-              └── /api/*  Azure Functions, .NET 8 isolated worker
+              └── /api/*  Azure Functions, .NET 10 isolated worker
 ```
 
 Both are served from a single Static Web Apps resource, so the API is same-origin: no CORS
@@ -35,7 +35,7 @@ construct with `new` in a test — no HTTP types, no Functions host, no Azure.
 
 ## Running locally
 
-Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0),
+Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0),
 [Azure Functions Core Tools v4](https://learn.microsoft.com/azure/azure-functions/functions-run-local),
 and the [SWA CLI](https://azure.github.io/static-web-apps-cli/).
 
@@ -88,11 +88,13 @@ convenience rather than the only channel.
 
 ## Constraints
 
-**Everything targets `net8.0`.** Static Web Apps managed functions don't support a
-`dotnet-isolated:10.0` runtime, and .NET 8 is the newest LTS they do. .NET 9 was considered and
-rejected: it reaches end of support on the same day as .NET 8 while being STS rather than LTS,
-so it buys no runway. The `<TargetFramework>` in the API and the `apiRuntime` in
-`staticwebapp.config.json` must always match.
+**Everything targets `net10.0`**, the newest LTS and the newest runtime Static Web Apps managed
+functions support. The `<TargetFramework>` in the API and the `apiRuntime` in
+`staticwebapp.config.json` must always match, so the framework only moves when managed functions
+support the next version.
+
+**Blazor's asset fingerprinting is off.** It relies on an inline import map, which the Content
+Security Policy blocks, and loosening the policy isn't worth it for a site this size.
 
 **Managed functions rather than bring-your-own.** Managed functions keep the site on the free
 tier with one deployment pipeline and working PR preview environments. Bringing your own
