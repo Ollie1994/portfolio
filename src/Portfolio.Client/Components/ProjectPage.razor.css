@@ -23,8 +23,8 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .1em;
-    /* The project's own accent, set by the accent-* class on .project. */
-    color: var(--accent);
+    /* Not the accent: the logo colours are too light to read as small text. */
+    color: var(--text-muted);
 }
 
 .project-header h1 {

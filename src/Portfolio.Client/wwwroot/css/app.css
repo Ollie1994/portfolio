@@ -247,11 +247,16 @@ code {
 
 /* Accent classes rather than inline style attributes — the CSP sets
    style-src 'self', which blocks style="" by design.
-   One per project page; the four logo colours are the whole set. */
+   One per project page; the four logo colours are the whole set. They mark
+   things - bars, dots, squares - and never colour text: on white none of them
+   reaches the 4.5:1 that small text needs. */
 .accent-red { --accent: var(--ms-red); --accent-wash: var(--ms-red-wash); }
 .accent-green { --accent: var(--ms-green); --accent-wash: var(--ms-green-wash); }
 .accent-blue { --accent: var(--ms-blue); --accent-wash: var(--ms-blue-wash); }
 .accent-yellow { --accent: var(--ms-yellow); --accent-wash: var(--ms-yellow-wash); }
+
+/* A project with nothing to show yet. A neutral, not a fifth accent. */
+.accent-neutral { --accent: var(--grey-90); --accent-wash: transparent; }
 
 .not-found {
     padding-block: clamp(3rem, 9vw, 6rem);

@@ -15,7 +15,7 @@
     border-top: 3px solid var(--accent);
 }
 
-.card:hover {
+a.card:hover {
     text-decoration: none;
     color: var(--text);
     border-color: var(--grey-60);
@@ -28,7 +28,8 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .08em;
-    color: var(--accent);
+    /* Not the accent: the logo colours are too light to read as small text. */
+    color: var(--text-muted);
 }
 
 .card-title {
@@ -51,6 +52,12 @@
     margin-top: auto;
 }
 
+/* No summary to separate them: keep the pills with the title rather than leaving
+   a gap in the middle of the card. */
+.card-title + .card-tech {
+    margin-top: .25rem;
+}
+
 .card-more {
     margin-top: 1rem;
     font-size: .875rem;
@@ -59,7 +66,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .card:hover {
+    a.card:hover {
         transform: none;
     }
 }

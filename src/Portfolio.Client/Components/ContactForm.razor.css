@@ -48,8 +48,10 @@
 
 .field-error {
     margin: .375rem 0 0;
+    padding-left: .5rem;
+    border-left: 3px solid var(--ms-red);
     font-size: .875rem;
-    color: var(--ms-red);
+    color: var(--text);
 }
 
 .field-hint {
