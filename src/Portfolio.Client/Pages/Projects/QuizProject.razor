@@ -3,7 +3,7 @@
 <ProjectPage Title="Real-time quiz app"
              Kicker="Learning project · 2025"
              AccentClass="accent-yellow"
-             Summary="A Kahoot-style multiplayer quiz. A host runs the game on a big screen while players join from their phones with a room code, synced live over WebSockets."
+             Summary="Ran several Kahoot-style quiz games at once without them leaking into each other, on AWS EC2 as a demo, by giving each game its own WebSocket room. A host ran the game on a big screen while players joined from their phones with a room code."
              Tech="@(new[] { "JavaScript", "Next.js", "React", "Socket.IO", "MongoDB Atlas", "Prisma", "AWS EC2", "PM2" })"
              Links="@(new[] { new ProjectPage.ProjectLink("Source on GitHub", "https://github.com/Ollie1994/kahoot_clone_v5") })">
 
@@ -42,8 +42,9 @@
     <h2>Running it myself</h2>
 
     <p>
-        It's deployed to an <strong>AWS EC2</strong> instance with <strong>PM2</strong>
-        keeping the process alive. Provisioning a machine, configuring it and keeping
+        I deployed it to an <strong>AWS EC2</strong> instance with <strong>PM2</strong>
+        keeping the process alive, saw that it worked, and took it down. It was a demo,
+        never meant to stay live. Provisioning a machine, configuring it and keeping
         something running on it taught me considerably more about what cloud services
         abstract away than the certificate material did on its own.
     </p>
