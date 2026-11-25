@@ -15,11 +15,13 @@ else
     /// accent-neutral for a project with nothing to show yet.</summary>
     [Parameter, EditorRequired] public string AccentClass { get; set; } = "accent-blue";
 
-    [Parameter] public string? Summary { get; set; }
+    // Required but nullable: a card without these has to say so, so leaving one out
+    // by mistake still fails the build.
+    [Parameter, EditorRequired] public string? Summary { get; set; }
 
-    /// <summary>The project's page. Without one the card is plain content: not a
+    /// <summary>The project's page. When null the card is plain content: not a
     /// link, not focusable, no hover effect.</summary>
-    [Parameter] public string? Href { get; set; }
+    [Parameter, EditorRequired] public string? Href { get; set; }
 
     [Parameter] public IReadOnlyList<string> Tech { get; set; } = [];
 

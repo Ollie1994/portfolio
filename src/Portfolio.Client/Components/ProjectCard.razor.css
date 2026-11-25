@@ -19,6 +19,7 @@ a.card:hover {
     text-decoration: none;
     color: var(--text);
     border-color: var(--grey-60);
+    border-top-color: var(--accent);
     box-shadow: var(--shadow-md);
     transform: translateY(-2px);
 }
@@ -54,7 +55,7 @@ a.card:hover {
 
 /* No summary to separate them: keep the pills with the title rather than leaving
    a gap in the middle of the card. */
-.card-title + .card-tech {
+div.card .card-title + .card-tech {
     margin-top: .25rem;
 }
 
