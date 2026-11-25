@@ -58,16 +58,10 @@ swa start
 Then open <http://localhost:4280>. Calling the Functions host directly on `:7071` bypasses the
 Static Web Apps routing layer and won't reflect production.
 
-In VS Code, **F5** starts the client, the API and the Static Web Apps emulator and opens the site.
-The client picks up edits by itself; after changing the API or `Portfolio.Shared`, restart the
-`api` task.
-
-The SWA CLI launches the API itself only on Node 18 to 22. On a newer Node, start the API separately
-(`func start` in `src/Portfolio.Api`) and run `swa start --api-devserver-url http://localhost:7071`,
-which is what F5 does.
-
-No storage emulator is needed. `local.settings.json` sets `AzureWebJobsStorage` to
-`UseDevelopmentStorage=true`, but the API has only HTTP triggers, which run without it.
+The Functions host needs a storage emulator: `local.settings.json` sets `AzureWebJobsStorage`
+to `UseDevelopmentStorage=true`, so install and start
+[Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite)
+(`npm install -g azurite`, then `azurite`) before running the API.
 
 ## The contact endpoint
 
