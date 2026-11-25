@@ -5,7 +5,7 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened] # closing is close-preview.yml
     branches:
       - main
 
@@ -13,11 +13,12 @@ on:
 permissions:
   contents: read
 
-# Serialise all runs for a given pull request. Without this the close run - fired
-# on merge - can start while that PR's preview deploy is still in flight, report
-# "No matching Static Web App environment was found", exit 0, and then the deploy
-# finishes and creates an environment nothing will ever clean up. Three orphans
-# accumulated that way and exhausted the free tier's three-environment limit.
+# Serialise all runs for a given pull request, including close-preview.yml, which
+# uses the same group. Without this the close run - fired on merge - can start while
+# that PR's preview deploy is still in flight, report "No matching Static Web App
+# environment was found", exit 0, and then the deploy finishes and creates an
+# environment nothing will ever clean up. Three orphans accumulated that way and
+# exhausted the free tier's three-environment limit.
 #
 # cancel-in-progress is deliberately false: cancelling the deploy would leave the
 # environment half-created rather than not created.
@@ -31,7 +32,6 @@ jobs:
   # first. ci.yml covers the same ground for pull requests, but a green CI run
   # does not block this workflow - only "needs" does.
   test:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Test
     steps:
@@ -54,12 +54,11 @@ jobs:
     #
     # Pull requests opened by Dependabot never get a preview, even when a person
     # triggers the run. Dependabot closes its own pull requests, and that run has
-    # no token to remove a preview with - see the close job.
+    # no token to remove a preview with - see close-preview.yml.
     if: >-
       github.actor != 'dependabot[bot]' &&
       (github.event_name == 'push' ||
        (github.event_name == 'pull_request' &&
-        github.event.action != 'closed' &&
         github.event.pull_request.user.login != 'dependabot[bot]' &&
         !github.event.pull_request.head.repo.fork))
     runs-on: ubuntu-latest
@@ -85,26 +84,3 @@ jobs:
           api_location: "src/Portfolio.Api" # Api source code path - optional
           output_location: "wwwroot" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
-
-  close_pull_request_job:
-    # Must run for every pull request the deploy job could have created a preview
-    # for, or the preview is orphaned without anything failing. So this checks only
-    # things that cannot change during a pull request's life - who opened it, and
-    # whether it is from a fork - and never github.actor, since one person can
-    # trigger the deploy and another the close. Written as exclusions so that a
-    # missing value means the cleanup runs rather than being skipped.
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.event.action == 'closed' &&
-      github.event.pull_request.user.login != 'dependabot[bot]' &&
-      !github.event.pull_request.head.repo.fork
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    permissions: {} # authenticates with the deployment token only
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMBITIOUS_COAST_0312A8E0F }}
-          action: "close"
