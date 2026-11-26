@@ -75,6 +75,11 @@ public sealed class ContactService
         // Serialising to JSON keeps the fields machine-readable, and JSON
         // escaping means submitted content cannot corrupt the structure the way
         // a delimiter-based format could.
+        //
+        // The query in README.md ("Reading submissions") is the only reader, and it
+        // depends on the message prefix and on these exact property names: KQL is
+        // case-sensitive, so default (PascalCase) serialisation, not the Web
+        // defaults JsonBody reads with. SubmissionTraceTests checks the two agree.
         var payload = JsonSerializer.Serialize(new
         {
             request.Name,
