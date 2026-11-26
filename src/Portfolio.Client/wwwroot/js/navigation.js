@@ -6,7 +6,7 @@
 // the page already showing are handled by the listener at the bottom.
 
 export function afterNavigation(fragment, isNewPage) {
-    const target = fragment ? document.getElementById(decodeURIComponent(fragment)) : null;
+    const target = fragment ? document.getElementById(decodeFragment(fragment)) : null;
 
     if (target) {
         // scroll-behavior and scroll-padding-top in app.css apply: smooth unless the
@@ -15,6 +15,16 @@ export function afterNavigation(fragment, isNewPage) {
         focusWithoutScrolling(target.matches('h1, h2, h3') ? target : target.querySelector('h1, h2, h3') ?? target);
     } else if (isNewPage) {
         focusWithoutScrolling(document.querySelector('h1'));
+    }
+}
+
+// The address can hold anything, and a malformed escape such as #%FF makes
+// decodeURIComponent throw. Such a fragment matches no id either way.
+function decodeFragment(fragment) {
+    try {
+        return decodeURIComponent(fragment);
+    } catch {
+        return fragment;
     }
 }
 
@@ -42,6 +52,12 @@ function focusWithoutScrolling(element) {
 document.addEventListener('click', event => {
     const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
     if (!link || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+        return;
+    }
+
+    // Blazor leaves these to the browser too: they open elsewhere or download.
+    const target = link.getAttribute('target');
+    if ((target && target !== '_self') || link.hasAttribute('download')) {
         return;
     }
 

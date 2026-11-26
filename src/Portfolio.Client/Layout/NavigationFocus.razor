@@ -6,8 +6,10 @@
     It lives in MainLayout rather than App.razor so that it also runs on the 404 page,
     which the Router renders without route data.
 *@
+@using Microsoft.Extensions.Logging
 @implements IAsyncDisposable
 @inject IJSRuntime JS
+@inject ILogger<NavigationFocus> Logger
 
 @code {
     /// <summary>
@@ -35,8 +37,19 @@
         var isNewPage = page != _handledPage;
         _handledPage = page;
 
-        _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/navigation.js");
-        await _module.InvokeVoidAsync("afterNavigation", address.Fragment.TrimStart('#'), isNewPage);
+        try
+        {
+            _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/navigation.js");
+            await _module.InvokeVoidAsync("afterNavigation", address.Fragment.TrimStart('#'), isNewPage);
+        }
+        catch (JSException ex)
+        {
+            // This component sits outside the layout's ErrorBoundary, so letting this
+            // through would put up the global error bar. Scrolling and focus are a
+            // convenience: the page has already rendered and works without them. A
+            // failed import is retried on the next navigation, since _module stays null.
+            Logger.LogWarning(ex, "Could not scroll or move focus after navigating.");
+        }
     }
 
     public async ValueTask DisposeAsync()
