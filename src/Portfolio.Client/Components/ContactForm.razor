@@ -188,7 +188,21 @@ else
 
                 case ContactSendStatus.Invalid:
                     _errors = result.Errors;
-                    _focusAfterRender = FocusTarget.FirstInvalidField;
+
+                    // Errors only show beside a field. If none of these names one of
+                    // ours with a message - client and server out of step, say - the
+                    // form would change nothing, so it is reported as a failure.
+                    if (FirstInvalidField() is null)
+                    {
+                        _errors = [];
+                        _failed = true;
+                        _focusAfterRender = FocusTarget.SubmitButton;
+                    }
+                    else
+                    {
+                        _focusAfterRender = FocusTarget.FirstInvalidField;
+                    }
+
                     break;
 
                 default:
