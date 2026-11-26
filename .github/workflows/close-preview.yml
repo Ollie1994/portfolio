@@ -41,6 +41,10 @@ jobs:
       # cannot change what runs with the deployment token. Limit: this action builds
       # from mcr.microsoft.com/appsvc/staticappsclient:stable, a tag Microsoft moves,
       # so the deploy client itself is not frozen - only the action around it.
+      #
+      # "v1" is the tag (2021). The repository also has a branch named v1 (2024);
+      # @v1 ran the tag, per the runner's "Download action repository" log line,
+      # so the tag is what this pins.
       - name: Close Pull Request
         uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9 # v1
         with:
