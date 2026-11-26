@@ -34,10 +34,11 @@ public sealed record Project(
 /// The one list of projects. The home page's cards and each project page's header
 /// both read it, so a project's title, status or accent changes in one place. A
 /// project page finds its entry by its own address (<see cref="ForPath"/>), so a
-/// page cannot show another project's header. Three static copies are kept in step by
+/// page cannot show another project's header. Four static copies are kept in step by
 /// hand: the sitemap (checked by a test), the &lt;noscript&gt; fallback in index.html,
-/// and the social card in tools/og-image. After changing the card, render it and bump
-/// ?v= on both image tags in index.html, or shared links keep the old one.
+/// the social card in tools/og-image, and the deep link /projects/vam that the deploy
+/// workflow checks after each deploy. After changing the card, render it and bump ?v=
+/// on both image tags in index.html, or shared links keep the old one.
 /// </summary>
 public static class ProjectCatalog
 {
