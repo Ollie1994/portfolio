@@ -29,11 +29,17 @@ public sealed class ContactFunction
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "contact")] HttpRequest req,
         CancellationToken cancellationToken)
     {
+        // staticwebapp.config.json's globalHeaders do not reach API responses, so this
+        // endpoint sets its own: no type sniffing of what it returns, and no caching of
+        // an answer that is about one submission.
+        req.HttpContext.Response.Headers.XContentTypeOptions = "nosniff";
+        req.HttpContext.Response.Headers.CacheControl = "no-store";
+
         // A browser can submit a plain HTML form cross-site without any consent
         // from us, but only as form-encoded or plain text - it cannot set
         // application/json without a preflight, which same-origin policy governs.
         // Requiring JSON therefore removes trivial cross-site submission.
-        if (!IsJsonRequest(req))
+        if (!JsonBody.IsJsonContentType(req.ContentType))
         {
             return new StatusCodeResult(StatusCodes.Status415UnsupportedMediaType);
         }
@@ -69,12 +75,4 @@ public sealed class ContactFunction
             _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
         };
     }
-
-    /// <summary>
-    /// True when the request declares a JSON body. Tolerates parameters such as
-    /// "application/json; charset=utf-8", which browsers add.
-    /// </summary>
-    private static bool IsJsonRequest(HttpRequest req) =>
-        req.ContentType is { } contentType &&
-        contentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase);
 }

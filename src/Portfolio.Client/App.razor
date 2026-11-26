@@ -9,7 +9,10 @@
             <section class="container not-found">
                 <p class="not-found-code" aria-hidden="true">404</p>
                 <h1>Page not found</h1>
-                <p role="alert">
+                @* No role="alert". Arriving by a link within the site moves focus to the
+                   heading (NavigationFocus), which a screen reader announces, and the alert
+                   read the text out a second time. On a fresh load the page title says it. *@
+                <p>
                     There's nothing at this address. It may have moved, or the link
                     that brought you here may be out of date.
                 </p>

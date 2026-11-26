@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace Portfolio.Api.Http;
@@ -27,6 +28,15 @@ public sealed record JsonBodyResult<T>(JsonBodyStatus Status, T? Value) where T 
 public static class JsonBody
 {
     private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
+
+    /// <summary>
+    /// True when the declared content type is application/json, with or without
+    /// parameters such as the charset browsers add. Parsed as a media type rather than
+    /// matched as a prefix, which let application/jsonx and application/json-seq through.
+    /// </summary>
+    public static bool IsJsonContentType(string? contentType) =>
+        MediaTypeHeaderValue.TryParse(contentType, out var mediaType) &&
+        string.Equals(mediaType.MediaType, "application/json", StringComparison.OrdinalIgnoreCase);
 
     public static async Task<JsonBodyResult<T>> ReadAsync<T>(
         Stream body,
