@@ -1,11 +1,6 @@
 @page "/projects/vam"
 
-<ProjectPage Title="Väm"
-             Kicker="Soft launch · 2026"
-             AccentClass="accent-red"
-             Summary="Built a phone-first map of where Gothenburg's food trucks are today, where every location has to be confirmed by hand, by replacing a planned automatic design with manual entry from a phone. Designed so all visitors share one cached endpoint, refreshed about once a minute per region in normal use."
-             Tech="@(new[] { "TypeScript", "Next.js 16", "React 19", "Supabase Postgres", "MapLibre GL JS", "Protomaps", "Tailwind CSS v4", "Vitest", "Vercel" })"
-             Links="@(new[] { new ProjectPage.ProjectLink("Visit the site", "https://vararmaten.vercel.app"), new ProjectPage.ProjectLink("Source on GitHub", "https://github.com/Ollie1994/whereisfood") })">
+<ProjectPage Project="@ProjectCatalog.Vam">
 
     <h2>What it is</h2>
 

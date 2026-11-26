@@ -3,52 +3,42 @@
     was the link, a screen reader read the kicker, title, summary and every tech pill as
     one link. The title link's ::after stretches over the card, so the whole card is
     still clickable - see ProjectCard.razor.css.
+
+    A project without a page (Href null) is plain content: no link, not focusable, no
+    hover effect.
 *@
-<div class="card @AccentClass @(Href is null ? null : "card-has-link")">
-    <span class="card-kicker">@Kicker</span>
+<div class="card @Project.AccentClass @(Project.Href is null ? null : "card-has-link")">
+    <span class="card-kicker">@Project.Kicker</span>
     <h3 class="card-title">
-        @if (Href is null)
+        @if (Project.Href is null)
         {
-            @Title
+            @Project.Title
         }
         else
         {
-            <a class="card-title-link" href="@Href">@Title</a>
+            <a class="card-title-link" href="@Project.Href">@Project.Title</a>
         }
     </h3>
-    @if (Summary is not null)
+    @if (Project.CardSummary is not null)
     {
-        <p class="card-summary">@Summary</p>
+        <p class="card-summary">@Project.CardSummary</p>
     }
 
     <span class="card-tech">
-        @foreach (var tech in Tech)
+        @foreach (var tech in Project.CardTech)
         {
             <span class="tech-pill">@tech</span>
         }
     </span>
 
-    @if (Href is not null)
+    @if (Project.Href is not null)
     {
         <span class="card-more" aria-hidden="true">Read more →</span>
     }
 </div>
 
 @code {
-    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
-    [Parameter, EditorRequired] public string Kicker { get; set; } = string.Empty;
-
-    /// <summary>accent-red / accent-green / accent-blue / accent-yellow, or
-    /// accent-neutral for a project with nothing to show yet.</summary>
-    [Parameter, EditorRequired] public string AccentClass { get; set; } = "accent-blue";
-
-    // Required but nullable: a card without these has to say so, so leaving one out
-    // by mistake still fails the build.
-    [Parameter, EditorRequired] public string? Summary { get; set; }
-
-    /// <summary>The project's page. When null the card is plain content: no link,
-    /// not focusable, no hover effect.</summary>
-    [Parameter, EditorRequired] public string? Href { get; set; }
-
-    [Parameter] public IReadOnlyList<string> Tech { get; set; } = [];
+    // null! only until Blazor sets it: EditorRequired makes leaving it out a build
+    // error, and a component parameter cannot use the required keyword.
+    [Parameter, EditorRequired] public Project Project { get; set; } = null!;
 }

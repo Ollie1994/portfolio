@@ -1,11 +1,6 @@
 @page "/projects/quiz"
 
-<ProjectPage Title="Real-time quiz app"
-             Kicker="Learning project · 2025"
-             AccentClass="accent-yellow"
-             Summary="Built a Kahoot-style multiplayer quiz, ran several games at once on AWS EC2 as a demo, and learned WebSocket rooms, Next.js and deployment by doing it. A host runs the game on a big screen while players join from their phones with a room code."
-             Tech="@(new[] { "JavaScript", "Next.js", "React", "Socket.IO", "MongoDB Atlas", "Prisma", "AWS EC2", "PM2" })"
-             Links="@(new[] { new ProjectPage.ProjectLink("Source on GitHub", "https://github.com/Ollie1994/kahoot_clone_v5") })">
+<ProjectPage Project="@ProjectCatalog.Quiz">
 
     <h2>What it is</h2>
 

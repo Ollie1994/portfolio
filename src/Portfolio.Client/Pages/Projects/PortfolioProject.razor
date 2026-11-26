@@ -1,11 +1,6 @@
 @page "/projects/portfolio"
 
-<ProjectPage Title="This portfolio site"
-             Kicker="Live · 2026"
-             AccentClass="accent-blue"
-             Summary="Built and run a public site and API at $0 hosting, on limits that degrade rather than bill, by going serverless on Azure's free tiers: Blazor WebAssembly in the browser, an Azure Functions API that treats every request as hostile, and quality rules enforced by the build."
-             Tech="@(new[] { "C#", ".NET 8", "Blazor WebAssembly", "Azure Functions", "Azure Static Web Apps", "GitHub Actions", "xUnit", "Application Insights" })"
-             Links="@(new[] { new ProjectPage.ProjectLink("Source on GitHub", "https://github.com/Ollie1994/portfolio") })">
+<ProjectPage Project="@ProjectCatalog.Portfolio">
 
     <h2>What it is</h2>
 
