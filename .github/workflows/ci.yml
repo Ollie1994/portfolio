@@ -43,8 +43,19 @@ jobs:
         # CI is where .editorconfig is actually enforced.
         run: dotnet format Portfolio.sln --verify-no-changes --verbosity minimal
 
-      - name: Check for vulnerable packages
-        # Advisory only - a new CVE should not break an unrelated PR, but it
-        # should be visible in the log.
-        continue-on-error: true
-        run: dotnet list Portfolio.sln package --vulnerable --include-transitive
+      # Two levels, on purpose (#78):
+      # - A package this site references directly is checked during restore, and an
+      #   advisory against one fails every build: CI, the deploy's test gate, Azure's
+      #   build and local ones. TreatWarningsAsErrors turns NuGet's NU1901-NU1904 into
+      #   errors. So a vulnerable package is never deployed; merging Dependabot's
+      #   security pull request is what unblocks it.
+      # - Indirect packages are not in that check (NuGetAuditMode is "direct" on the
+      #   .NET 8 SDK). This step lists them too, and turns a finding into a warning on
+      #   the run. The list command itself exits 0 either way, so on its own a finding
+      #   only sat in a green log.
+      - name: Check indirect packages for advisories
+        run: |
+          dotnet list Portfolio.sln package --vulnerable --include-transitive | tee vulnerable.txt
+          if grep -q 'has the following vulnerable packages' vulnerable.txt; then
+            echo "::warning title=Vulnerable package::A package this site depends on has a known advisory. See this step's log; the fix is usually Dependabot's security pull request, or a newer version of the package that brings it in."
+          fi
