@@ -114,6 +114,25 @@ are sorted by it, and it is the one to sort by in the portal, since sorting `sen
 It also tells apart the hour that happens twice when the clocks go back in October. Telemetry
 takes a few minutes to appear, so set the time range wide enough.
 
+### Messages caught by the honeypot
+
+A message that fills in the hidden honeypot field is thrown away, and the sender is still told it
+was sent. Nothing of it is stored, but each leaves one trace saying whether the rest was valid:
+
+```kusto
+traces
+| where message startswith "Contact submission discarded by honeypot."
+| summarize caught = count(), complete = countif(message endswith "valid: True")
+    by day = format_datetime(startofday(datetime_utc_to_local(timestamp, "Europe/Stockholm")), "yyyy-MM-dd")
+| order by day desc
+```
+
+`complete` counts the ones that came through the form with every field valid: a bot driving a
+browser, or a person whose browser or password manager filled the hidden field. The trace cannot
+tell which. The form refuses to send an invalid message, so the rest called the API directly. On a
+site this quiet, more than the odd complete one is worth looking into: the honeypot may be catching
+people, and their messages cannot be recovered.
+
 ## Constraints
 
 **Everything targets `net8.0`.** Static Web Apps managed functions don't support a

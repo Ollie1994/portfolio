@@ -13,9 +13,13 @@ public sealed record ContactRequest
     public string Message { get; init; } = string.Empty;
 
     /// <summary>
-    /// Honeypot. Hidden from users with CSS, so a human never fills it in;
-    /// naive bots fill every field they find. A non-empty value means the
-    /// submission is discarded.
+    /// Honeypot. Hidden from people with CSS; bots that fill every field they find
+    /// fill it too. A non-empty value means the submission is discarded, while the
+    /// sender is told it was sent. A browser or password manager can still fill it
+    /// for a person, whose message is then lost: the form's field is named so
+    /// autofill has nothing to match, and carries each password manager's opt-out
+    /// (see ContactForm.razor). The property keeps its name as part of the API
+    /// contract; nothing a person sees uses it.
     /// </summary>
     public string? Website { get; init; }
 }

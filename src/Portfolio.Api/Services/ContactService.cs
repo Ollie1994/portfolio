@@ -25,11 +25,13 @@ public sealed class ContactService
         // which of its fields were wrong.
         if (!string.IsNullOrWhiteSpace(request.Website))
         {
-            // Whether the rest would have passed, and nothing of what was sent. A person
-            // whose browser or password manager filled the hidden field sends a valid
-            // message, and loses it; a run of these is the sign the honeypot is catching
-            // people. The validation is pure and the input already bounded, so it costs
-            // nothing worth saving.
+            // Whether the rest would have passed, and nothing of what was sent. The form
+            // refuses to send an invalid message, so True means it came through the form
+            // complete: a bot driving a browser, or a person whose browser or password
+            // manager filled the hidden field, which nothing here can tell apart. False
+            // means someone called the API directly. On a site this quiet, a run of True
+            // is the thing to look into; the README has the query. The validation is pure
+            // and the request body is capped at 16 KB, so it costs nothing worth saving.
             _logger.LogInformation(
                 "Contact submission discarded by honeypot. The other fields were valid: {OtherFieldsValid}",
                 ContactValidator.Validate(request).IsValid);
