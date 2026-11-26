@@ -20,7 +20,7 @@
     @* Contains a component failure to the content region instead of taking the
        whole app down. Without this, one unhandled exception anywhere leaves the
        user on a blank page with only the yellow error bar. *@
-    <ErrorBoundary>
+    <ErrorBoundary @ref="_errorBoundary">
         <ChildContent>
             @Body
         </ChildContent>
@@ -38,3 +38,13 @@
 </main>
 
 <Footer />
+
+@code {
+    private ErrorBoundary? _errorBoundary;
+
+    // The layout stays mounted from page to page, and so does the boundary's error
+    // state. Without this, one failure leaves every later page on the error panel
+    // until a full reload, including the page its "Back to the start" link opens.
+    // Parameters are set again on every navigation, because Body changes.
+    protected override void OnParametersSet() => _errorBoundary?.Recover();
+}
