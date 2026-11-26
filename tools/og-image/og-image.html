@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<!--
+    Source of src/Portfolio.Client/wwwroot/img/og-image.png, the card shown when the site's
+    link is shared. See README.md beside this file for how to render it.
+
+    Measured from the previous image so only what changed, changes: logo at 86,104 in 41px
+    squares; name 94px bold; role 44px; projects 36px behind 19px squares (the old image was drawn
+    with System.Drawing, whose sizes come out larger: these match its measured ink); a 20px bar.
+    Text is near-black and large because platforms shrink the card to about 500px and
+    re-compress it as JPEG, which blurs small or grey type first.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Social card</title>
+<style>
+    html, body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #FFFFFF;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .logo {
+        position: absolute;
+        left: 86px;
+        top: 104px;
+        display: grid;
+        grid-template-columns: 41px 41px;
+        grid-template-rows: 41px 41px;
+        gap: 7px;
+    }
+
+    .name {
+        position: absolute;
+        left: 96px;
+        top: 248px;
+        margin: 0;
+        font-size: 94px;
+        font-weight: 700;
+        line-height: 1;
+        color: #181716;
+    }
+
+    .role {
+        position: absolute;
+        left: 94px;
+        top: 360px;
+        margin: 0;
+        font-size: 44px;
+        font-weight: 400;
+        line-height: 1;
+        color: #3B3A39;
+    }
+
+    .projects {
+        position: absolute;
+        left: 88px;
+        top: 474px;
+        display: flex;
+        gap: 46px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: 36px;
+        line-height: 1;
+        color: #181716;
+    }
+
+    .projects li {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .projects li::before {
+        content: "";
+        flex: none;
+        width: 19px;
+        height: 19px;
+        margin-top: 6px;
+        background: var(--c);
+    }
+
+    .bar {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 1200px;
+        height: 20px;
+        display: flex;
+    }
+
+    .bar span, .logo span { flex: 1; background: var(--c); }
+
+    /* The four Microsoft logo colours, as in app.css. */
+    .red { --c: #F25022; }
+    .green { --c: #7FBA00; }
+    .blue { --c: #00A4EF; }
+    .yellow { --c: #FFB900; }
+</style>
+</head>
+<body>
+    <div class="logo"><span class="red"></span><span class="green"></span><span class="blue"></span><span class="yellow"></span></div>
+    <p class="name">Oliwer Karlsson</p>
+    <p class="role">Fullstack Developer · Gothenburg</p>
+    <!-- The projects with a page, in the home page's order and accents (ProjectCatalog). -->
+    <ul class="projects">
+        <li class="red">Väm</li>
+        <li class="green">Seeding System</li>
+        <li class="blue">Portfolio</li>
+        <li class="yellow">Quiz</li>
+    </ul>
+    <div class="bar"><span class="red"></span><span class="green"></span><span class="blue"></span><span class="yellow"></span></div>
+</body>
+</html>
