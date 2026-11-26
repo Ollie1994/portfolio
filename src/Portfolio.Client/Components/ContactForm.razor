@@ -90,11 +90,29 @@ else
             </p>
         </div>
 
-        @* Honeypot. Hidden from people, tempting to naive bots. aria-hidden and
-           tabindex keep it out of the way of screen readers and keyboard users. *@
+        @* Honeypot. Hidden from people; a bot that fills in every field fills this too.
+           aria-hidden and tabindex keep it out of the way of screen readers and keyboard
+           users.
+
+           Anything that fills it for a person loses their message: the API discards it
+           and still says it was sent. So it is named so autofill has nothing to match.
+           It used to be "Website", a field browsers and password managers know, and the
+           bots it is for fill every field whatever its name. The data- attributes are
+           each password manager's own opt-out: data-1p-ignore is in 1Password's developer
+           docs; data-lpignore (LastPass), data-bwignore (Bitwarden) and data-form-type
+           (Dashlane) are as their help and community pages describe, unverified here.
+           autocomplete="off" alone does not stop them. *@
         <div class="honeypot" aria-hidden="true">
-            <label for="contact-website">Website</label>
-            <input id="contact-website" type="text" tabindex="-1" autocomplete="off" @bind="_website" />
+            <label for="contact-leave-empty">Leave this empty</label>
+            <input id="contact-leave-empty"
+                   type="text"
+                   tabindex="-1"
+                   autocomplete="off"
+                   data-1p-ignore
+                   data-lpignore="true"
+                   data-bwignore="true"
+                   data-form-type="other"
+                   @bind="_website" />
         </div>
 
         <button type="submit" class="btn btn-primary" disabled="@_sending" @ref="_submitButton">

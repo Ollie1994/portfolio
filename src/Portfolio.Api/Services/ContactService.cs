@@ -21,11 +21,19 @@ public sealed class ContactService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        // Checked before validation: a bot-filled honeypot should cost as little
-        // as possible, and its other fields are not worth validating.
+        // Checked before validation, so a bot is told it succeeded and never learns
+        // which of its fields were wrong.
         if (!string.IsNullOrWhiteSpace(request.Website))
         {
-            _logger.LogInformation("Contact submission discarded by honeypot.");
+            // Whether the rest would have passed, and nothing of what was sent. A person
+            // whose browser or password manager filled the hidden field sends a valid
+            // message, and loses it; a run of these is the sign the honeypot is catching
+            // people. The validation is pure and the input already bounded, so it costs
+            // nothing worth saving.
+            _logger.LogInformation(
+                "Contact submission discarded by honeypot. The other fields were valid: {OtherFieldsValid}",
+                ContactValidator.Validate(request).IsValid);
+
             return ContactSubmissionResult.Discarded;
         }
 

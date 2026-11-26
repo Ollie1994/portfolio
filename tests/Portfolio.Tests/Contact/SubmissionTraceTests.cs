@@ -72,6 +72,21 @@ public class SubmissionTraceTests
         AssertNothingSentWasLogged(logger, bot);
     }
 
+    [Theory]
+    [InlineData("Hello, I would like to talk about a role.", "True")]
+    [InlineData("short", "False")]
+    public void HoneypotSubmission_SaysWhetherTheRestWasValid(string message, string expected)
+    {
+        // A valid message caught by the honeypot is most likely a person whose browser
+        // or password manager filled the hidden field. The log says so, and only that.
+        var logger = new CapturingLogger();
+
+        new ContactService(logger).Submit(Submission with { Message = message, Website = "https://example.com" });
+
+        var line = Assert.Single(logger.Messages);
+        Assert.Equal($"Contact submission discarded by honeypot. The other fields were valid: {expected}", line);
+    }
+
     private static void AssertNothingSentWasLogged(CapturingLogger logger, ContactRequest request)
     {
         // The honeypot value too: it is the one field that path reads, and it comes from
