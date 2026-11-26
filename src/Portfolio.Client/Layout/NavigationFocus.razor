@@ -32,19 +32,20 @@
 
         _handledLocation = Location;
 
+        // Whether this is a new page, or the first load, is decided in the module, which
+        // lasts the whole visit. This component does not: the Router replaces the layout
+        // around it when it switches between a page and the not-found page. Its own last
+        // page goes along for when the module has seen none, because importing it failed
+        // the first time; without it, the next page was also taken for the first load.
         var address = new Uri(Location);
         var page = address.GetLeftPart(UriPartial.Query);
-
-        // Not on the first load: there, focus belongs at the top of the document, so the
-        // first Tab reaches the skip link and the navigation. Moving it to the <h1> sent
-        // that first Tab past both. A #fragment on first load is still scrolled to.
-        var isNewPage = _handledPage is not null && page != _handledPage;
+        var previousPage = _handledPage;
         _handledPage = page;
 
         try
         {
             _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/navigation.js");
-            await _module.InvokeVoidAsync("afterNavigation", address.Fragment.TrimStart('#'), isNewPage);
+            await _module.InvokeVoidAsync("afterNavigation", page, address.Fragment.TrimStart('#'), previousPage);
         }
         catch (JSException ex)
         {

@@ -91,6 +91,36 @@ public class JsonBodyTests
         Assert.Equal(JsonBodyStatus.Malformed, result.Status);
     }
 
+    [Theory]
+    [InlineData("application/json")]
+    [InlineData("application/json; charset=utf-8")]
+    [InlineData("Application/JSON")]
+    [InlineData("application/json;charset=utf-8")]
+    [InlineData("application/json ; charset=utf-8")]
+    public void JsonContentType_IsAccepted(string contentType)
+    {
+        Assert.True(JsonBody.IsJsonContentType(contentType));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("text/plain")]
+    [InlineData("application/x-www-form-urlencoded")]
+    [InlineData("application/jsonx")]
+    [InlineData("application/json-seq")]
+    [InlineData("application/json/extra")]
+    [InlineData("application/json;")]
+    [InlineData("application/json; charset=\"utf-8")]
+    public void OtherContentType_IsNotJson(string? contentType)
+    {
+        // Form-encoded and plain text are what a cross-site HTML form can send without
+        // a preflight, so those must never pass. The others were let through by the old
+        // prefix match: the last two are malformed headers, which no browser sends and
+        // which are refused on purpose rather than guessed at.
+        Assert.False(JsonBody.IsJsonContentType(contentType));
+    }
+
     [Fact]
     public async Task JsonNull_IsReadWithNoValue()
     {

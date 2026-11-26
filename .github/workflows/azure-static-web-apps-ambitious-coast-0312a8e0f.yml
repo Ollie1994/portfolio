@@ -124,9 +124,9 @@ jobs:
       #   - each has the Content-Security-Policy, so the config's headers are in effect too
       #   - each has a Last-Modified from this deploy, not the one it replaced
       #   - an API answers, with the validation the site expects: an invalid message gets
-      #     400 naming the three fields. It cannot tell this deploy's API from the last
-      #     one, which would answer the same. NEVER a valid message: that is a real
-      #     submission
+      #     400 naming the three fields, with the API's own nosniff and no-store
+      #     headers. It cannot tell this deploy's API from the last one, which would
+      #     answer the same. NEVER a valid message: that is a real submission
       # /projects/vam and the three field names are copies: change them here if Väm's
       # route or the contact form's fields change (listed in CLAUDE.md).
       # Retried, since a new deploy and a cold API can take a moment to answer.
@@ -179,13 +179,19 @@ jobs:
               return 1
             fi
 
-            code=$(curl -s -m 30 -o "$body" -w '%{http_code}' -X POST \
+            code=$(curl -s -m 30 -D "$headers" -o "$body" -w '%{http_code}' -X POST \
               -H 'Content-Type: application/json' \
               -d '{"name":"","email":"x","message":"y"}' \
               "$SITE/api/contact") || code=000
             fields=$(jq -c '[.errors[].field] | sort' "$body" 2>/dev/null)
             if [ "$code" != 400 ] || [ "$fields" != '["Email","Message","Name"]' ]; then
               echo "POST /api/contact answered $code with fields ${fields:-none}: $(head -c 200 "$body")"
+              return 1
+            fi
+
+            # The API sets these itself, since globalHeaders do not reach it.
+            if ! grep -qi '^x-content-type-options: *nosniff' "$headers" || ! grep -qi '^cache-control: *no-store' "$headers"; then
+              echo "POST /api/contact is missing X-Content-Type-Options: nosniff or Cache-Control: no-store."
               return 1
             fi
           }

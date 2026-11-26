@@ -18,8 +18,8 @@
 - [x] **.NET 8 SDK (LTS)** — the framework/build tooling; target .NET 8 to stay SWA-compatible — `8.0.423`
 - [x] **Node.js (LTS)** — prerequisite for the Claude Code CLI and SWA CLI (no JS coding needed) — `v26.13.0` (set up on `v22.14.0`). **`swa start` needs Node 18–22:** the SWA CLI refuses a newer Node when it starts the Functions host, and 2.1.0 still does (checked in its source), so updating it does not help. Keep a Node 22 alongside, e.g. with nvm-windows, for full-stack local runs
 - [x] **Git** — version control + GitHub connection
-- [x] **Azure Functions Core Tools** — local runtime to run/debug C# Functions — `4.12.1` (4.17.0 available)
-- [x] **Azure Static Web Apps CLI (SWA CLI)** — emulates the real Azure environment locally (frontend + API on one address) — `2.0.10` (2.1.0 available)
+- [x] **Azure Functions Core Tools** — local runtime to run/debug C# Functions — `4.12.1`
+- [x] **Azure Static Web Apps CLI (SWA CLI)** — emulates the real Azure environment locally (frontend + API on one address) — `2.0.10`
 - [x] **Claude Code CLI** — agentic coding tool
 - [x] **Modern browser (Chrome/Edge)** — for running/debugging the Blazor WASM app — both installed
 

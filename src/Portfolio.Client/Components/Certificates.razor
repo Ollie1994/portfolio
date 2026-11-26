@@ -7,7 +7,7 @@
 <div class="cert-featured">
     @foreach (var cert in Featured)
     {
-        <a class="cert-card @cert.AccentClass" href="@cert.VerifyUrl" rel="noopener">
+        <a class="cert-card @cert.AccentClass" href="@cert.VerifyUrl">
             @* Empty alt: the name follows in the same link, so a description made it
                read twice. *@
             <img src="@cert.Image" alt="" width="200" height="200" loading="lazy" />
