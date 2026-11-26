@@ -37,6 +37,10 @@
     <!--
         Without JavaScript nothing below renders, on any route: the project pages need
         it too, so this links to things that work without it rather than to them.
+
+        Not covered: browsers that run JavaScript but block WebAssembly, such as iOS
+        Lockdown Mode or Edge's strict security mode. <noscript> does not apply there,
+        so those visitors still get the spinner and then the error bar.
     -->
     <noscript>
         <main class="container noscript">
@@ -47,7 +51,7 @@
                 to find my work:
             </p>
             <ul>
-                <li><a href="https://vararmaten.vercel.app">Väm</a>, a map of Gothenburg's food trucks (<a href="https://github.com/Ollie1994/whereisfood">source</a>)</li>
+                <li><a href="https://vararmaten.vercel.app">Väm</a>, a map of Gothenburg's food trucks, in soft launch (<a href="https://github.com/Ollie1994/whereisfood">source</a>)</li>
                 <li><a href="https://github.com/Ollie1994/portfolio">The source of this site</a></li>
                 <li><a href="https://github.com/Ollie1994/kahoot_clone_v5">A real-time quiz app</a></li>
                 <li><a href="https://github.com/Ollie1994">Everything else on GitHub</a>, and <a href="https://www.linkedin.com/in/oliwer-karlsson-242b38323/">LinkedIn</a></li>

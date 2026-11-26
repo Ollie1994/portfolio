@@ -8,9 +8,12 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
 
-    <!-- Skips downloading ICU culture data (icudt_EFIGS.dat, 141 KB compressed) on
-         every first visit. Nothing here formats dates or numbers by culture, and the
-         validation is ordinal. Set this to false before adding anything that does. -->
+    <!-- Drops ICU: the culture data file each first visit downloaded (icudt_*.dat,
+         picked by browser language: 217 KB for Swedish, 141 KB for English) and the
+         ICU code compiled into dotnet.native.wasm (870 to 429 KB). First load measured
+         2,149 to 1,532 KB with a Swedish browser, 2,073 to 1,468 KB with an English one.
+         Nothing here formats dates or numbers by culture, and the validation is
+         ordinal. Set this to false before adding anything that does - see CLAUDE.md. -->
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
