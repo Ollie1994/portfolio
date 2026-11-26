@@ -2,15 +2,6 @@
   "platform": {
     "apiRuntime": "dotnet-isolated:8.0"
   },
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": [
-      "/_framework/*",
-      "/css/*",
-      "/img/*",
-      "*.{css,js,png,jpg,jpeg,gif,svg,ico,webp,woff,woff2,json,xml,txt,wasm,dll,pdb,dat,blat}"
-    ]
-  },
   "routes": [
     {
       "route": "/projects/whereisfood",
@@ -18,10 +9,32 @@
       "statusCode": 301
     },
     {
+      "route": "/projects/vam",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/projects/seeding",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/projects/portfolio",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/projects/quiz",
+      "rewrite": "/index.html"
+    },
+    {
       "route": "/api/*",
       "allowedRoles": [ "anonymous" ]
     }
   ],
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html",
+      "statusCode": 404
+    }
+  },
   "globalHeaders": {
     "Content-Security-Policy": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
     "X-Content-Type-Options": "nosniff",

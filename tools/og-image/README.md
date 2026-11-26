@@ -13,7 +13,7 @@ Needs Node 22+ and Chrome, and Windows for the card to look as intended: it is s
 
 The card lists the projects that have a page, in the home page's order and accent colours. It
 cannot read `ProjectCatalog`, so redo it when a project with a page is added, renamed or
-recoloured. Then bump `?v=` on both image tags in `src/Portfolio.Client/wwwroot/index.html`:
+recoloured. Then bump `?v=` on `og:image` in `src/Portfolio.Client/wwwroot/index.html`:
 platforms cache the image by URL, and without a new one, shares keep showing the old card.
 
 ## Why it looks the way it does

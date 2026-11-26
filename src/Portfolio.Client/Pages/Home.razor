@@ -1,11 +1,18 @@
 @page "/"
 @using Portfolio.Client.Components
 
-<PageTitle>Oliwer Karlsson — Software Developer</PageTitle>
+<PageTitle>Oliwer Karlsson — Fullstack Developer</PageTitle>
+
+@* The description is set per page rather than in index.html, so a project page has its
+   own instead of a second one alongside the home page's. *@
+<HeadContent>
+    <meta name="description" content="Each project written up with the reasoning behind it — what I built and why it's built that way. C#, JavaScript, Java and TypeScript." />
+    <link rel="canonical" href="@(Site.Origin + "/")" />
+</HeadContent>
 
 <section class="hero">
     <div class="container">
-        <p class="eyebrow">Software Developer</p>
+        <p class="eyebrow">Fullstack Developer</p>
         <h1>Oliwer Karlsson</h1>
         <p class="lead">
             Fullstack developer in Gothenburg. I work across the stack in C#, JavaScript

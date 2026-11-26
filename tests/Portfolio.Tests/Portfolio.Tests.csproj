@@ -20,8 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- ProjectCatalogTests checks the published sitemap against the catalogue. -->
+    <!-- ProjectCatalogTests checks the sitemap and the hosting config's routes against the
+         catalogue; SiteTests checks the production address in these files. -->
     <None Include="..\..\src\Portfolio.Client\wwwroot\sitemap.xml" Link="sitemap.xml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\src\Portfolio.Client\wwwroot\staticwebapp.config.json" Link="staticwebapp.config.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\src\Portfolio.Client\wwwroot\index.html" Link="index.html" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\src\Portfolio.Client\wwwroot\robots.txt" Link="robots.txt" CopyToOutputDirectory="PreserveNewest" />
     <!-- SubmissionTraceTests reads the submissions query from it. -->
     <None Include="..\..\README.md" Link="README.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
