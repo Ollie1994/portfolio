@@ -34,7 +34,11 @@
 
         var address = new Uri(Location);
         var page = address.GetLeftPart(UriPartial.Query);
-        var isNewPage = page != _handledPage;
+
+        // Not on the first load: there, focus belongs at the top of the document, so the
+        // first Tab reaches the skip link and the navigation. Moving it to the <h1> sent
+        // that first Tab past both. A #fragment on first load is still scrolled to.
+        var isNewPage = _handledPage is not null && page != _handledPage;
         _handledPage = page;
 
         try

@@ -49,7 +49,9 @@
     font-size: .875rem;
 }
 
-@media (max-width: 48rem) {
+/* Below 48rem, not at it: at exactly 768px the three columns still fit, and stacking
+   them there made a tablet look like a stretched phone. */
+@media (width < 48rem) {
     .footer-inner {
         grid-template-columns: 1fr;
         gap: 1.75rem;

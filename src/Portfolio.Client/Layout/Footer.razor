@@ -31,8 +31,12 @@
         </div>
     </div>
 
-    <div class="container footer-bottom">
-        <small>&copy; @DateTime.UtcNow.Year Oliwer Karlsson</small>
+    @* The line is on the inner element, inside the container's padding, so it spans
+       the content width like everything else rather than 1.5rem more on each side. *@
+    <div class="container">
+        <div class="footer-bottom">
+            <small>&copy; @DateTime.UtcNow.Year Oliwer Karlsson</small>
+        </div>
     </div>
 </footer>
 

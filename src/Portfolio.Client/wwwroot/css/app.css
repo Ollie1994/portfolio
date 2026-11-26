@@ -272,6 +272,14 @@ code {
 /* A project with nothing to show yet. A neutral, not a fifth accent. */
 .accent-neutral { --accent: var(--grey-90); --accent-wash: transparent; }
 
+/* A page that ends on a tinted section meets the tinted footer directly: the footer's
+   top margin would otherwise show a strip of page background between the two (the home
+   page, which ends on Contact). Here rather than in Footer.razor.css because it depends
+   on the page, which the footer cannot see. */
+main:has(> .section-alt:last-child) + .site-footer {
+    margin-top: 0;
+}
+
 .not-found {
     padding-block: clamp(3rem, 9vw, 6rem);
 }
