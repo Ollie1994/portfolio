@@ -5,64 +5,64 @@
     <h2>What it is</h2>
 
     <p>
-        Built at <strong>Klarr Utvecklingsbyrå</strong> for an education platform, and
-        the subject of my thesis. Developers needed realistic data to work against and the
-        integration tests needed a known starting state — and both were being solved
-        ad hoc, differently, by each person.
+        I built this at <strong>Klarr Utvecklingsbyrå</strong>, a development agency, for an
+        education platform, and it was the subject of my thesis. Developers needed realistic
+        made-up data to work with, and the automated tests needed to start from exactly the
+        same data every time. Each person was solving that in their own way.
     </p>
 
     <p>
-        The system generates that data on demand: configurable volumes, the relationships
-        between entities, and the awkward edge cases that only show up in real use. It
-        supports both <strong>full and partial seeding</strong>, so you can rebuild
-        everything or top up one collection without wiping your working state.
+        A tool like this is called a seeding system: it fills a database with starting data.
+        Mine creates that data on demand, as much or as little as a task needs, with the
+        pieces of data linked to each other just as they are in the real platform, including
+        the unusual cases that only turn up in real use. It can rebuild everything from
+        scratch, or <strong>top up just one part</strong> without wiping what a developer is
+        in the middle of.
     </p>
 
-    <h2>Designed for people who aren't me</h2>
+    <h2>Built for other people to use</h2>
 
     <p>
-        A seeding script is easy. A seeding <em>system</em> that other developers will
-        actually use, extend, and not resent is the harder problem, and that's what
-        shaped the design.
-    </p>
-
-    <p>
-        It's modular, so adding a new entity means writing one generator rather than
-        touching a monolith. Volumes and relationships are configurable rather than
-        hardcoded, because the data you want for a UI demo isn't the data you want for a
-        performance check. Generated documents are validated against schemas with
-        <strong>AJV</strong>, so the system can't quietly produce records the application
-        would reject.
-    </p>
-
-    <h2>Finding out what was actually needed</h2>
-
-    <p>
-        Before building it I gathered requirements from the people who'd depend on it —
-        developers with different workflows, the automated test suite with its own
-        constraints, and the platform's future direction. Those wants conflicted:
-        <strong>fast, small datasets</strong> for day-to-day work against
-        <strong>large, realistic ones</strong> for meaningful testing.
+        A quick throwaway program is easy. A tool that other developers will actually use,
+        add to, and not resent is harder, and that shaped the design.
     </p>
 
     <p>
-        Configurability was the resolution rather than a compromise on either side. That
-        work — balancing competing priorities across teams into one design — was the part
-        I found most valuable, and it's what the thesis examined.
+        Adding a new kind of data means writing one small, separate piece, not editing one
+        big file that everyone shares. How much data to create, and how it connects, is a
+        setting rather than written into the code, because a quick demo and a test of how the
+        platform copes under heavy use need very different data. And everything it creates is
+        <strong>checked against the same rules as the real application</strong>, so it can't
+        quietly produce records the app would reject.
     </p>
 
-    <h2>Integrated, documented, handed over</h2>
+    <h2>Finding out what was needed</h2>
 
     <p>
-        The system plugs into the automated test suite so integration tests run against a
-        known, reproducible state instead of whatever happened to be in the database.
+        Before building it, I talked to the developers who would rely on it, who worked in
+        different ways, and looked at what the automated tests needed and where the platform
+        was heading. They wanted different things: <strong>small, fast data</strong> for
+        day-to-day work, and <strong>large, realistic data</strong> for meaningful testing.
     </p>
 
     <p>
-        I wrote onboarding documentation and presented the architecture to the development
-        team. That mattered as much as the code: a tool nobody understands gets worked
-        around, and a system only one person can extend becomes that person's permanent
-        obligation.
+        Making it adjustable met both needs instead of compromising on either. Balancing those
+        competing needs across teams was the part I found most valuable, and it's what my
+        thesis examined.
+    </p>
+
+    <h2>Built in, written down, handed over</h2>
+
+    <p>
+        The automated tests use the data it creates, so they always start from the same data
+        instead of whatever happened to be in the database.
+    </p>
+
+    <p>
+        I wrote documentation for new team members and presented the design to the
+        development team. That mattered as much as the code: a tool nobody understands gets
+        worked around, and one that only its author can change becomes that person's job
+        forever.
     </p>
 
 </ProjectPage>

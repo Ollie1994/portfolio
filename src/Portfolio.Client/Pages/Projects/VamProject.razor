@@ -5,110 +5,112 @@
     <h2>What it is</h2>
 
     <p>
-        Väm is short for <em lang="sv">Var är maten</em>, "where's the food". Gothenburg's trucks
-        announce where they'll be on Instagram and Facebook, one post or Story at a time,
-        and there has been no central map since Streetkäk shut down in 2017. Väm is that
-        map, with no login and no tracking. The interface is in Swedish.
+        Väm is short for <em lang="sv">Var är maten</em>, "where's the food". Gothenburg's
+        food trucks post where they'll be on Instagram and Facebook, one post or Story at a
+        time, and there has been no single map of them since Streetkäk, the last one, closed in
+        2017. Väm is that map. It needs no account and doesn't track anyone. The site is in
+        Swedish.
     </p>
 
     <p>
-        <strong>It's in production as a soft launch.</strong> Visitors see a page about the
-        project, and the map itself is shown only to the admin while locations are entered
-        and tested. It opens to everyone when the trucks are back for the season: a map
-        with two trucks on it helps nobody. Phase 10 of 11 is done.
+        <strong>It's live as a soft launch.</strong> For now, visitors see a page about the
+        project, and only I can see the map while I enter and test locations. It opens to
+        everyone when the trucks are back for the season, because a map with two trucks on it
+        helps nobody. Ten of the eleven planned stages are done.
     </p>
 
     <h2>The version I threw away</h2>
 
     <p>
-        The first design was automatic: webhooks and inbound email were to feed a Swedish
-        caption parser, with a confidence score on each location. I built the ingestion
-        lanes and most of the parser, and dropped the design before joining them.
+        My first plan was automatic: read the trucks' posts and work out each location from
+        the text, with a score for how sure it was. I built most of it before stopping.
     </p>
 
     <p>
-        A parser can't see a post that is only an image, a Story, or a schedule posted as a
-        graphic, and it can misread the posts it does see. The code is archived, and none of
-        that design is left in the app.
+        A program can't read a location that only appears in a picture, a Story or a
+        schedule posted as an image, and it can misread the posts it can read. That code is
+        archived, and none of it is left in the app.
     </p>
 
     <div class="callout">
         <p>
             The rule that decided it: <strong>a wrong pin costs more than a missing
-            one</strong>. The replacement is deliberately low-tech: one admin, entering every
-            location by hand from a phone.
+            one</strong>. The replacement is deliberately simple: I enter every location
+            myself, from my phone.
         </p>
     </div>
 
-    <h2>Making manual entry fast</h2>
+    <h2>Making it quick to do by hand</h2>
 
     <p>
-        Entering everything by hand only works if it's quick. A pin comes from a tap
-        on the map, a known spot, a recently used place or the phone's GPS. Start and end
-        times are pre-filled and always required. A morning checklist suggests what each
-        truck did on the same weekday recently, and nothing reaches the map until the
-        admin confirms it.
+        Doing it by hand only works if it's fast. A location can come from a tap on the map,
+        a saved spot, a recently used place or the phone's GPS. The app suggests start and end
+        times, and won't save a location without them. Each morning, a checklist suggests
+        where each truck has been on that weekday in recent weeks. Nothing appears on the map
+        until I confirm it.
     </p>
 
     <p>
-        The map is equally plain about what it knows. Only trucks with an entry today
-        appear, and each one says when its entry was last updated and, where the truck has
-        one, links to its Instagram so you can check.
+        The map is just as honest about what it knows. Only trucks with an entry for today
+        are shown, each says when it was last updated, and where a truck has an Instagram
+        account, it links there so you can check for yourself.
     </p>
 
-    <h2>One cached read path</h2>
+    <h2>Fast and cheap however many people visit</h2>
 
     <p>
-        The browser never talks to the database. The map polls a single endpoint every 60
-        seconds while the tab is visible, and the CDN caches that response for 60 seconds.
-        In normal use that means
-        about one refresh from the database a minute per region, however many people have
-        the map open.
-    </p>
-
-    <p>
-        The public API roles have no access to the truck and location tables at all, so
-        nobody can pull a truck's location history through the database's own API. Map
-        tiles are a self-hosted Protomaps file rather than a hosted tile service.
-    </p>
-
-    <h2>Rules the database enforces</h2>
-
-    <p>
-        Two overlapping entries for the same truck are refused by a Postgres
-        <strong>exclusion constraint</strong>, not by application code that might forget to
-        check. Every table has row-level security and explicit grants.
+        Visitors' browsers never talk to the database directly. While the map is open, it
+        checks for updates once a minute. Instead of asking the database each time, the
+        website keeps one up-to-date copy for a minute and gives that same copy to everyone.
+        In normal use that means the database is asked for fresh data about once a minute,
+        however many people have the map open.
     </p>
 
     <p>
-        The tests for those guards are themselves checked. Over sixty small SQL files each
-        remove or weaken something in the schema, and for most of them a test has to fail.
-        A few check instead that another guard already covers the change, or that the
-        tests' own setup refuses to run.
+        The public can't look up where a truck has been in the past; only today's locations
+        are shown. The streets and place names under the pins come from the project's own
+        storage, not from an outside map service.
+    </p>
+
+    <h2>Rules the database won't break</h2>
+
+    <p>
+        Some mistakes are stopped by the database itself, not by the app remembering to
+        check. It won't let one truck be in two places at the same time, and each kind of data
+        has its own rules about who may read or change it.
+    </p>
+
+    <p>
+        I also check that the tests actually work. More than sixty deliberate breakages each
+        switch off or weaken one of those safeguards, and a test must catch every one. For a
+        few, the check is instead that a different safeguard still stops the mistake.
     </p>
 
     <h2>A locked-down admin</h2>
 
     <p>
-        The admin signs in with an emailed link and then a code from an authenticator app,
-        and a session is refused twelve hours after sign-in. Every admin route checks the
-        session, the role and the second factor again for itself, and the admin pages get a
-        content security policy with a new nonce per request.
+        Only one person can change anything: me. Signing in takes a link sent by email and
+        then a code from an authenticator app on my phone. I'm signed out automatically after
+        twelve hours. Every admin page repeats these checks itself instead of trusting the
+        page before it, and the admin pages get extra protection against harmful code an
+        attacker might try to slip into them.
     </p>
 
     <h2>How it's built</h2>
 
     <p>
-        Strictly layered: route handlers speak HTTP, services hold the logic, and only one
-        layer touches Postgres. Every pull request runs type checking, unit tests,
-        integration tests against a local Supabase, a production build with a smoke check,
-        a dependency audit, a secret scan and CodeQL.
+        The code is split into parts that each have one job, and only one of them talks to
+        the database. Every change must pass automatic checks before it's accepted. The tests
+        run, some of them against a real copy of the database. The whole site is put together
+        as a trial run. And scans look for known security problems, and for passwords or keys
+        saved into the code by mistake.
     </p>
 
     <p>
-        I build it with Claude Code under a process that is part of the project: plans with
-        numbered decisions so nothing is argued twice, and a log of every time the process
-        itself let a mistake through.
+        I build it with Claude Code, an AI coding assistant, using a working method that is
+        itself part of the project. Plans record every decision and the reason for it, so
+        nothing gets debated twice. A log records each time the method let a mistake through,
+        so the method can be improved.
     </p>
 
 </ProjectPage>

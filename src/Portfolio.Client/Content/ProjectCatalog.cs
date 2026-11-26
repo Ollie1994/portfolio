@@ -44,11 +44,11 @@ public static class ProjectCatalog
         Title: "Väm",
         Kicker: "Soft launch · 2026",
         AccentClass: "accent-red",
-        CardSummary: "Built a map of where Gothenburg's food trucks are today, where every location has to be confirmed by hand, after dropping an automatic design because a wrong pin costs more than a missing one.",
+        CardSummary: "Built a map of where Gothenburg's food trucks are today. I enter and check every location myself, after dropping an automatic version, because a wrong pin costs more than a missing one.",
         CardTech: ["TypeScript", "Next.js", "Postgres", "MapLibre"],
         Detail: new(
             Slug: "vam",
-            Summary: "Built a phone-first map of where Gothenburg's food trucks are today, where every location has to be confirmed by hand, by replacing a planned automatic design with manual entry from a phone. Designed so all visitors share one cached endpoint, refreshed about once a minute per region in normal use.",
+            Summary: "Built a phone-friendly map of where Gothenburg's food trucks are today. Every location is entered by hand and checked before it appears, instead of the automatic version first planned. All visitors see the same copy of the map, refreshed about once a minute, so it stays fast and cheap however many people use it.",
             Tech: ["TypeScript", "Next.js 16", "React 19", "Supabase Postgres", "MapLibre GL JS", "Protomaps", "Tailwind CSS v4", "Vitest", "Vercel"],
             Links:
             [
@@ -60,11 +60,11 @@ public static class ProjectCatalog
         Title: "Database seeding system",
         Kicker: "Professional work · 2025–26",
         AccentClass: "accent-green",
-        CardSummary: "Gave developers on an education platform reproducible test data, used in their daily work and integration tests, by building a modular, schema-validated system at Klarr. My thesis subject.",
+        CardSummary: "Built a tool at Klarr, a development agency, that gives an education platform's developers realistic test data they can recreate at any time, for daily work and automated tests. My thesis subject.",
         CardTech: ["JavaScript", "Express", "MongoDB", "AJV"],
         Detail: new(
             Slug: "seeding",
-            Summary: "Gave developers on an education platform reproducible test data across environments, used in their daily work and the automated integration tests, by building a modular, schema-validated seeding system with configurable volumes and relationships.",
+            Summary: "Built a tool at Klarr that gives an education platform's developers realistic test data on demand, in whatever amount a task needs. They can recreate it at any time, and use it in daily work and in the automated tests.",
             Tech: ["JavaScript", "Express.js", "MongoDB", "Mongoose", "Faker", "AJV", "Lodash"],
             Links: []));
 
@@ -72,11 +72,11 @@ public static class ProjectCatalog
         Title: "This portfolio site",
         Kicker: "Live · 2026",
         AccentClass: "accent-blue",
-        CardSummary: "Built and run a public site and API at $0 hosting, on limits that degrade rather than bill, with an API that treats every request as hostile and quality rules enforced by the build.",
+        CardSummary: "Built and run this site for $0 a month, on free plans that pause rather than bill if overused. The contact form is built to withstand misuse, and quality checks run on every change.",
         CardTech: ["C#", ".NET 8", "Blazor", "Azure"],
         Detail: new(
             Slug: "portfolio",
-            Summary: "Built and run a public site and API at $0 hosting, on limits that degrade rather than bill, by going serverless on Azure's free tiers: Blazor WebAssembly in the browser, an Azure Functions API that treats every request as hostile, and quality rules enforced by the build.",
+            Summary: "Built and run this site and its contact form for $0 a month, on Microsoft's free cloud plans, chosen because heavy use pauses them rather than sending a bill. The site runs in your browser, the form is built to withstand misuse, and every change to the code is checked automatically.",
             Tech: ["C#", ".NET 8", "Blazor WebAssembly", "Azure Functions", "Azure Static Web Apps", "GitHub Actions", "xUnit", "Application Insights"],
             Links: [new("Source on GitHub", "https://github.com/Ollie1994/portfolio")]));
 
@@ -84,11 +84,11 @@ public static class ProjectCatalog
         Title: "Real-time quiz app",
         Kicker: "Learning project · 2025",
         AccentClass: "accent-yellow",
-        CardSummary: "Built a multiplayer quiz where a host and players share a live game, ran several at once on AWS EC2 as a demo, and learned WebSocket rooms, Next.js and deployment by doing it.",
+        CardSummary: "Built a multiplayer quiz where a host runs the game and players answer on their phones. Ran several games at once on a rented Amazon server as a demo, learning by doing how apps with instant updates work and how to put them online.",
         CardTech: ["JavaScript", "Socket.IO", "Next.js", "AWS"],
         Detail: new(
             Slug: "quiz",
-            Summary: "Built a Kahoot-style multiplayer quiz, ran several games at once on AWS EC2 as a demo, and learned WebSocket rooms, Next.js and deployment by doing it. A host runs the game on a big screen while players join from their phones with a room code.",
+            Summary: "Built a Kahoot-style multiplayer quiz: a host runs the game on a big screen while players join from their phones with a room code. Ran several games at once on a rented Amazon server as a demo, and learned by doing how apps with instant updates work and how to put them online.",
             Tech: ["JavaScript", "Next.js", "React", "Socket.IO", "MongoDB Atlas", "Prisma", "AWS EC2", "PM2"],
             Links: [new("Source on GitHub", "https://github.com/Ollie1994/kahoot_clone_v5")]));
 
