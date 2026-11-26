@@ -55,8 +55,11 @@
     color: var(--text-muted);
 }
 
+/* Pinned to the bottom of the card, as "Read more" is on project cards, so the links line
+   up across a row even when one certificate's name wraps onto two lines. */
 .cert-verify {
-    margin-top: .75rem;
+    margin-top: auto;
+    padding-top: .75rem;
     font-size: .8125rem;
     font-weight: 600;
     color: var(--link);

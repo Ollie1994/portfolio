@@ -5,9 +5,12 @@
         var(--bg);
 }
 
+/* The padding makes the target 30px tall instead of 22px; the negative margin keeps the
+   text exactly where it was. */
 .back-link {
     display: inline-block;
-    margin-bottom: 1.5rem;
+    padding-block: .25rem;
+    margin-block: -.25rem 1.25rem;
     font-size: .875rem;
     font-weight: 600;
     color: var(--text-muted);
@@ -27,8 +30,11 @@
     color: var(--text-muted);
 }
 
+/* Wide enough that "Database seeding system" fits on one line on desktop and tablet; at
+   20ch it broke and left "system" alone. Balanced where it does wrap, on phones. */
 .project-header h1 {
-    max-width: 20ch;
+    max-width: 28ch;
+    text-wrap: balance;
 }
 
 .project-summary {
@@ -65,9 +71,11 @@
 
 /* Section headings inside the body carry the accent as a leading marker, the
    same device the home page uses for its sections. */
+/* flex-start, with the marker offset to the first line's centre: centring it on the
+   whole heading put it between the lines when a heading wrapped. */
 .project-body ::deep h2 {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: .75rem;
     margin-top: 2.5rem;
     font-size: clamp(1.25rem, 2.5vw, 1.5rem);
@@ -77,6 +85,9 @@
     content: "";
     width: .75rem;
     height: .75rem;
+    /* Centred on the first line: headings have line-height 1.25 (app.css), and em here
+       is the heading's own font size. */
+    margin-top: calc((1.25em - .75rem) / 2);
     border-radius: 2px;
     background: var(--accent);
     flex: none;
