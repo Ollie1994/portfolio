@@ -3,13 +3,15 @@
         aria-label="Toggle navigation"
         aria-expanded="@(_expanded ? "true" : "false")"
         aria-controls="primary-nav"
-        @onclick="ToggleNav">
+        @ref="_toggle"
+        @onclick="ToggleNav"
+        @onkeydown="CloseOnEscapeAsync">
     <span class="nav-toggle-bar"></span>
     <span class="nav-toggle-bar"></span>
     <span class="nav-toggle-bar"></span>
 </button>
 
-<nav id="primary-nav" class="nav @(_expanded ? "is-open" : "")" aria-label="Primary">
+<nav id="primary-nav" class="nav @(_expanded ? "is-open" : "")" aria-label="Primary" @onkeydown="CloseOnEscapeAsync">
     @foreach (var item in Items)
     {
         <a class="nav-link" href="@item.Href" @onclick="CloseNav">@item.Label</a>
@@ -18,6 +20,7 @@
 
 @code {
     private bool _expanded;
+    private ElementReference _toggle;
 
     private static readonly NavItem[] Items =
     [
@@ -32,6 +35,19 @@
     // Anchor navigation does not unmount the layout, so the mobile menu has to
     // be closed explicitly or it stays open over the target section.
     private void CloseNav() => _expanded = false;
+
+    // Escape closes the open menu, the expected way out of a disclosure. Focus goes
+    // back to the toggle, since the link it was on is about to be hidden.
+    private async Task CloseOnEscapeAsync(KeyboardEventArgs e)
+    {
+        if (!_expanded || e.Key != "Escape")
+        {
+            return;
+        }
+
+        _expanded = false;
+        await _toggle.FocusAsync();
+    }
 
     private sealed record NavItem(string Href, string Label);
 }

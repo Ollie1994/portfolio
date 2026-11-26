@@ -8,7 +8,9 @@
     @foreach (var cert in Featured)
     {
         <a class="cert-card @cert.AccentClass" href="@cert.VerifyUrl" rel="noopener">
-            <img src="@cert.Image" alt="@cert.Name badge" width="200" height="200" loading="lazy" />
+            @* Empty alt: the name follows in the same link, so a description made it
+               read twice. *@
+            <img src="@cert.Image" alt="" width="200" height="200" loading="lazy" />
             <span class="cert-name">@cert.Name</span>
             <span class="cert-meta">@cert.Issuer · @cert.Year</span>
             <span class="cert-verify" aria-hidden="true">Verify →</span>

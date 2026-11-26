@@ -43,7 +43,9 @@
     <div id="blazor-error-ui">
         An unhandled error has occurred.
         <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+        <!-- A button, not an <a> without href, so it can be reached by keyboard. Blazor
+             finds it by the dismiss class alone. -->
+        <button type="button" class="dismiss" aria-label="Dismiss">×</button>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
