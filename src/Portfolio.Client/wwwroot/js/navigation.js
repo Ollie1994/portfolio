@@ -5,7 +5,22 @@
 // NavigationFocus calls afterNavigation once a new page has rendered. Links within
 // the page already showing are handled by the listener at the bottom.
 
-export function afterNavigation(fragment, isNewPage) {
+// The page last shown: its address without the #fragment. Kept here, for the whole
+// visit, rather than in NavigationFocus. The Router builds a new layout, and with it a
+// new NavigationFocus, when it switches between a page and the not-found page, and the
+// new component took that for the first load: focus was left on the page body going to
+// or from "Page not found", including its "Back to the start" link.
+let currentPage = null;
+
+export function afterNavigation(page, fragment) {
+    // Not on the first load: there, focus belongs at the top of the document, so the
+    // first Tab reaches the skip link and the navigation. A #fragment is still scrolled to.
+    const isNewPage = currentPage !== null && page !== currentPage;
+    currentPage = page;
+    showTarget(fragment, isNewPage);
+}
+
+function showTarget(fragment, isNewPage) {
     const target = fragment ? document.getElementById(decodeFragment(fragment)) : null;
 
     if (target) {
@@ -69,7 +84,7 @@ document.addEventListener('click', event => {
 
     setTimeout(() => {
         if (location.hash === url.hash) {
-            afterNavigation(url.hash.slice(1), false);
+            showTarget(url.hash.slice(1), false);
         }
     });
 }, true);
