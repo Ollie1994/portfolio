@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>Oliwer Karlsson — Fullstack Developer</title>
     <meta name="description" content="Each project written up with the reasoning behind it — what I built and why it's built that way. C#, JavaScript, Java and TypeScript." />
     <base href="/" />
@@ -29,9 +30,32 @@
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link href="Portfolio.Client.styles.css" rel="stylesheet" />
+    <noscript><link rel="stylesheet" href="css/noscript.css" /></noscript>
 </head>
 
 <body>
+    <!--
+        Without JavaScript nothing below renders, on any route: the project pages need
+        it too, so this links to things that work without it rather than to them.
+    -->
+    <noscript>
+        <main class="container noscript">
+            <h1>Oliwer Karlsson</h1>
+            <p>
+                Fullstack developer in Gothenburg. This site is built with Blazor
+                WebAssembly, so it needs JavaScript to run. Without it, here is where
+                to find my work:
+            </p>
+            <ul>
+                <li><a href="https://vararmaten.vercel.app">Väm</a>, a map of Gothenburg's food trucks (<a href="https://github.com/Ollie1994/whereisfood">source</a>)</li>
+                <li><a href="https://github.com/Ollie1994/portfolio">The source of this site</a></li>
+                <li><a href="https://github.com/Ollie1994/kahoot_clone_v5">A real-time quiz app</a></li>
+                <li><a href="https://github.com/Ollie1994">Everything else on GitHub</a>, and <a href="https://www.linkedin.com/in/oliwer-karlsson-242b38323/">LinkedIn</a></li>
+            </ul>
+            <p>Or email me at <a href="mailto:oliwer.carlsson.jobb@gmail.com">oliwer.carlsson.jobb@gmail.com</a>.</p>
+        </main>
+    </noscript>
+
     <div id="app">
         <svg class="loading-progress">
             <circle r="40%" cx="50%" cy="50%" />

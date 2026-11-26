@@ -1,0 +1,28 @@
+/* Loaded only when JavaScript is off, from a <noscript> in index.html. A file rather
+   than inline styles because the CSP sets style-src 'self'. */
+
+/* The Blazor loading indicator would otherwise spin forever. */
+#app {
+    display: none;
+}
+
+.noscript {
+    padding-block: clamp(3rem, 9vw, 6rem);
+}
+
+.noscript > * {
+    max-width: min(40rem, 100%);
+}
+
+.noscript ul {
+    padding-left: 1.25rem;
+}
+
+.noscript li {
+    margin-bottom: .5rem;
+}
+
+/* The list items are sentences, and app.css underlines only links inside <p>. */
+.noscript li a {
+    text-decoration: underline;
+}

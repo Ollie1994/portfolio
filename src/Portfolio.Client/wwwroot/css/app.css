@@ -5,6 +5,11 @@
    ========================================================================== */
 
 :root {
+    /* Scrollbars, form controls and the page canvas follow the theme. Without it
+       they stayed light in dark mode. index.html has the matching meta tag, so the
+       first paint, before this file arrives, is right too. */
+    color-scheme: light dark;
+
     /* Microsoft logo squares */
     --ms-red: #F25022;
     --ms-green: #7FBA00;

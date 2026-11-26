@@ -7,6 +7,11 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+
+    <!-- Skips downloading ICU culture data (icudt_EFIGS.dat, 141 KB compressed) on
+         every first visit. Nothing here formats dates or numbers by culture, and the
+         validation is ordinal. Set this to false before adding anything that does. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
