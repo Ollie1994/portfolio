@@ -50,8 +50,10 @@
 }
 
 /* Below 48rem, not at it: at exactly 768px the three columns still fit, and stacking
-   them there made a tablet look like a stretched phone. */
-@media (width < 48rem) {
+   them there made a tablet look like a stretched phone. 47.99rem rather than the
+   (width < 48rem) range syntax, which Safari before 16.4 drops entirely - leaving
+   three cramped columns on older iPhones. */
+@media (max-width: 47.99rem) {
     .footer-inner {
         grid-template-columns: 1fr;
         gap: 1.75rem;
