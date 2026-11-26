@@ -79,9 +79,10 @@
     margin-top: auto;
 }
 
-/* No summary to separate them: keep the pills with the title rather than leaving
-   a gap in the middle of the card. */
-.card-title + .card-tech {
+/* No summary and no link: keep the pills with the title rather than leaving a gap
+   in the middle of the card. A linked card keeps them at the bottom with "Read
+   more", in line with the other cards. */
+.card:not(.card-has-link) .card-title + .card-tech {
     margin-top: .25rem;
 }
 

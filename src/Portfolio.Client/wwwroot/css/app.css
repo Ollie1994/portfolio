@@ -296,7 +296,9 @@ code {
     box-shadow: 0 -1px 2px rgba(0, 0, 0, .2);
     display: none;
     left: 0;
-    padding: .6rem 1.25rem .7rem 1.25rem;
+    /* Right padding clears the dismiss button, which is absolutely positioned, so
+       wrapped text on a narrow screen never runs underneath it. */
+    padding: .6rem 3rem .7rem 1.25rem;
     position: fixed;
     width: 100%;
     z-index: 1000;
