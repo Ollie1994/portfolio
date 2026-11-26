@@ -90,6 +90,30 @@ Insights has a 5 GB/month free grant and a hard daily ingestion cap, so abuse co
 rather than money. The email address is published on the site as well, so the form is a
 convenience rather than the only channel.
 
+### Reading submissions
+
+Application Insights → Logs. Each submission is one trace whose message ends in a JSON payload:
+
+```kusto
+traces
+| where message startswith "Contact submission received:"
+| order by timestamp desc
+| extend payload = parse_json(substring(message, indexof(message, "{")))
+| project sent  = format_datetime(datetime_utc_to_local(timestamp, "Europe/Stockholm"), "yyyy-MM-dd HH:mm:ss"),
+          name  = tostring(payload.Name),
+          email = tostring(payload.Email),
+          body  = tostring(payload.Message),
+          timestamp
+```
+
+`timestamp` is stored in UTC, which is one hour behind Swedish time in winter and two in summer.
+The query converts it rather than the API, so what is stored stays UTC. `sent` is text on
+purpose: the portal's display time zone setting converts date columns, and would shift an
+already converted date a second time. The real `timestamp` stays as the last column: the results
+are sorted by it, and it is the one to sort by in the portal, since sorting `sent` sorts text.
+It also tells apart the hour that happens twice when the clocks go back in October. Telemetry
+takes a few minutes to appear, so set the time range wide enough.
+
 ## Constraints
 
 **Everything targets `net8.0`.** Static Web Apps managed functions don't support a
