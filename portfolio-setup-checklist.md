@@ -30,10 +30,10 @@
 - [x] **Azure Static Web Apps** extension — create/deploy tooling — `v0.13.4`
 - [x] **Azure Functions** extension — local run/debug + deploy for the API — `v1.23.0`
 - [x] **Azure Resources / Azure Account** extension — sign-in and resource management — `v0.13.3`
+- [x] **Claude Code** extension — native integration (panel, inline diffs, auto context sharing)
 
 The repository's `.vscode/extensions.json` recommends C# Dev Kit and the Static Web Apps and
 Functions extensions, so VS Code offers them when the folder is opened.
-- [x] **Claude Code** extension — native integration (panel, inline diffs, auto context sharing)
 
 ## 4. Things to create
 

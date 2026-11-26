@@ -61,9 +61,11 @@ Static Web Apps routing layer and won't reflect production.
 
 No storage emulator is needed. `local.settings.json` points `AzureWebJobsStorage` at one
 (`UseDevelopmentStorage=true`), but the API's only trigger is HTTP, which uses no storage:
-`func start` serves `/api/contact` with no emulator running. A timer, queue or blob trigger would
-need [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite), but the
-free tier supports none of those anyway.
+`func start` serves `/api/contact` with no emulator running. With `--verbose`, the host's health
+check then reports `Unable to access AzureWebJobsStorage` every 25 seconds or so; that is
+harmless here, and requests are answered normally. A timer, queue or blob trigger would need
+[Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite), but the free
+tier supports none of those anyway.
 
 ## The contact endpoint
 
