@@ -20,6 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- ProjectCatalogTests checks the published sitemap against the catalogue. -->
+    <None Include="..\..\src\Portfolio.Client\wwwroot\sitemap.xml" Link="sitemap.xml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Portfolio.Shared\Portfolio.Shared.csproj" />
     <ProjectReference Include="..\..\src\Portfolio.Api\Portfolio.Api.csproj" />
     <ProjectReference Include="..\..\src\Portfolio.Client\Portfolio.Client.csproj" />
