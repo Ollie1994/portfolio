@@ -140,6 +140,12 @@ Enforced by the build rather than by convention:
 `main` requires a pull request with `Build and Test` passing. CI runs build, tests, a formatting
 check and a vulnerable-package scan. Every pull request gets its own preview environment.
 
+After every deploy, to production or to a preview, the deploy workflow checks the site it just
+deployed rather than trusting the deploy step's success. It checks that a page and a deep link
+serve the app with the security headers, that the content is from this deploy, and that the API
+rejects an invalid message with the expected field errors. It never sends a valid message, since
+that would be logged as a real submission.
+
 ## Security headers
 
 `staticwebapp.config.json` sets a Content Security Policy with no `unsafe-inline`, plus

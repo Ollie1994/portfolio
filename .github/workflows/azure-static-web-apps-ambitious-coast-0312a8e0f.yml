@@ -93,6 +93,10 @@ jobs:
           # step: package build scripts during restore, and the deploy action's image.
           # Nothing here needs it there; the deploy action is given its token directly.
           persist-credentials: false
+      # For the check after the deploy: the site's Last-Modified must be later than this.
+      - name: Note when the deploy starts
+        if: github.event_name == 'push' || steps.pr.outputs.state == 'open'
+        run: echo "DEPLOY_STARTED=$(date -u +%s)" >> "$GITHUB_ENV"
       # Pinned to a commit like every action here; see close-preview.yml for what
       # that does and does not freeze for this one.
       - name: Build And Deploy
@@ -109,3 +113,76 @@ jobs:
           api_location: "src/Portfolio.Api" # Api source code path - optional
           output_location: "wwwroot" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
+
+      # "Deployment Complete" says the upload finished, not that the site works. This
+      # checks the environment just deployed - production on main, the preview on a pull
+      # request - the way a visitor and a caller see it:
+      #   - pages, including a deep link, answer with the app, so the fallback in
+      #     staticwebapp.config.json is in effect (at the repo root it is silently ignored)
+      #   - the Content-Security-Policy is there, so the config's headers are too
+      #   - Last-Modified is from this deploy, not the one it replaced
+      #   - the API is deployed and runs the current validator: an invalid message gets
+      #     400 naming the three fields. NEVER a valid message: that is a real submission
+      # Retried, since a new deploy and a cold API can take a moment to answer.
+      - name: Check the deployed site
+        if: steps.builddeploy.outcome == 'success'
+        env:
+          SITE: ${{ steps.builddeploy.outputs.static_web_app_url }}
+        run: |
+          if [ -z "$SITE" ]; then
+            echo "::error::The deploy step reported no site URL, so there is nothing to check."
+            exit 1
+          fi
+          if [ -z "${DEPLOY_STARTED:-}" ]; then
+            echo "::error::DEPLOY_STARTED is not set, so this deploy cannot be told from the last."
+            exit 1
+          fi
+          SITE="${SITE%/}"
+          body=$(mktemp)
+          headers=$(mktemp)
+
+          # Prints what is wrong and fails, or succeeds when everything answers as it should.
+          check() {
+            for path in / /projects/vam; do
+              code=$(curl -s -m 30 -D "$headers" -o "$body" -w '%{http_code}' "$SITE$path") || code=000
+              if [ "$code" != 200 ] || ! grep -q '<div id="app">' "$body"; then
+                echo "GET $path answered $code without the app."
+                return 1
+              fi
+            done
+
+            if ! grep -qi '^content-security-policy:' "$headers"; then
+              echo "No Content-Security-Policy header, so staticwebapp.config.json is not in effect."
+              return 1
+            fi
+
+            # A header that is missing or will not parse counts as old: a failed comparison
+            # inside [ ] is false, and would otherwise pass this check without checking.
+            modified=$(grep -i '^last-modified:' "$headers" | cut -d' ' -f2- | tr -d '\r')
+            modified_at=$(date -u -d "$modified" +%s 2>/dev/null) || modified_at=0
+            if [ -z "$modified" ] || [ "$modified_at" -lt "$DEPLOY_STARTED" ]; then
+              echo "Last-Modified is '${modified:-missing}', from before this deploy started."
+              return 1
+            fi
+
+            code=$(curl -s -m 30 -o "$body" -w '%{http_code}' -X POST \
+              -H 'Content-Type: application/json' \
+              -d '{"name":"","email":"x","message":"y"}' \
+              "$SITE/api/contact") || code=000
+            fields=$(jq -c '[.errors[].field] | sort' "$body" 2>/dev/null)
+            if [ "$code" != 400 ] || [ "$fields" != '["Email","Message","Name"]' ]; then
+              echo "POST /api/contact answered $code with fields ${fields:-none}: $(head -c 200 "$body")"
+              return 1
+            fi
+          }
+
+          for attempt in $(seq 1 12); do
+            if result=$(check); then
+              echo "$SITE answers as it should."
+              exit 0
+            fi
+            echo "Attempt $attempt: $result"
+            sleep 10
+          done
+          echo "::error::$SITE failed its checks after 12 attempts. Last: $result"
+          exit 1
