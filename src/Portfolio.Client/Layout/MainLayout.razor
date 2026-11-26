@@ -1,6 +1,9 @@
 @inherits LayoutComponentBase
+@inject NavigationManager Navigation
 
-<a class="skip-link" href="#main-content">Skip to content</a>
+@* Built from the current address: a bare "#main-content" resolves against
+   <base href="/">, so on any other page it led to the home page instead. *@
+<a class="skip-link" href="@SkipLinkHref">Skip to content</a>
 
 <header class="site-header">
     <div class="container header-inner">
@@ -39,8 +42,12 @@
 
 <Footer />
 
+<NavigationFocus Location="@Navigation.Uri" />
+
 @code {
     private ErrorBoundary? _errorBoundary;
+
+    private string SkipLinkHref => Navigation.Uri.Split('#')[0] + "#main-content";
 
     // The layout stays mounted from page to page, and so does the boundary's error
     // state. Without this, one failure leaves every later page on the error panel

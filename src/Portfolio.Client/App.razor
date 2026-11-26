@@ -1,7 +1,7 @@
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
+        @* Focus after navigation is NavigationFocus, in MainLayout. *@
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
         <PageTitle>Page not found — Oliwer Karlsson</PageTitle>

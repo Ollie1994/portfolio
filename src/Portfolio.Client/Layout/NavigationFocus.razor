@@ -1,0 +1,62 @@
+@*
+    Scrolls to a #fragment and moves focus after a navigation to a new page. The work
+    is in wwwroot/js/navigation.js, which also handles links within the current page:
+    Blazor never tells .NET about those.
+
+    It lives in MainLayout rather than App.razor so that it also runs on the 404 page,
+    which the Router renders without route data.
+*@
+@using Microsoft.Extensions.Logging
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject ILogger<NavigationFocus> Logger
+
+@code {
+    /// <summary>
+    /// The current absolute address. Passed in rather than read here because a
+    /// changed parameter is what re-renders this component after each navigation.
+    /// </summary>
+    [Parameter, EditorRequired] public string Location { get; set; } = string.Empty;
+
+    private string? _handledLocation;
+    private string? _handledPage;
+    private IJSObjectReference? _module;
+
+    // After render, so the new page is in the DOM before anything is looked up in it.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Location == _handledLocation)
+        {
+            return;
+        }
+
+        _handledLocation = Location;
+
+        var address = new Uri(Location);
+        var page = address.GetLeftPart(UriPartial.Query);
+        var isNewPage = page != _handledPage;
+        _handledPage = page;
+
+        try
+        {
+            _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/navigation.js");
+            await _module.InvokeVoidAsync("afterNavigation", address.Fragment.TrimStart('#'), isNewPage);
+        }
+        catch (JSException ex)
+        {
+            // This component sits outside the layout's ErrorBoundary, so letting this
+            // through would put up the global error bar. Scrolling and focus are a
+            // convenience: the page has already rendered and works without them. A
+            // failed import is retried on the next navigation, since _module stays null.
+            Logger.LogWarning(ex, "Could not scroll or move focus after navigating.");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}
