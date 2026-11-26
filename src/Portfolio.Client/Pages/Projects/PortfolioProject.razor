@@ -5,92 +5,93 @@
     <h2>What it is</h2>
 
     <p>
-        The site you're reading. A <strong>Blazor WebAssembly</strong> frontend — C#
-        compiled to WebAssembly, running entirely in the browser — with an
-        <strong>Azure Functions</strong> API behind it on the isolated worker model.
+        The site you're reading. It's written in <strong>C#</strong>, Microsoft's programming
+        language, and most of it runs inside your browser rather than on a server. A small
+        piece runs in <strong>Microsoft's cloud</strong> to receive messages from the contact
+        form.
     </p>
 
     <p>
-        Both are served from a single Azure Static Web Apps resource, so the API sits at
-        <code>/api</code> on the same origin: no CORS to configure and no host to hardcode
-        across local, preview and production environments. Shared DTOs and validation rules
-        live in a third project that both sides compile against, so a change that breaks
-        the contract breaks the build rather than production.
+        Both live at the same web address. That keeps the setup simple and identical
+        everywhere it runs: on my computer, in test copies of the site, and live. The two
+        halves share a single description of the messages they exchange, so if one side
+        changes in a way the other doesn't expect, the mistake is caught before the site can
+        be updated, rather than breaking the live site.
     </p>
 
-    <h2>Running at zero cost</h2>
+    <h2>Running for free</h2>
 
     <p>
-        Everything runs on free tiers, and the components were chosen to share one
-        property: <strong>they degrade rather than bill.</strong> Static Web Apps has no
-        overage billing — exceed the bandwidth allowance and serving pauses instead of
-        generating an invoice. Application Insights has a hard daily ingestion cap set, so
-        it stops collecting rather than charging.
+        Everything runs on free plans, and I chose them for one shared property:
+        <strong>if they're overused, they stop rather than send a bill.</strong> Go past the
+        site's monthly traffic allowance and it pauses; the service that keeps the site's
+        activity records, its logs, has a daily limit, after which it simply stops
+        collecting.
     </p>
 
     <p>
-        That constraint decided how the contact form works. Sending email looked obvious
-        until the cost model: Azure Communication Services bills per message with no free
-        allowance, and SendGrid withdrew its free tier in 2025. An anonymous public
-        endpoint that sends one paid email per request is an amplifier. Submissions go to
-        Application Insights as structured logs instead, where abuse costs availability
-        rather than money.
+        That decided how the contact form works. Sending each message as an email seemed
+        obvious until I checked the costs: Microsoft's email service charges for every
+        message, and SendGrid, a popular alternative, ended its free plan in 2025. A public
+        form that sends a paid email every time it's used invites someone to run up the bill.
+        So messages are saved in those activity records instead, where misuse can at worst
+        stop the service for a while, never cost money.
     </p>
 
-    <h2>The API treats every request as hostile</h2>
+    <h2>Built to withstand misuse</h2>
 
     <p>
-        Blazor WebAssembly runs in the browser, so everything in the client is public, and
-        <code>/api/*</code> is anonymous and directly reachable without ever loading the
-        site. The endpoint is written accordingly:
+        Anything that runs in your browser can be read and changed by whoever is using it,
+        and anyone can send messages straight to the form's server without ever visiting the
+        site. So the server treats every message as possibly hostile:
     </p>
 
     <ul>
         <li>
-            Validation rules live in the shared project and run on both sides. The client's
-            run is for immediate feedback; <strong>the API's is authoritative</strong>,
-            because the client can be bypassed entirely.
+            The same rules check a message in your browser, for quick feedback, and again on
+            the server, which <strong>has the final say</strong>, because the browser's check
+            can be skipped.
         </li>
         <li>
-            Request bodies are bounded twice — on the declared <code>Content-Length</code>,
-            then again through a limited stream during deserialisation, since the declared
-            length comes from the caller.
+            Messages have a size limit, checked twice: once against the size the sender says
+            the message is, and again while it's actually being read, because the sender
+            could be lying.
         </li>
         <li>
-            Line breaks are rejected in single-line fields, which removes email header
-            injection as a class of bug regardless of how delivery is implemented later.
+            Fields that should be a single line, like your name and email address, can't
+            contain line breaks. That blocks a well-known trick for turning forms that send
+            email into spam machines, even though this form doesn't send email today.
         </li>
         <li>
-            A honeypot field catches naive bots, and their submissions are reported as
-            successful — telling a bot it was detected only helps it adapt.
+            A hidden field that only automated spam bots fill in catches the simplest ones.
+            They're told their message was sent, because telling a bot it was caught only
+            helps it adapt.
         </li>
         <li>
-            Security headers are set at the edge: a Content Security Policy with no
-            <code>unsafe-inline</code>, plus <code>nosniff</code>,
-            <code>Referrer-Policy</code>, <code>Permissions-Policy</code> and HSTS.
+            The site tells your browser to block any code that doesn't come from the site
+            itself, such as code an attacker manages to sneak in. It also switches on other
+            standard browser protections.
         </li>
     </ul>
 
-    <h2>Structured so the tests reach something</h2>
+    <h2>Built so it can be tested</h2>
 
     <p>
-        <strong>Function classes are adapters, not logic.</strong> A function reads input,
-        delegates to a plain service, and maps the result to a status code. Business logic
-        lives in ordinary classes that can be constructed with <code>new</code> in a test —
-        no HTTP types, no Functions host, no Azure. Logic written inside a function class
-        is effectively untestable, and the test project quietly becomes something that
-        can't reach anything worth asserting on.
+        <strong>The code that decides what happens to a message is kept apart from the code
+        that sends and receives it over the internet.</strong> That way the important rules
+        can be tested directly and quickly, without having to run the whole site. When the two
+        are mixed, the rules become hard to test, and the tests end up checking very little.
     </p>
 
     <h2>How it's built</h2>
 
     <p>
-        Warnings are errors and the .NET analyzers run at
-        <code>latest-recommended</code>, so the conventions are enforced by the compiler
-        rather than by memory. Every NuGet version lives in one file. CI runs the test
-        suite and a formatting check on every push, <code>main</code> requires a passing
-        pull request, and each pull request gets its own preview environment. Merging to
-        <code>main</code> tests, builds and deploys automatically.
+        The code must meet Microsoft's recommended quality rules with not a single warning, or
+        the site won't be put together at all. That way the project's standards are enforced
+        automatically rather than remembered. Every change has to pass the tests and a
+        formatting check before it's accepted, and my own changes get a preview copy of the
+        site to look at first. Once accepted, a change is tested, built and published
+        automatically.
     </p>
 
 </ProjectPage>

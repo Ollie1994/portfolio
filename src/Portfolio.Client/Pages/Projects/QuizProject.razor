@@ -5,49 +5,50 @@
     <h2>What it is</h2>
 
     <p>
-        A rebuild of Kahoot's classroom mode: a host starts a session on a shared screen,
-        players join from their own devices using a room code, questions appear for
-        everyone at once, and answers come back in real time.
+        My take on Kahoot's classroom quiz: a host starts a game on a shared screen, players
+        join on their own phones with a room code, everyone sees each question at the same
+        moment, and answers come back instantly.
     </p>
 
     <p>
-        It's <strong>deliberately incomplete</strong>, and worth saying so. I built it to
-        learn three specific things — Next.js ahead of an internship, how WebSockets handle
-        multiple independent groups of users, and deploying something myself while studying
-        for the AWS Cloud Practitioner certificate. Once those were covered, polishing it
-        further wasn't the point.
+        It's <strong>deliberately unfinished</strong>, and I'd rather say so up front. I built
+        it to learn three things: Next.js, a popular toolkit for building websites, before an
+        internship; how to keep many people's screens in sync; and how to put a site online
+        myself, while studying for Amazon's AWS Cloud Practitioner certificate. Once I'd
+        learned those, polishing it further wasn't the point.
     </p>
 
-    <h2>Rooms are the interesting part</h2>
+    <h2>Keeping games apart</h2>
 
     <p>
-        A quiz app is a natural fit for WebSockets, and specifically for <em>rooms</em>.
-        Several games have to run at once without leaking into each other: every player
-        should see their own game's question at the same moment as everyone else in it, and
-        nobody should see anything from another session. The room code is what binds a
-        player's socket to the right game.
-    </p>
-
-    <p>
-        That constraint is what made it a good learning project — request/response wouldn't
-        have taught me anything new, whereas keeping many clients in sync with shared
-        server state is a genuinely different shape of problem.
-    </p>
-
-    <h2>Running it myself</h2>
-
-    <p>
-        I deployed it to an <strong>AWS EC2</strong> instance with <strong>PM2</strong>
-        keeping the process alive, saw that it worked, and took it down. It was a demo,
-        never meant to stay live. Provisioning a machine, configuring it and getting
-        something running on it taught me considerably more about what cloud services
-        abstract away than the certificate material did on its own.
+        The interesting part is running several games at once without them getting mixed up.
+        Every player should see their own game's question at the same moment as everyone else
+        in it, and nothing from anyone else's game. The room code is what ties each player to
+        the right game.
     </p>
 
     <p>
-        Compared with what I build now, it's the earliest of these projects and the
-        simplest — no test suite, no CI, validation left as a "future improvement" in the
-        README. I've left it that way rather than quietly going back to fix it.
+        That made it a good learning project. An ordinary website only sends you something
+        when you ask for it, by loading a page or clicking, which wouldn't have taught me
+        anything new. Here the server has to send each question to every player's screen at
+        the same moment, which is a genuinely different problem.
+    </p>
+
+    <h2>Putting it online myself</h2>
+
+    <p>
+        I put it online on a server rented from <strong>Amazon Web Services</strong>, with a
+        tool that restarts it if it crashes. I checked that it worked, then took it down. It
+        was a demo, never meant to stay live. Setting up a server and getting something
+        running on it taught me far more about what cloud providers do for you than the
+        certificate course did on its own.
+    </p>
+
+    <p>
+        It's my earliest and simplest project, and it shows next to what I build now: no
+        automated tests, no automatic quality checks on changes, and checking what players
+        type still listed as a "future improvement" in the project's notes. I've left it that
+        way rather than quietly going back to fix it.
     </p>
 
 </ProjectPage>
