@@ -12,10 +12,14 @@
 // or from "Page not found", including its "Back to the start" link.
 let currentPage = null;
 
-export function afterNavigation(page, fragment) {
+// componentPreviousPage is the page the calling NavigationFocus last handled, or null.
+// It counts only when this module has seen no page: when an earlier import of it failed,
+// the component still knows the visit did not start here.
+export function afterNavigation(page, fragment, componentPreviousPage) {
     // Not on the first load: there, focus belongs at the top of the document, so the
     // first Tab reaches the skip link and the navigation. A #fragment is still scrolled to.
-    const isNewPage = currentPage !== null && page !== currentPage;
+    const previousPage = currentPage ?? componentPreviousPage ?? null;
+    const isNewPage = previousPage !== null && page !== previousPage;
     currentPage = page;
     showTarget(fragment, isNewPage);
 }

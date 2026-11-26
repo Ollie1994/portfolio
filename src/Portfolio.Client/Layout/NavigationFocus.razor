@@ -19,6 +19,7 @@
     [Parameter, EditorRequired] public string Location { get; set; } = string.Empty;
 
     private string? _handledLocation;
+    private string? _handledPage;
     private IJSObjectReference? _module;
 
     // After render, so the new page is in the DOM before anything is looked up in it.
@@ -33,13 +34,18 @@
 
         // Whether this is a new page, or the first load, is decided in the module, which
         // lasts the whole visit. This component does not: the Router replaces the layout
-        // around it when it switches between a page and the not-found page.
+        // around it when it switches between a page and the not-found page. Its own last
+        // page goes along for when the module has seen none, because importing it failed
+        // the first time; without it, the next page was also taken for the first load.
         var address = new Uri(Location);
+        var page = address.GetLeftPart(UriPartial.Query);
+        var previousPage = _handledPage;
+        _handledPage = page;
 
         try
         {
             _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/navigation.js");
-            await _module.InvokeVoidAsync("afterNavigation", address.GetLeftPart(UriPartial.Query), address.Fragment.TrimStart('#'));
+            await _module.InvokeVoidAsync("afterNavigation", page, address.Fragment.TrimStart('#'), previousPage);
         }
         catch (JSException ex)
         {
