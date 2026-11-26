@@ -15,7 +15,12 @@ else
 {
     @* novalidate: otherwise the browser's own check on type="email" blocks the submit
        first and shows its popup, so a mistyped address never got the form's message
-       or focus handling, while an empty field did. *@
+       or focus handling, while an empty field did.
+
+       aria-required rather than required on the fields: it tells a screen reader the
+       field is required before anything is submitted, and changes nothing else about how
+       the browser treats the field. Everything else about validation is the form's own.
+       The visible note below says the same to everyone else. *@
     <form class="contact-form" novalidate @onsubmit="SubmitAsync" @onsubmit:preventDefault>
 
         @if (_failed)
@@ -25,12 +30,15 @@ else
             </p>
         }
 
+        <p class="form-note">All fields are required.</p>
+
         <div class="field">
             <label for="contact-name">Name</label>
             <input id="contact-name"
                    type="text"
                    maxlength="@ContactLimits.NameMaxLength"
                    autocomplete="name"
+                   aria-required="true"
                    aria-describedby="@(ErrorFor(nameof(ContactRequest.Name)) is null ? null : "contact-name-error")"
                    aria-invalid="@AriaInvalid(nameof(ContactRequest.Name))"
                    @ref="_nameInput"
@@ -48,6 +56,7 @@ else
                    type="email"
                    maxlength="@ContactLimits.EmailMaxLength"
                    autocomplete="email"
+                   aria-required="true"
                    aria-describedby="@(ErrorFor(nameof(ContactRequest.Email)) is null ? null : "contact-email-error")"
                    aria-invalid="@AriaInvalid(nameof(ContactRequest.Email))"
                    @ref="_emailInput"
@@ -64,6 +73,7 @@ else
             <textarea id="contact-message"
                       rows="6"
                       maxlength="@ContactLimits.MessageMaxLength"
+                      aria-required="true"
                       aria-describedby="@(ErrorFor(nameof(ContactRequest.Message)) is null ? "" : "contact-message-error ")contact-message-count"
                       aria-invalid="@AriaInvalid(nameof(ContactRequest.Message))"
                       @ref="_messageInput"
