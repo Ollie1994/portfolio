@@ -5,6 +5,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Merged by hand: review the weekly group PR and merge it once Build and Test
+    # passes. Dependabot closes an unmerged group PR when the next week's replaces it,
+    # so one left open is not a queue - six were closed that way in a row, leaving the
+    # Blazor packages five patch releases behind (#77). Not auto-merged: a merge made
+    # with a workflow's GITHUB_TOKEN does not trigger the deploy on push to main.
     groups:
       # One PR for routine bumps rather than five. Security updates are still
       # raised separately and immediately, regardless of this schedule.
