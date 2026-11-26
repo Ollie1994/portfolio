@@ -4,8 +4,10 @@
     four Microsoft logo colours are the whole set. See CLAUDE.md.
 
     Everything above the body comes from the project's entry in ProjectCatalog, which
-    the home page's card reads too.
+    the home page's card reads too. The entry is the one whose page is at this address,
+    so a page only needs its @page route and its body.
 *@
+@inject NavigationManager Navigation
 
 <PageTitle>@Project.Title — Oliwer Karlsson</PageTitle>
 
@@ -50,14 +52,23 @@
 </article>
 
 @code {
-    // null! only until Blazor sets it: EditorRequired makes leaving it out a build
-    // error, and a component parameter cannot use the required keyword.
-    [Parameter, EditorRequired] public Project Project { get; set; } = null!;
-
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
-    // A page for a project that has no page details is a programming error, not
-    // input, so it throws rather than rendering half a header.
+    // Found from the address rather than passed in, so a page cannot show another
+    // project's header. A page with no entry is a programming error, not input, so it
+    // throws; ProjectCatalogTests checks that every /projects/ route has one. Looking
+    // through five entries on each access costs nothing worth caching.
+    private Project Project
+    {
+        get
+        {
+            var path = new Uri(Navigation.Uri).AbsolutePath;
+            return ProjectCatalog.ForPath(path)
+                ?? throw new InvalidOperationException($"No project in ProjectCatalog has its page at {path}.");
+        }
+    }
+
+    // ForPath matches on the page's address, so a match always has page details.
     private ProjectDetail Detail =>
         Project.Detail ?? throw new InvalidOperationException($"{Project.Title} has no page details in ProjectCatalog.");
 }

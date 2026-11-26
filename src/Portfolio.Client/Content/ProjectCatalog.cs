@@ -13,7 +13,10 @@ public sealed record ProjectDetail(
     string Slug,
     string Summary,
     IReadOnlyList<string> Tech,
-    IReadOnlyList<ProjectLink> Links);
+    IReadOnlyList<ProjectLink> Links)
+{
+    public string Href => $"/projects/{Slug}";
+}
 
 /// <summary>Everything about a project except the body text of its page.</summary>
 public sealed record Project(
@@ -24,14 +27,16 @@ public sealed record Project(
     IReadOnlyList<string> CardTech,
     ProjectDetail? Detail)
 {
-    public string? Href => Detail is null ? null : $"/projects/{Detail.Slug}";
+    public string? Href => Detail?.Href;
 }
 
 /// <summary>
 /// The one list of projects. The home page's cards and each project page's header
-/// both read it, so a project's title, status or accent changes in one place. The
-/// sitemap and the &lt;noscript&gt; fallback in index.html are static files and are
-/// kept in step by hand; the sitemap is checked by a test.
+/// both read it, so a project's title, status or accent changes in one place. A
+/// project page finds its entry by its own address (<see cref="ForPath"/>), so a
+/// page cannot show another project's header. The sitemap and the &lt;noscript&gt;
+/// fallback in index.html are static files and are kept in step by hand; the
+/// sitemap is checked by a test.
 /// </summary>
 public static class ProjectCatalog
 {
@@ -101,4 +106,16 @@ public static class ProjectCatalog
     /// current, the quiz last of the finished ones, then the unfinished one.
     /// </summary>
     public static IReadOnlyList<Project> All { get; } = [Vam, Seeding, Portfolio, Quiz, ApplicationTracker];
+
+    /// <summary>
+    /// The project whose page is at <paramref name="path"/>, or null if none is.
+    /// Case-insensitive and ignoring a trailing slash, as Blazor's routing is.
+    /// </summary>
+    public static Project? ForPath(string path)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+
+        var trimmed = path.TrimEnd('/');
+        return All.FirstOrDefault(p => string.Equals(p.Href, trimmed, StringComparison.OrdinalIgnoreCase));
+    }
 }
