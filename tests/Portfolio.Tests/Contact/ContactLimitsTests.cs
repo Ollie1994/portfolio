@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using Portfolio.Shared.Contact;
 
 namespace Portfolio.Tests.Contact;
@@ -16,18 +17,26 @@ public class ContactLimitsTests
     }
 
     [Fact]
-    public void BodyCap_FitsAFullLengthSubmission()
+    public async Task BodyCap_FitsTheLargestBodyTheFormCanSend()
     {
-        // Every field at maximum, as UTF-8, plus JSON structure. If the body cap
-        // were below this, a legitimate maximum-length message would be rejected
-        // with 413 before validation ever saw it.
-        var worstCaseFields =
-            ContactLimits.NameMaxLength +
-            ContactLimits.EmailMaxLength +
-            ContactLimits.MessageMaxLength;
+        // Measured, not estimated: this is the client's own serialisation
+        // (PostAsJsonAsync uses JsonContent), and its encoder escapes every
+        // non-ASCII character as \uXXXX - 6 bytes for one character the form counts
+        // as one. So the worst case is every field full of a character like 'ö',
+        // not the character count. If the body cap were below this, a legitimate
+        // maximum-length message in Swedish would be refused with 413.
+        var worstCase = new ContactRequest
+        {
+            Name = new string('ö', ContactLimits.NameMaxLength),
+            Email = new string('ö', ContactLimits.EmailMaxLength),
+            Message = new string('ö', ContactLimits.MessageMaxLength),
+            Website = string.Empty
+        };
+
+        var bytes = await JsonContent.Create(worstCase).ReadAsByteArrayAsync();
 
         Assert.True(
-            ContactLimits.MaxRequestBodyBytes > worstCaseFields,
-            $"Body cap {ContactLimits.MaxRequestBodyBytes} must exceed {worstCaseFields} bytes of field content.");
+            bytes.Length <= ContactLimits.MaxRequestBodyBytes,
+            $"The largest body the form can send is {bytes.Length} bytes, over the {ContactLimits.MaxRequestBodyBytes}-byte cap.");
     }
 }

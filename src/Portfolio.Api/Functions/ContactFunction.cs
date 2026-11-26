@@ -1,22 +1,20 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Portfolio.Api.Http;
 using Portfolio.Api.Services;
 using Portfolio.Shared.Contact;
 
 namespace Portfolio.Api.Functions;
 
 /// <summary>
-/// HTTP adapter for contact submissions. Reads and bounds the request, delegates
-/// to <see cref="ContactService"/>, maps the outcome to a status code. No
+/// HTTP adapter for contact submissions. Reads the request within its limits,
+/// delegates to <see cref="ContactService"/>, maps the outcome to a status code. No
 /// business logic lives here.
 /// </summary>
 public sealed class ContactFunction
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
     private readonly ContactService _contacts;
     private readonly ILogger<ContactFunction> _logger;
 
@@ -40,34 +38,25 @@ public sealed class ContactFunction
             return new StatusCodeResult(StatusCodes.Status415UnsupportedMediaType);
         }
 
-        // Reject an oversized body on the declared length before reading a byte
-        // of it. The read below is bounded too, since Content-Length is supplied
-        // by the caller and cannot be trusted on its own.
-        if (req.ContentLength > ContactLimits.MaxRequestBodyBytes)
+        var body = await JsonBody.ReadAsync<ContactRequest>(
+            req.Body, req.ContentLength, ContactLimits.MaxRequestBodyBytes, cancellationToken);
+
+        switch (body.Status)
         {
-            return new StatusCodeResult(StatusCodes.Status413PayloadTooLarge);
+            case JsonBodyStatus.TooLarge:
+                return new StatusCodeResult(StatusCodes.Status413PayloadTooLarge);
+
+            case JsonBodyStatus.Malformed:
+                // Expected for malformed input from an anonymous endpoint. Logged
+                // without the body, and the caller learns nothing about our internals.
+                _logger.LogInformation("Contact submission rejected: body was not valid JSON.");
+                return new BadRequestObjectResult(new { message = "Request body was not valid JSON." });
         }
 
-        ContactRequest? request;
-        try
+        // Only the JSON literal null gets here: an empty body is Malformed above.
+        if (body.Value is not { } request)
         {
-            request = await ReadRequestAsync(req.Body, cancellationToken);
-        }
-        catch (JsonException)
-        {
-            // Expected for malformed input from an anonymous endpoint. Log without
-            // the body, and tell the caller nothing about our internals.
-            _logger.LogInformation("Contact submission rejected: body was not valid JSON.");
-            return new BadRequestObjectResult(new { message = "Request body was not valid JSON." });
-        }
-        catch (InvalidOperationException)
-        {
-            return new StatusCodeResult(StatusCodes.Status413PayloadTooLarge);
-        }
-
-        if (request is null)
-        {
-            return new BadRequestObjectResult(new { message = "Request body was empty." });
+            return new BadRequestObjectResult(new { message = "Request body must be a JSON object." });
         }
 
         var result = _contacts.Submit(request);
@@ -88,60 +77,4 @@ public sealed class ContactFunction
     private static bool IsJsonRequest(HttpRequest req) =>
         req.ContentType is { } contentType &&
         contentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase);
-
-    private static async Task<ContactRequest?> ReadRequestAsync(Stream body, CancellationToken cancellationToken)
-    {
-        // Independent of Content-Length: a caller can lie about it, or send a
-        // chunked body with none at all.
-        using var limited = new LimitedStream(body, ContactLimits.MaxRequestBodyBytes);
-
-        return await JsonSerializer.DeserializeAsync<ContactRequest>(limited, JsonOptions, cancellationToken);
-    }
-
-    /// <summary>
-    /// Read-only wrapper that throws once more than <paramref name="limit"/> bytes
-    /// have been read, so deserialisation of a hostile body stops early rather
-    /// than buffering it all.
-    /// </summary>
-    private sealed class LimitedStream(Stream inner, long limit) : Stream
-    {
-        private long _read;
-
-        public override bool CanRead => true;
-        public override bool CanSeek => false;
-        public override bool CanWrite => false;
-        public override long Length => throw new NotSupportedException();
-
-        public override long Position
-        {
-            get => _read;
-            set => throw new NotSupportedException();
-        }
-
-        public override int Read(byte[] buffer, int offset, int count) =>
-            Track(inner.Read(buffer, offset, count));
-
-        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) =>
-            Track(await inner.ReadAsync(buffer, cancellationToken));
-
-        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
-            Track(await inner.ReadAsync(buffer.AsMemory(offset, count), cancellationToken));
-
-        private int Track(int bytesRead)
-        {
-            _read += bytesRead;
-
-            if (_read > limit)
-            {
-                throw new InvalidOperationException("Request body exceeded the permitted size.");
-            }
-
-            return bytesRead;
-        }
-
-        public override void Flush() { }
-        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-        public override void SetLength(long value) => throw new NotSupportedException();
-        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-    }
 }
