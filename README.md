@@ -25,7 +25,7 @@ configuration and no API host to switch between local, preview and production.
 | `src/Portfolio.Shared` | DTOs and validation shared by both sides |
 | `tests/Portfolio.Tests` | xUnit suite |
 
-Dependency direction is `Client → Shared`, `Api → Shared`, `Tests → Shared, Api`. Anything
+Dependency direction is `Client → Shared`, `Api → Shared`, `Tests → Shared, Api, Client`. Anything
 crossing the HTTP boundary lives in `Shared`, so a change that breaks the contract breaks the
 build rather than production.
 

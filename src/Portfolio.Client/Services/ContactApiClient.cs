@@ -38,7 +38,7 @@ public sealed class ContactApiClient
         try
         {
             // Relative URL - the origin differs between local, PR previews and production.
-            var response = await _http.PostAsJsonAsync("api/contact", request, cancellationToken);
+            using var response = await _http.PostAsJsonAsync("api/contact", request, cancellationToken);
 
             if (response.IsSuccessStatusCode)
             {
@@ -47,8 +47,13 @@ public sealed class ContactApiClient
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
+                // A 400 without field errors, such as the API's "not valid JSON", has
+                // nothing to show beside a field. As Invalid with an empty list, the form
+                // cleared and showed nothing at all.
                 var problem = await response.Content.ReadFromJsonAsync<ErrorResponse>(cancellationToken);
-                return ContactSendResult.Invalid(problem?.Errors ?? []);
+                return problem?.Errors is { Count: > 0 } errors
+                    ? ContactSendResult.Invalid(errors)
+                    : ContactSendResult.Failed;
             }
 
             return ContactSendResult.Failed;

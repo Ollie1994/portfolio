@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Portfolio.Shared\Portfolio.Shared.csproj" />
     <ProjectReference Include="..\..\src\Portfolio.Api\Portfolio.Api.csproj" />
+    <ProjectReference Include="..\..\src\Portfolio.Client\Portfolio.Client.csproj" />
   </ItemGroup>
 
 </Project>

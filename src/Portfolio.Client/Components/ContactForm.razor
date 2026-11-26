@@ -6,14 +6,17 @@
 @if (_sent)
 {
     <div class="form-success" role="status">
-        <h3>Message sent</h3>
+        <h3 tabindex="-1" @ref="_sentHeading">Message sent</h3>
         <p>Thanks for getting in touch — I'll reply to @_sentTo as soon as I can.</p>
         <button type="button" class="btn btn-secondary" @onclick="Reset">Send another</button>
     </div>
 }
 else
 {
-    <form class="contact-form" @onsubmit="SubmitAsync" @onsubmit:preventDefault>
+    @* novalidate: otherwise the browser's own check on type="email" blocks the submit
+       first and shows its popup, so a mistyped address never got the form's message
+       or focus handling, while an empty field did. *@
+    <form class="contact-form" novalidate @onsubmit="SubmitAsync" @onsubmit:preventDefault>
 
         @if (_failed)
         {
@@ -30,6 +33,7 @@ else
                    autocomplete="name"
                    aria-describedby="@(ErrorFor(nameof(ContactRequest.Name)) is null ? null : "contact-name-error")"
                    aria-invalid="@AriaInvalid(nameof(ContactRequest.Name))"
+                   @ref="_nameInput"
                    @bind="_name"
                    @bind:event="oninput" />
             @if (ErrorFor(nameof(ContactRequest.Name)) is { } nameError)
@@ -46,6 +50,7 @@ else
                    autocomplete="email"
                    aria-describedby="@(ErrorFor(nameof(ContactRequest.Email)) is null ? null : "contact-email-error")"
                    aria-invalid="@AriaInvalid(nameof(ContactRequest.Email))"
+                   @ref="_emailInput"
                    @bind="_email"
                    @bind:event="oninput" />
             @if (ErrorFor(nameof(ContactRequest.Email)) is { } emailError)
@@ -61,6 +66,7 @@ else
                       maxlength="@ContactLimits.MessageMaxLength"
                       aria-describedby="contact-message-count @(ErrorFor(nameof(ContactRequest.Message)) is null ? "" : "contact-message-error")"
                       aria-invalid="@AriaInvalid(nameof(ContactRequest.Message))"
+                      @ref="_messageInput"
                       @bind="_message"
                       @bind:event="oninput"></textarea>
             <p id="contact-message-count" class="field-hint">
@@ -79,7 +85,7 @@ else
             <input id="contact-website" type="text" tabindex="-1" autocomplete="off" @bind="_website" />
         </div>
 
-        <button type="submit" class="btn btn-primary" disabled="@_sending">
+        <button type="submit" class="btn btn-primary" disabled="@_sending" @ref="_submitButton">
             @(_sending ? "Sending…" : "Send message")
         </button>
 
@@ -102,6 +108,33 @@ else
     private bool _failed;
     private string _sentTo = string.Empty;
     private IReadOnlyList<ValidationError> _errors = [];
+
+    private ElementReference _nameInput;
+    private ElementReference _emailInput;
+    private ElementReference _messageInput;
+    private ElementReference _submitButton;
+    private ElementReference _sentHeading;
+
+    // Where focus goes once the next render is in the DOM. Without it, errors appear
+    // with focus still on the button and nothing read out, and after sending focus
+    // drops to the page body: the button is disabled while sending, which takes
+    // focus off it, and on success it is gone altogether.
+    private FocusTarget _focusAfterRender;
+
+    private enum FocusTarget
+    {
+        None,
+
+        /// <summary>Its label and error are read out, via aria-describedby.</summary>
+        FirstInvalidField,
+
+        /// <summary>After a failure, so trying again is one key press. The error
+        /// itself is announced by its role="alert".</summary>
+        SubmitButton,
+
+        SentHeading,
+        NameField
+    }
 
     private string? ErrorFor(string field) =>
         _errors.FirstOrDefault(e => e.Field == field)?.Message;
@@ -134,6 +167,7 @@ else
         if (!validation.IsValid)
         {
             _errors = validation.Errors;
+            _focusAfterRender = FocusTarget.FirstInvalidField;
             return;
         }
 
@@ -149,14 +183,31 @@ else
                 case ContactSendStatus.Sent:
                     _sentTo = request.Email;
                     _sent = true;
+                    _focusAfterRender = FocusTarget.SentHeading;
                     break;
 
                 case ContactSendStatus.Invalid:
                     _errors = result.Errors;
+
+                    // Errors only show beside a field. If none of these names one of
+                    // ours with a message - client and server out of step, say - the
+                    // form would change nothing, so it is reported as a failure.
+                    if (FirstInvalidField() is null)
+                    {
+                        _errors = [];
+                        _failed = true;
+                        _focusAfterRender = FocusTarget.SubmitButton;
+                    }
+                    else
+                    {
+                        _focusAfterRender = FocusTarget.FirstInvalidField;
+                    }
+
                     break;
 
                 default:
                     _failed = true;
+                    _focusAfterRender = FocusTarget.SubmitButton;
                     break;
             }
         }
@@ -172,5 +223,33 @@ else
         _errors = [];
         _sent = false;
         _failed = false;
+        _focusAfterRender = FocusTarget.NameField;
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var target = _focusAfterRender;
+        _focusAfterRender = FocusTarget.None;
+
+        ElementReference? element = target switch
+        {
+            FocusTarget.FirstInvalidField => FirstInvalidField(),
+            FocusTarget.SubmitButton => _submitButton,
+            FocusTarget.SentHeading => _sentHeading,
+            FocusTarget.NameField => _nameInput,
+            _ => null
+        };
+
+        if (element is { } focusable)
+        {
+            await focusable.FocusAsync();
+        }
+    }
+
+    // In the order the fields appear, so focus never skips backwards past an error.
+    private ElementReference? FirstInvalidField() =>
+        ErrorFor(nameof(ContactRequest.Name)) is not null ? _nameInput
+        : ErrorFor(nameof(ContactRequest.Email)) is not null ? _emailInput
+        : ErrorFor(nameof(ContactRequest.Message)) is not null ? _messageInput
+        : null;
 }
