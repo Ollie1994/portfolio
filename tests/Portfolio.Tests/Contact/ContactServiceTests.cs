@@ -49,11 +49,10 @@ public class ContactServiceTests
     }
 
     [Fact]
-    public void Submit_HoneypotFilledOnOtherwiseInvalidRequest_IsDiscardedNotValidated()
+    public void Submit_HoneypotFilledOnOtherwiseInvalidRequest_IsDiscardedWithoutErrors()
     {
-        // The honeypot short-circuits: a bot's submission should cost as little
-        // as possible, and reporting validation errors back to it tells it how
-        // to try again.
+        // The honeypot short-circuits: reporting validation errors back to a bot
+        // tells it how to try again.
         var request = new ContactRequest
         {
             Name = "",

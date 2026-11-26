@@ -21,11 +21,21 @@ public sealed class ContactService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        // Checked before validation: a bot-filled honeypot should cost as little
-        // as possible, and its other fields are not worth validating.
+        // Checked before validation, so a bot is told it succeeded and never learns
+        // which of its fields were wrong.
         if (!string.IsNullOrWhiteSpace(request.Website))
         {
-            _logger.LogInformation("Contact submission discarded by honeypot.");
+            // Whether the rest would have passed, and nothing of what was sent. The form
+            // refuses to send an invalid message, so True means it came through the form
+            // complete: a bot driving a browser, or a person whose browser or password
+            // manager filled the hidden field, which nothing here can tell apart. False
+            // means someone called the API directly. On a site this quiet, a run of True
+            // is the thing to look into; the README has the query. The validation is pure
+            // and the request body is capped at 16 KB, so it costs nothing worth saving.
+            _logger.LogInformation(
+                "Contact submission discarded by honeypot. The other fields were valid: {OtherFieldsValid}",
+                ContactValidator.Validate(request).IsValid);
+
             return ContactSubmissionResult.Discarded;
         }
 
