@@ -16,21 +16,24 @@
 
 - [x] **VS Code** — the editor
 - [x] **.NET 8 SDK (LTS)** — the framework/build tooling; target .NET 8 to stay SWA-compatible — `8.0.423`
-- [x] **Node.js (LTS)** — prerequisite for the Claude Code CLI and SWA CLI (no JS coding needed) — `v22.14.0`
+- [x] **Node.js (LTS)** — prerequisite for the Claude Code CLI and SWA CLI (no JS coding needed) — `v26.13.0` (set up on `v22.14.0`). **`swa start` needs Node 18–22:** the SWA CLI refuses a newer Node when it starts the Functions host, and 2.1.0 still does (checked in its source), so updating it does not help. Keep a Node 22 alongside, e.g. with nvm-windows, for full-stack local runs
 - [x] **Git** — version control + GitHub connection
-- [x] **Azure Functions Core Tools** — local runtime to run/debug C# Functions — `4.12.1`
-- [x] **Azure Static Web Apps CLI (SWA CLI)** — emulates the real Azure environment locally (frontend + API on one address) — `2.0.10`
+- [x] **Azure Functions Core Tools** — local runtime to run/debug C# Functions — `4.12.1` (4.17.0 available)
+- [x] **Azure Static Web Apps CLI (SWA CLI)** — emulates the real Azure environment locally (frontend + API on one address) — `2.0.10` (2.1.0 available)
 - [x] **Claude Code CLI** — agentic coding tool
 - [x] **Modern browser (Chrome/Edge)** — for running/debugging the Blazor WASM app — both installed
 
 ## 3. VS Code extensions
 
-- [x] **C# Dev Kit** (Microsoft) — core C#/.NET experience — `v3.20.199`
-- [x] **C#** extension — installed as a dependency of C# Dev Kit — `v2.140.9`
-- [x] **Azure Static Web Apps** extension — create/deploy tooling — `v0.13.3`
-- [x] **Azure Functions** extension — local run/debug + deploy for the API — `v1.22.0`
-- [x] **Azure Resources / Azure Account** extension — sign-in and resource management — `v0.12.7`
+- [x] **C# Dev Kit** (Microsoft) — core C#/.NET experience — `v3.40.215`
+- [x] **C#** extension — installed as a dependency of C# Dev Kit — `v2.160.4`
+- [x] **Azure Static Web Apps** extension — create/deploy tooling — `v0.13.4`
+- [x] **Azure Functions** extension — local run/debug + deploy for the API — `v1.23.0`
+- [x] **Azure Resources / Azure Account** extension — sign-in and resource management — `v0.13.3`
 - [x] **Claude Code** extension — native integration (panel, inline diffs, auto context sharing)
+
+The repository's `.vscode/extensions.json` recommends C# Dev Kit and the Static Web Apps and
+Functions extensions, so VS Code offers them when the folder is opened.
 
 ## 4. Things to create
 
@@ -48,7 +51,7 @@
 - [x] **`CLAUDE.md`** at the repo root — encodes the stack, the .NET 8 / `dotnet-isolated:8.0` hard constraint, solution structure, HTTP-only functions rule, coding conventions, and the exact build/run/test commands
 - [x] **Green baseline** — solution skeleton building successfully and committed once before heavy AI work — commit `cbf6684`, build clean (0 warnings, 0 errors), 1/1 test passing
 - [x] **Test project (xUnit)** — gives Claude a way to verify logic (also a good CV signal) — `tests/Portfolio.Tests`
-- [ ] **Small, frequent git commits** — easy review/rollback of AI changes — *no commits yet*
+- [x] **Small, frequent git commits** — easy review/rollback of AI changes — every change goes through a reviewed pull request, squash-merged
 
 ## 6. Optional (CV-relevant)
 
@@ -76,12 +79,15 @@
    `api_location: "src\Portfolio.Api"`. The runner is `ubuntu-latest`, so that path never
    resolves. Check the generated workflow for backslashes; `app_location` was fine, only the
    API line was wrong.
-3. **`func init` generates Application Insights telemetry that SWA cannot satisfy.** The
+3. **`func init` generates worker-level OpenTelemetry that broke the first deploy.** The
    template adds `UseAzureMonitorExporter()` to `Program.cs`, `"telemetryMode":
    "OpenTelemetry"` to `host.json`, and three OpenTelemetry packages. The exporter needs
-   `APPLICATIONINSIGHTS_CONNECTION_STRING`, which managed functions never provide — the worker
-   throws on startup and Azure reports only a generic "Failed to deploy the Azure Functions".
-   Strip all of it for a managed-functions API.
+   `APPLICATIONINSIGHTS_CONNECTION_STRING`, which was absent because Application Insights was not
+   yet enabled on the Static Web App — the worker threw on startup and Azure reported only a
+   generic "Failed to deploy the Azure Functions". Application Insights has since been enabled,
+   so the setting now exists, but the worker-level wiring stays out: the Functions host's own
+   integration already forwards the API's logs (see CLAUDE.md; whether request telemetry gets
+   through is #59). Strip it for a managed-functions API.
 
 ### Free-tier limits to stay under ($0)
 

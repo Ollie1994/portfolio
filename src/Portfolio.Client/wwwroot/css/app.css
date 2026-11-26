@@ -332,15 +332,6 @@ code {
     outline-color: var(--grey-190);
 }
 
-.blazor-error-boundary {
-    background: var(--ms-red);
-    padding: 1rem;
-    color: var(--white);
-    border-radius: var(--radius);
-}
-
-.blazor-error-boundary::after { content: "An error has occurred."; }
-
 /* Startup loading indicator, recoloured to the palette. */
 .loading-progress {
     position: relative;

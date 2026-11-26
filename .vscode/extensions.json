@@ -1,0 +1,9 @@
+{
+  // At the workspace root, where VS Code reads it. It used to sit in
+  // src/Portfolio.Api/.vscode, which VS Code ignores unless that folder is opened alone.
+  "recommendations": [
+    "ms-dotnettools.csdevkit",
+    "ms-azuretools.vscode-azurestaticwebapps",
+    "ms-azuretools.vscode-azurefunctions"
+  ]
+}

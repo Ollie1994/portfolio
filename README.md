@@ -37,7 +37,8 @@ construct with `new` in a test — no HTTP types, no Functions host, no Azure.
 
 Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0),
 [Azure Functions Core Tools v4](https://learn.microsoft.com/azure/azure-functions/functions-run-local),
-and the [SWA CLI](https://azure.github.io/static-web-apps-cli/).
+and the [SWA CLI](https://azure.github.io/static-web-apps-cli/). `swa start` needs **Node.js 18–22**:
+it refuses a newer Node when it starts the Functions host.
 
 ```bash
 dotnet build Portfolio.sln
@@ -58,10 +59,13 @@ swa start
 Then open <http://localhost:4280>. Calling the Functions host directly on `:7071` bypasses the
 Static Web Apps routing layer and won't reflect production.
 
-The Functions host needs a storage emulator: `local.settings.json` sets `AzureWebJobsStorage`
-to `UseDevelopmentStorage=true`, so install and start
-[Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite)
-(`npm install -g azurite`, then `azurite`) before running the API.
+No storage emulator is needed. `local.settings.json` points `AzureWebJobsStorage` at one
+(`UseDevelopmentStorage=true`), but the API's only trigger is HTTP, which uses no storage:
+`func start` serves `/api/contact` with no emulator running. With `--verbose`, the host's health
+check then reports `Unable to access AzureWebJobsStorage` every 25 seconds or so; that is
+harmless here, and requests are answered normally. A timer, queue or blob trigger would need
+[Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite), but the free
+tier supports none of those anyway.
 
 ## The contact endpoint
 
