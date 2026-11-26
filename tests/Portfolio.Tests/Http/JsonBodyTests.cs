@@ -65,6 +65,21 @@ public class JsonBodyTests
         Assert.Equal(JsonBodyStatus.TooLarge, result.Status);
     }
 
+    [Fact]
+    public async Task OversizedBody_IsNeverReadMoreThanOneBytePastTheLimit()
+    {
+        // One long string token, so the serializer keeps asking for whole buffers.
+        // Checking the total only after each read let one read pull 16 KB or more
+        // past the limit before the body was refused.
+        const int limit = 1024;
+        var body = new CountingStream(Utf8($$"""{"message":"{{new string('a', 200_000)}}"}"""));
+
+        var result = await ReadAsync(body, declaredLength: null, limit);
+
+        Assert.Equal(JsonBodyStatus.TooLarge, result.Status);
+        Assert.InRange(body.BytesRead, limit + 1, limit + 1);
+    }
+
     [Theory]
     [InlineData("{not json")]
     [InlineData("")]
@@ -93,10 +108,41 @@ public class JsonBodyTests
         const string body = """{"name":null,"email":null,"message":null,"website":null}""";
 
         var read = await ReadAsync(Utf8(body), ByteCount(body), limit: 1024);
-        var submitted = new ContactService(NullLogger<ContactService>.Instance).Submit(read.Value!);
+        Assert.Equal(JsonBodyStatus.Read, read.Status);
+        var request = Assert.IsType<ContactRequest>(read.Value);
+
+        var submitted = new ContactService(NullLogger<ContactService>.Instance).Submit(request);
 
         Assert.Equal(ContactOutcome.Invalid, submitted.Outcome);
         Assert.Equal(3, submitted.Validation.Errors.Count);
+    }
+
+    /// <summary>Counts the bytes actually taken from the underlying body.</summary>
+    private sealed class CountingStream(Stream inner) : Stream
+    {
+        public long BytesRead { get; private set; }
+
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+        public override long Length => throw new NotSupportedException();
+        public override long Position { get => BytesRead; set => throw new NotSupportedException(); }
+
+        public override int Read(byte[] buffer, int offset, int count) => Count(inner.Read(buffer, offset, count));
+
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) =>
+            Count(await inner.ReadAsync(buffer, cancellationToken));
+
+        private int Count(int bytesRead)
+        {
+            BytesRead += bytesRead;
+            return bytesRead;
+        }
+
+        public override void Flush() { }
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
     }
 
     /// <summary>Fails the test if anything reads from it.</summary>

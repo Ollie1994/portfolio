@@ -20,8 +20,8 @@ public enum JsonBodyStatus
 public sealed record JsonBodyResult<T>(JsonBodyStatus Status, T? Value) where T : class;
 
 /// <summary>
-/// Reads a JSON request body without ever buffering more than a fixed number of
-/// bytes. Takes a plain <see cref="Stream"/> rather than an HttpRequest, so it can be
+/// Reads a JSON request body without ever reading more than one byte past the
+/// limit. Takes a plain <see cref="Stream"/> rather than an HttpRequest, so it can be
 /// tested without the Functions host.
 /// </summary>
 public static class JsonBody
@@ -79,6 +79,11 @@ public static class JsonBody
     /// Read-only wrapper that throws once more than <paramref name="limit"/> bytes
     /// have been read, so deserialising a hostile body stops early rather than
     /// buffering it all.
+    ///
+    /// Each read is also cut down to what is still allowed, plus one byte to detect
+    /// the overrun. The serializer asks for a whole buffer at a time (16 KB, more as
+    /// it grows for a long string), so checking only after the read let a single
+    /// read go that far past the limit.
     /// </summary>
     private sealed class LimitedStream(Stream inner, long limit) : Stream
     {
@@ -96,13 +101,18 @@ public static class JsonBody
         }
 
         public override int Read(byte[] buffer, int offset, int count) =>
-            Track(inner.Read(buffer, offset, count));
+            Track(inner.Read(buffer, offset, Allowed(count)));
 
         public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) =>
-            Track(await inner.ReadAsync(buffer, cancellationToken));
+            Track(await inner.ReadAsync(buffer[..Allowed(buffer.Length)], cancellationToken));
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
-            Track(await inner.ReadAsync(buffer.AsMemory(offset, count), cancellationToken));
+            Track(await inner.ReadAsync(buffer.AsMemory(offset, Allowed(count)), cancellationToken));
+
+        // Never zero: _read cannot pass the limit without Track throwing, so at least
+        // one byte is always allowed, and a stream asked for zero would report the
+        // end of the body instead of its overrun.
+        private int Allowed(int requested) => (int)Math.Min(requested, limit - _read + 1);
 
         private int Track(int bytesRead)
         {

@@ -53,9 +53,10 @@ public sealed class ContactFunction
                 return new BadRequestObjectResult(new { message = "Request body was not valid JSON." });
         }
 
+        // Only the JSON literal null gets here: an empty body is Malformed above.
         if (body.Value is not { } request)
         {
-            return new BadRequestObjectResult(new { message = "Request body was empty." });
+            return new BadRequestObjectResult(new { message = "Request body must be a JSON object." });
         }
 
         var result = _contacts.Submit(request);
