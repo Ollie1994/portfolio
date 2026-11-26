@@ -117,8 +117,10 @@ jobs:
       # "Deployment Complete" says the upload finished, not that the site works. This
       # checks the environment just deployed - production on main, the preview on a pull
       # request - the way a visitor and a caller see it:
-      #   - pages, including a deep link, answer with the app, so the fallback in
-      #     staticwebapp.config.json is in effect (at the repo root it is silently ignored)
+      #   - pages, including a deep link, answer with the app, so the routes in
+      #     staticwebapp.config.json are in effect (at the repo root it is silently ignored)
+      #   - an unknown address answers 404, still with the app so it can say "Page not
+      #     found", rather than a 200 that search engines would index as a page
       #   - each has the Content-Security-Policy, so the config's headers are in effect too
       #   - each has a Last-Modified from this deploy, not the one it replaced
       #   - an API answers, with the validation the site expects: an invalid message gets
@@ -170,6 +172,12 @@ jobs:
                 return 1
               fi
             done
+
+            code=$(curl -s -m 30 -o "$body" -w '%{http_code}' "$SITE/no-such-page-deploy-check") || code=000
+            if [ "$code" != 404 ] || ! grep -q '<div id="app">' "$body"; then
+              echo "GET /no-such-page-deploy-check answered $code; expected 404 with the app."
+              return 1
+            fi
 
             code=$(curl -s -m 30 -o "$body" -w '%{http_code}' -X POST \
               -H 'Content-Type: application/json' \

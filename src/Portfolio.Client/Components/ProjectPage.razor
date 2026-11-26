@@ -11,6 +11,13 @@
 
 <PageTitle>@Project.Title — Oliwer Karlsson</PageTitle>
 
+@* The page's summary is its search result description. The canonical link is the
+   lower-case production address, whatever casing or host the page was opened at. *@
+<HeadContent>
+    <meta name="description" content="@Detail.Summary" />
+    <link rel="canonical" href="@(Site.Origin + Detail.Href)" />
+</HeadContent>
+
 <article class="project @Project.AccentClass">
     <header class="project-header">
         <div class="container">
