@@ -32,7 +32,7 @@ public class SubmissionTraceTests
         Assert.Equal(ContactOutcome.Accepted, result.Outcome);
         var trace = Assert.Single(logger.Messages, m => m.StartsWith(query.Prefix, StringComparison.Ordinal));
 
-        // What the query does: parse_json(substring(message, indexof(message, "{"))).
+        // What the query does, which Load has checked it still says.
         using var payload = JsonDocument.Parse(trace[trace.IndexOf('{', StringComparison.Ordinal)..]);
 
         // Both ways: the query reads every property the payload has, and nothing else.
@@ -74,26 +74,51 @@ public class SubmissionTraceTests
 
     private static void AssertNothingSentWasLogged(CapturingLogger logger, ContactRequest request)
     {
+        // The honeypot value too: it is the one field that path reads, and it comes from
+        // whoever is attacking the endpoint.
+        var sent = new[] { request.Name, request.Email, request.Message, request.Website }
+            .Where(value => !string.IsNullOrEmpty(value))
+            .Cast<string>()
+            .ToList();
+
         Assert.NotEmpty(logger.Messages);
-        Assert.All(logger.Messages, message =>
+        Assert.All(logger.Messages, message => Assert.All(sent, value =>
         {
-            Assert.DoesNotContain(request.Name, message, StringComparison.Ordinal);
-            Assert.DoesNotContain(request.Email, message, StringComparison.Ordinal);
-            Assert.DoesNotContain(request.Message, message, StringComparison.Ordinal);
-        });
+            Assert.DoesNotContain(value, message, StringComparison.Ordinal);
+
+            // And as JSON, the way Deliver logs it: the serializer escapes non-ASCII, so
+            // "Åsa" goes out as "Åsa", which the raw value would never match.
+            Assert.DoesNotContain(JsonSerializer.Serialize(value).Trim('"'), message, StringComparison.Ordinal);
+        }));
     }
 
     /// <summary>The prefix and property names the README's query uses.</summary>
     private sealed record ReadmeQuery(string Prefix, IReadOnlyList<string> Properties)
     {
+        /// <summary>The step the test repeats in C#, so the query must still use it.</summary>
+        private const string Extraction = "parse_json(substring(message, indexof(message, \"{\")))";
+
         public static ReadmeQuery Load()
         {
             // Linked into the test output from the repository root by the csproj.
             var readme = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README.md"));
 
-            var block = Regex.Match(readme, "```kusto\\n(?<query>.*?)```", RegexOptions.Singleline);
-            Assert.True(block.Success, "README.md has no ```kusto block: the submissions query moved or was removed.");
+            // The query under its own heading, up to the next heading, so another Kusto
+            // block elsewhere in the README is never taken for it. \r? in case an editor
+            // saved the file with Windows line endings.
+            var section = Regex.Match(
+                readme,
+                @"^### Reading submissions[ \t]*\r?$(?<section>.*?)(?=^#{1,3} |\z)",
+                RegexOptions.Singleline | RegexOptions.Multiline);
+            Assert.True(section.Success, "README.md has no \"### Reading submissions\" section.");
+
+            var block = Regex.Match(section.Groups["section"].Value, "```kusto[ \\t]*\\r?\\n(?<query>.*?)```", RegexOptions.Singleline);
+            Assert.True(block.Success, "\"Reading submissions\" in README.md has no ```kusto block: the query moved or was removed.");
             var query = block.Groups["query"].Value;
+
+            Assert.True(
+                query.Contains(Extraction, StringComparison.Ordinal),
+                $"The README query no longer extracts the payload with {Extraction}, which is the step this test repeats.");
 
             var prefix = Regex.Match(query, "startswith \"(?<prefix>[^\"]+)\"");
             Assert.True(prefix.Success, "The README query no longer filters with startswith \"...\".");
