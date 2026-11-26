@@ -7,8 +7,8 @@ var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
 
-// Stateless and cheap to construct; scoped keeps the ILogger category correct
-// per invocation without holding state between them.
+// Stateless, so any lifetime is safe. Scoped matches the function class that uses
+// it, which the worker creates once per invocation.
 builder.Services.AddScoped<ContactService>();
 
 builder.Build().Run();
