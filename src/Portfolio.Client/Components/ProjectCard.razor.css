@@ -1,4 +1,5 @@
 .card {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -15,13 +16,38 @@
     border-top: 3px solid var(--accent);
 }
 
-a.card:hover {
-    text-decoration: none;
-    color: var(--text);
+/* Hovering anywhere on the card hovers the title link, whose ::after covers it. */
+.card-has-link:hover {
     border-color: var(--grey-60);
     border-top-color: var(--accent);
     box-shadow: var(--shadow-md);
     transform: translateY(-2px);
+}
+
+.card-title-link,
+.card-title-link:hover {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Stretches the link over the whole card, so a click anywhere opens the project.
+   Positioning is from inside the card's border, so this reaches out over it (3px
+   accent on top, 1px elsewhere); otherwise the focus ring sits on the accent bar. */
+.card-title-link::after {
+    content: "";
+    position: absolute;
+    inset: -3px -1px -1px;
+    border-radius: var(--radius);
+}
+
+/* The focus ring goes round the card the link covers, not round the title text. */
+.card-title-link:focus-visible {
+    outline: none;
+}
+
+.card-title-link:focus-visible::after {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
 }
 
 .card-kicker {
@@ -55,7 +81,7 @@ a.card:hover {
 
 /* No summary to separate them: keep the pills with the title rather than leaving
    a gap in the middle of the card. */
-div.card .card-title + .card-tech {
+.card-title + .card-tech {
     margin-top: .25rem;
 }
 
@@ -67,7 +93,7 @@ div.card .card-title + .card-tech {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    a.card:hover {
+    .card-has-link:hover {
         transform: none;
     }
 }
