@@ -14,12 +14,25 @@
 <meta charset="utf-8">
 <title>Social card</title>
 <style>
+    /* The card is rendered on its own, so it cannot read app.css. These copy its values under
+       its names: change them together. The card is always light; dark mode does not apply. */
+    :root {
+        --ms-red: #F25022;
+        --ms-green: #7FBA00;
+        --ms-blue: #00A4EF;
+        --ms-yellow: #FFB900;
+        --white: #FFFFFF;
+        /* Darker than app.css's --text and --text-muted: a lossy re-encode greys out text. */
+        --card-text: #181716;
+        --card-text-muted: #3B3A39;
+    }
+
     html, body {
         margin: 0;
         width: 1200px;
         height: 630px;
         overflow: hidden;
-        background: #FFFFFF;
+        background: var(--white);
         font-family: 'Segoe UI', sans-serif;
     }
 
@@ -41,7 +54,7 @@
         font-size: 94px;
         font-weight: 700;
         line-height: 1;
-        color: #181716;
+        color: var(--card-text);
     }
 
     .role {
@@ -52,7 +65,7 @@
         font-size: 44px;
         font-weight: 400;
         line-height: 1;
-        color: #3B3A39;
+        color: var(--card-text-muted);
     }
 
     .projects {
@@ -66,7 +79,7 @@
         list-style: none;
         font-size: 36px;
         line-height: 1;
-        color: #181716;
+        color: var(--card-text);
     }
 
     .projects li {
@@ -95,11 +108,10 @@
 
     .bar span, .logo span { flex: 1; background: var(--c); }
 
-    /* The four Microsoft logo colours, as in app.css. */
-    .red { --c: #F25022; }
-    .green { --c: #7FBA00; }
-    .blue { --c: #00A4EF; }
-    .yellow { --c: #FFB900; }
+    .red { --c: var(--ms-red); }
+    .green { --c: var(--ms-green); }
+    .blue { --c: var(--ms-blue); }
+    .yellow { --c: var(--ms-yellow); }
 </style>
 </head>
 <body>
