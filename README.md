@@ -102,14 +102,19 @@ traces
 | project sent  = format_datetime(datetime_utc_to_local(timestamp, "Europe/Stockholm"), "yyyy-MM-dd HH:mm:ss"),
           name  = tostring(payload.Name),
           email = tostring(payload.Email),
-          body  = tostring(payload.Message)
+          body  = tostring(payload.Message),
+          timestamp
 ```
 
 `timestamp` is stored in UTC, which is one hour behind Swedish time in winter and two in summer.
 The query converts it rather than the API, so what is stored stays UTC. `sent` is text on
 purpose: the portal's display time zone setting converts date columns, and would shift an
-already converted date a second time. Sorting still uses the real `timestamp`. Telemetry takes a
-few minutes to appear, so set the time range wide enough.
+already converted date a second time. The real `timestamp` stays as the last column: the results
+are sorted by it, and it is the one to sort by in the portal, since sorting `sent` sorts text.
+It also tells apart the hour that happens twice when the clocks go back in October. Telemetry
+takes a few minutes to appear, so set the time range wide enough.
+
+## Constraints
 
 **Everything targets `net8.0`.** Static Web Apps managed functions don't support a
 `dotnet-isolated:10.0` runtime, and .NET 8 is the newest LTS they do. .NET 9 was considered and
