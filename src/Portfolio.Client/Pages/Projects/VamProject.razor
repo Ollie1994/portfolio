@@ -13,7 +13,7 @@
     </p>
 
     <p>
-        <strong>It's live as a soft launch.</strong> For now, visitors see a page about the
+        <strong>It's running as a soft launch.</strong> For now, visitors see a page about the
         project, and only I can see the map while I enter and test locations. It opens to
         everyone when the trucks are back for the season, because a map with two trucks on it
         helps nobody. Ten of the eleven planned stages are done.
@@ -59,17 +59,18 @@
     <h2>Fast and cheap however many people visit</h2>
 
     <p>
-        Visitors' browsers never talk to the database directly. While the map is open, it
-        checks for updates once a minute. Instead of asking the database each time, the
-        website keeps one up-to-date copy for a minute and gives that same copy to everyone.
-        In normal use that means the database is asked for fresh data about once a minute,
-        however many people have the map open.
+        Visitors' browsers never talk to the database directly. While the map is on screen,
+        it checks for updates once a minute. Instead of asking the database each time, the
+        website keeps a copy for up to a minute and hands it to everyone who asks in that
+        part of the world. In normal use that means the database is asked for fresh data
+        about once a minute for each region the site is served from, however many people
+        have the map open.
     </p>
 
     <p>
         The public can't look up where a truck has been in the past; only today's locations
-        are shown. The streets and place names under the pins come from the project's own
-        storage, not from an outside map service.
+        are shown. The map data itself, the streets and buildings under the pins, is a file
+        the project stores itself rather than one fetched from an outside map service.
     </p>
 
     <h2>Rules the database won't break</h2>
@@ -82,8 +83,9 @@
 
     <p>
         I also check that the tests actually work. More than sixty deliberate breakages each
-        switch off or weaken one of those safeguards, and a test must catch every one. For a
-        few, the check is instead that a different safeguard still stops the mistake.
+        switch off or weaken one of those safeguards, and for most of them a test must fail.
+        A few check something else instead: that a different safeguard still stops the
+        mistake, or that the tests refuse to run at all.
     </p>
 
     <h2>A locked-down admin</h2>
@@ -91,9 +93,9 @@
     <p>
         Only one person can change anything: me. Signing in takes a link sent by email and
         then a code from an authenticator app on my phone. I'm signed out automatically after
-        twelve hours. Every admin page repeats these checks itself instead of trusting the
-        page before it, and the admin pages get extra protection against harmful code an
-        attacker might try to slip into them.
+        twelve hours. Every admin page and every action that changes data repeats these
+        checks itself instead of trusting the step before it, and the admin pages get extra
+        protection against harmful code an attacker might try to slip into them.
     </p>
 
     <h2>How it's built</h2>
@@ -101,9 +103,9 @@
     <p>
         The code is split into parts that each have one job, and only one of them talks to
         the database. Every change must pass automatic checks before it's accepted. The tests
-        run, some of them against a real copy of the database. The whole site is put together
-        as a trial run. And scans look for known security problems, and for passwords or keys
-        saved into the code by mistake.
+        run, some of them against a real database running locally. The whole site is put
+        together as a trial run. And scans look for known security problems, and for
+        passwords or keys saved into the code by mistake.
     </p>
 
     <p>

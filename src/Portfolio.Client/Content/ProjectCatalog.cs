@@ -48,7 +48,7 @@ public static class ProjectCatalog
         CardTech: ["TypeScript", "Next.js", "Postgres", "MapLibre"],
         Detail: new(
             Slug: "vam",
-            Summary: "Built a phone-friendly map of where Gothenburg's food trucks are today. Every location is entered by hand and checked before it appears, instead of the automatic version first planned. All visitors see the same copy of the map, refreshed about once a minute, so it stays fast and cheap however many people use it.",
+            Summary: "Built a phone-friendly map of where Gothenburg's food trucks are today. Every location is entered by hand and checked before it appears, instead of the automatic version first planned. Visitors are served a shared copy of the map, refreshed about once a minute, so it stays fast and cheap however many people use it.",
             Tech: ["TypeScript", "Next.js 16", "React 19", "Supabase Postgres", "MapLibre GL JS", "Protomaps", "Tailwind CSS v4", "Vitest", "Vercel"],
             Links:
             [
