@@ -159,12 +159,19 @@ Enforced by the build rather than by convention:
 `main` requires a pull request with `Build and Test` passing. CI runs build, tests, a formatting
 check and a vulnerable-package scan. Every pull request gets its own preview environment.
 
-**A known vulnerability in a package the site references directly fails the build**, everywhere:
-CI, the deploy and local builds. The restore step checks every package against published
-advisories, and warnings are errors. So a vulnerable package is never deployed; merging
-Dependabot's security pull request unblocks it. Packages pulled in indirectly aren't part of that
-check on the .NET 8 SDK. The scan lists those as well, and a finding there shows as a warning on
-the CI run rather than failing it.
+**A known vulnerability in a package the site's projects reference directly fails the build**,
+everywhere: CI, the deploy and local builds. The restore step checks each of those packages against
+published advisories, and warnings are errors. So none of them is deployed while it has a known
+vulnerability; merging Dependabot's security pull request unblocks the build. If the advisory data
+can't be fetched, the build stops too rather than going ahead unchecked. When no fix is available
+yet, or the fix is a major version Dependabot is told to skip, a `NuGetAuditSuppress` entry for that
+one advisory in `Directory.Build.props`, with the reason and a date to look again, lets builds
+through.
+
+Two kinds of package are outside that check: packages pulled in indirectly, which the .NET 8 SDK
+doesn't audit on restore, and the extensions the Functions SDK generates a separate project for
+during the API build. The CI scan lists both, and a finding there shows as a warning on the run
+rather than failing it.
 
 After every deploy, to production or to a preview, the deploy workflow checks the site it just
 deployed rather than trusting the deploy step's success. It checks that a page and a deep link
