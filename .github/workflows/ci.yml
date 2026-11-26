@@ -43,8 +43,38 @@ jobs:
         # CI is where .editorconfig is actually enforced.
         run: dotnet format Portfolio.sln --verify-no-changes --verbosity minimal
 
-      - name: Check for vulnerable packages
-        # Advisory only - a new CVE should not break an unrelated PR, but it
-        # should be visible in the log.
-        continue-on-error: true
-        run: dotnet list Portfolio.sln package --vulnerable --include-transitive
+      # Two levels, on purpose (#78):
+      # - A package the solution's projects reference directly is checked during
+      #   restore, and an advisory against one fails every build: CI, the deploy's
+      #   test gate, Azure's build and local ones. TreatWarningsAsErrors turns NuGet's
+      #   NU1901-NU1904 into errors, and NU1900 too: if the advisory data cannot be
+      #   fetched, the build stops rather than going ahead unchecked. The way out is
+      #   normally merging Dependabot's security pull request. When none comes - no
+      #   fixed version yet, or the fix is a major version dependabot.yml ignores - a
+      #   NuGetAuditSuppress item for that one advisory URL in Directory.Build.props,
+      #   with the reason and a date to look again, lets builds through.
+      # - Not covered by that: indirect packages (NuGetAuditMode is "direct" on the
+      #   .NET 8 SDK), and the WorkerExtensions project the Functions SDK generates for
+      #   the host's extensions, which is outside the solution and exempt from
+      #   warnings-as-errors. This step lists both, after the build has generated it,
+      #   and turns a finding into a warning on the run. dotnet list exits 0 when it
+      #   finds something, so a finding used to sit in a green log; pipefail makes a
+      #   scan that fails to run fail the step instead of passing as a clean one.
+      - name: Check indirect and host extension packages for advisories
+        run: |
+          set -o pipefail
+          # Quiet and allowed to find nothing, so the message below says why the step failed.
+          extensions=$(find src/Portfolio.Api/obj/Release -name WorkerExtensions.csproj 2>/dev/null | head -n 1 || true)
+          if [ -z "$extensions" ]; then
+            echo "::error::No generated WorkerExtensions.csproj under src/Portfolio.Api/obj/Release, so the host's extensions cannot be checked."
+            exit 1
+          fi
+
+          {
+            dotnet list Portfolio.sln package --vulnerable --include-transitive
+            dotnet list "$extensions" package --vulnerable --include-transitive
+          } | tee vulnerable.txt
+
+          if grep -q 'has the following vulnerable packages' vulnerable.txt; then
+            echo "::warning title=Vulnerable package::A package this site or its Functions host depends on has a known advisory. See this step's log; the fix is usually Dependabot's security pull request, or a newer version of the package that brings it in."
+          fi
