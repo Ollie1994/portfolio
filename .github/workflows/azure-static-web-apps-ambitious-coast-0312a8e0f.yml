@@ -35,10 +35,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Test
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v6
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: "8.0.x"
 
@@ -82,14 +82,13 @@ jobs:
           if [ "$state" != "open" ]; then
             echo "::notice::Pull request $PR is $state, so no preview is deployed."
           fi
-      - uses: actions/checkout@v7
-        with:
-          submodules: true
-          lfs: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Pinned to a commit like every action here; see close-preview.yml for what
+      # that does and does not freeze for this one.
       - name: Build And Deploy
         id: builddeploy
         if: github.event_name == 'push' || steps.pr.outputs.state == 'open'
-        uses: Azure/static-web-apps-deploy@v1
+        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9 # v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMBITIOUS_COAST_0312A8E0F }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
