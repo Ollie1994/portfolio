@@ -7,6 +7,13 @@
     margin-bottom: 1.25rem;
 }
 
+/* Says once, for everyone, what aria-required tells screen readers on each field. */
+.form-note {
+    margin: 0 0 1rem;
+    font-size: .875rem;
+    color: var(--text-muted);
+}
+
 .field label {
     display: block;
     margin-bottom: .375rem;

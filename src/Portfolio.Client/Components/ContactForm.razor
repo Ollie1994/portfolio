@@ -18,9 +18,9 @@ else
        or focus handling, while an empty field did.
 
        aria-required rather than required on the fields: it tells a screen reader the
-       field is required before anything is submitted, and does nothing else. required
-       would bring back browser behaviour the form handles itself, such as Firefox's red
-       glow on a field it considers invalid. *@
+       field is required before anything is submitted, and changes nothing else about how
+       the browser treats the field. Everything else about validation is the form's own.
+       The visible note below says the same to everyone else. *@
     <form class="contact-form" novalidate @onsubmit="SubmitAsync" @onsubmit:preventDefault>
 
         @if (_failed)
@@ -29,6 +29,8 @@ else
                 Something went wrong sending that. Please try again in a moment.
             </p>
         }
+
+        <p class="form-note">All fields are required.</p>
 
         <div class="field">
             <label for="contact-name">Name</label>
