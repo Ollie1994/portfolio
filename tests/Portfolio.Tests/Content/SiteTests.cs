@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Portfolio.Client.Content;
@@ -5,14 +6,20 @@ using Portfolio.Client.Content;
 namespace Portfolio.Tests.Content;
 
 /// <summary>
-/// The production address is written out by hand in three static files that code cannot
-/// generate. These keep them on <see cref="Site.Origin"/>, so moving to a custom domain
-/// (#35) fails here until every copy has moved.
+/// The production address and the home page's description are written out by hand in
+/// files that code cannot generate. These keep them on <see cref="Site"/>, so moving to a
+/// custom domain (#35) fails here until every checked copy has moved.
 /// </summary>
 public class SiteTests
 {
     private static string Published(string file) =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, file));
+
+    private static string? MetaProperty(string property)
+    {
+        var tag = Regex.Match(Published("index.html"), $"<meta property=\"{Regex.Escape(property)}\" content=\"(?<value>[^\"]+)\"");
+        return tag.Success ? WebUtility.HtmlDecode(tag.Groups["value"].Value) : null;
+    }
 
     [Fact]
     public void Origin_IsAnHttpsAddressWithNoPathOrTrailingSlash()
@@ -28,10 +35,24 @@ public class SiteTests
     [InlineData("og:image")]
     public void SocialTags_PointAtTheOrigin(string property)
     {
-        var tag = Regex.Match(Published("index.html"), $"<meta property=\"{Regex.Escape(property)}\" content=\"(?<url>[^\"]+)\"");
+        var url = MetaProperty(property);
 
-        Assert.True(tag.Success, $"index.html has no {property}.");
-        Assert.StartsWith(Site.Origin + "/", tag.Groups["url"].Value, StringComparison.Ordinal);
+        Assert.True(url is not null, $"index.html has no {property}.");
+        Assert.StartsWith(Site.Origin + "/", url, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void LinkPreviewDescription_IsTheHomePageDescription()
+    {
+        // Two copies: link previews read og:description from index.html without running
+        // the app, and search engines read the one the home page sets from Site.
+        Assert.Equal(Site.Description, MetaProperty("og:description"));
+    }
+
+    [Fact]
+    public void Readme_LinksToTheOrigin()
+    {
+        Assert.Contains($"**Live:** {Site.Origin}", Published("README.md"), StringComparison.Ordinal);
     }
 
     [Fact]

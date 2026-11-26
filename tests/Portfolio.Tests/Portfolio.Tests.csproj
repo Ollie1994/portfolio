@@ -26,7 +26,7 @@
     <None Include="..\..\src\Portfolio.Client\wwwroot\staticwebapp.config.json" Link="staticwebapp.config.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\src\Portfolio.Client\wwwroot\index.html" Link="index.html" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\src\Portfolio.Client\wwwroot\robots.txt" Link="robots.txt" CopyToOutputDirectory="PreserveNewest" />
-    <!-- SubmissionTraceTests reads the submissions query from it. -->
+    <!-- SubmissionTraceTests reads the submissions query from it; SiteTests its Live link. -->
     <None Include="..\..\README.md" Link="README.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
